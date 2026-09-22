@@ -15,8 +15,17 @@ class ParticipantController extends ApiController
 {
     public function index(Request $request): JsonResponse
     {
-        $participants = User::where('role', UserRole::Participant)
-            ->latest()
+        $query = User::where('role', UserRole::Participant);
+
+        if ($search = $request->query('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('institution', 'like', "%{$search}%");
+            });
+        }
+
+        $participants = $query->latest()
             ->paginate((int) $request->query('per_page', 15));
 
         return $this->successResponse(

@@ -7,11 +7,23 @@ export const JudgeScoresPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    submissionService.getJudgeSubmissions().then(res => {
-      if (res.success && res.data) setSubmissions(res.data);
-      setLoading(false);
-    });
+    submissionService
+      .getJudgeSubmissions()
+      .then((res) => {
+        if (res?.success) {
+          const raw = res.data;
+          const items = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
+          setSubmissions(items);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setSubmissions([]);
+      })
+      .finally(() => setLoading(false));
   }, []);
+
+  const submissionList = Array.isArray(submissions) ? submissions : [];
 
   return (
     <div className="space-y-6">
@@ -25,9 +37,11 @@ export const JudgeScoresPage = () => {
           <div className="w-8 h-8 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-3"></div>
           <p className="text-sm text-gray-500">Memuat rekap nilai...</p>
         </div>
+      ) : submissionList.length === 0 ? (
+        <Card><div className="text-center py-12 text-gray-500">Belum ada rekap penilaian.</div></Card>
       ) : (
         <div className="space-y-4">
-          {submissions.map(s => (
+          {submissionList.map((s) => (
             <Card key={s.id}>
               <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>

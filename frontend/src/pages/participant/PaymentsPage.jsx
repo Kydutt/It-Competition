@@ -16,14 +16,17 @@ export const PaymentsPage = () => {
     try {
       setLoading(true);
       const res = await registrationService.getRegistrations();
-      if (res.success && res.data) {
-        setRegistrations(res.data);
+      if (res?.success) {
+        const raw = res.data;
+        const items = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
+        setRegistrations(items);
       }
     } catch (err) {
       setAlert({
         type: 'danger',
         message: err.response?.data?.message || 'Gagal memuat riwayat pembayaran.',
       });
+      setRegistrations([]);
     } finally {
       setLoading(false);
     }
@@ -80,7 +83,7 @@ export const PaymentsPage = () => {
           <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3" />
           <p className="text-sm text-gray-500">Memuat data pembayaran...</p>
         </div>
-      ) : registrations.length === 0 ? (
+      ) : (Array.isArray(registrations) ? registrations : []).length === 0 ? (
         <Card>
           <div className="text-center py-16 space-y-3">
             <span className="text-4xl">💳</span>
@@ -92,7 +95,7 @@ export const PaymentsPage = () => {
         </Card>
       ) : (
         <div className="space-y-4">
-          {registrations.map((reg) => {
+          {(Array.isArray(registrations) ? registrations : []).map((reg) => {
             const fee = Number(reg.competition?.registration_fee || 0);
             const isFree = fee === 0;
             const pay = reg.payment;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/common/Sidebar';
+import ErrorBoundary from '../components/common/ErrorBoundary';
 import useAuth from '../hooks/useAuth';
 import Badge from '../components/ui/Badge';
 
@@ -33,7 +34,9 @@ export const AdminLayout = () => {
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
           <div className="max-w-7xl mx-auto">
-            <Outlet />
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
           </div>
         </main>
       </div>

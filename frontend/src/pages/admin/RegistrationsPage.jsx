@@ -31,10 +31,17 @@ export const AdminRegistrationsPage = () => {
     try {
       const res = await api.get('/competitions');
       if (res.data?.success) {
-        setCompetitions(res.data.data || []);
+        const raw = res.data.data;
+        const items = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
+          : [];
+        setCompetitions(items);
       }
     } catch (err) {
       console.error('Failed to load competitions:', err);
+      setCompetitions([]);
     }
   };
 
@@ -52,17 +59,24 @@ export const AdminRegistrationsPage = () => {
 
       const res = await registrationService.getAdminRegistrations(params);
       if (res?.data) {
-        setRegistrations(res.data.data || res.data || []);
-        if (res.data.meta) {
+        const raw = res.data;
+        const regItems = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
+          : [];
+        setRegistrations(regItems);
+        if (raw?.meta) {
           setPagination({
-            current_page: res.data.meta.current_page || 1,
-            last_page: res.data.meta.last_page || 1,
-            total: res.data.meta.total || 0,
+            current_page: raw.meta.current_page || 1,
+            last_page: raw.meta.last_page || 1,
+            total: raw.meta.total || regItems.length,
           });
         }
       }
     } catch (err) {
       console.error('Failed to load admin registrations:', err);
+      setRegistrations([]);
     } finally {
       setLoading(false);
     }
@@ -198,7 +212,7 @@ export const AdminRegistrationsPage = () => {
                 className="w-full rounded-md border border-gray-300 px-3 py-1.5 bg-white text-xs"
               >
                 <option value="">Semua Cabang Lomba</option>
-                {competitions.map((c) => (
+                {(Array.isArray(competitions) ? competitions : []).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name || c.title}
                   </option>
@@ -380,7 +394,7 @@ export const AdminRegistrationsPage = () => {
                   </div>
                   <div className="space-y-1">
                     <span className="font-semibold text-gray-600 block">Anggota Tim:</span>
-                    {detailModal.reg.team.members?.map((m) => (
+                    {(Array.isArray(detailModal.reg?.team?.members) ? detailModal.reg.team.members : []).map((m) => (
                       <div key={m.id} className="flex justify-between items-center text-gray-600 pl-2">
                         <span>• {m.name} ({m.email})</span>
                         <Badge variant={m.role === 'leader' ? 'success' : 'default'}>{m.role}</Badge>
@@ -424,7 +438,7 @@ export const AdminRegistrationsPage = () => {
           <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
           <p className="text-sm text-gray-500">Memuat berkas pendaftaran...</p>
         </div>
-      ) : registrations.length === 0 ? (
+      ) : (Array.isArray(registrations) ? registrations : []).length === 0 ? (
         <Card>
           <div className="text-center py-14 text-gray-500 text-sm">
             Tidak ada data pendaftaran yang sesuai dengan filter pencarian.
@@ -445,7 +459,7 @@ export const AdminRegistrationsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {registrations.map((r) => {
+                {(Array.isArray(registrations) ? registrations : []).map((r) => {
                   const isSubmitted = r.status === 'submitted';
                   return (
                     <tr key={r.id} className="hover:bg-gray-50/60">

@@ -26,11 +26,18 @@ export const AdminSubmissionsPage = () => {
   const fetchCompetitions = async () => {
     try {
       const res = await competitionService.getAdminCompetitions({ per_page: 50 });
-      if (res.success && res.data) {
-        setCompetitions(res.data);
+      if (res?.success) {
+        const raw = res.data;
+        const items = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
+          : [];
+        setCompetitions(items);
       }
     } catch (err) {
       console.error(err);
+      setCompetitions([]);
     }
   };
 
@@ -46,13 +53,20 @@ export const AdminSubmissionsPage = () => {
       };
 
       const res = await submissionService.getAdminSubmissions(params);
-      if (res.success && res.data) {
-        setSubmissions(res.data);
-        if (res.meta) {
+      if (res?.success) {
+        const raw = res.data;
+        const subItems = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
+          : [];
+        setSubmissions(subItems);
+        const meta = raw?.meta || res.meta;
+        if (meta) {
           setPagination({
-            current_page: res.meta.current_page,
-            last_page: res.meta.last_page,
-            total: res.meta.total,
+            current_page: meta.current_page || 1,
+            last_page: meta.last_page || 1,
+            total: meta.total || subItems.length,
           });
         }
       }
@@ -61,6 +75,7 @@ export const AdminSubmissionsPage = () => {
         type: 'danger',
         message: err.response?.data?.message || 'Gagal memuat daftar karya masuk.',
       });
+      setSubmissions([]);
     } finally {
       setLoading(false);
     }
@@ -126,7 +141,7 @@ export const AdminSubmissionsPage = () => {
                 className="w-full text-xs rounded-lg border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:border-brand-500"
               >
                 <option value="">Semua Cabang Lomba</option>
-                {competitions.map((c) => (
+                {(Array.isArray(competitions) ? competitions : []).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name || c.title}
                   </option>
@@ -190,14 +205,14 @@ export const AdminSubmissionsPage = () => {
                     Memuat daftar karya...
                   </td>
                 </tr>
-              ) : submissions.length === 0 ? (
+              ) : (Array.isArray(submissions) ? submissions : []).length === 0 ? (
                 <tr>
                   <td colSpan="7" className="p-10 text-center text-gray-400">
                     Belum ada karya yang diunggah peserta.
                   </td>
                 </tr>
               ) : (
-                submissions.map((s) => {
+                (Array.isArray(submissions) ? submissions : []).map((s) => {
                   const reg = s.registration;
                   const comp = s.competition || reg?.competition;
                   const filesCount = s.files?.length || 0;

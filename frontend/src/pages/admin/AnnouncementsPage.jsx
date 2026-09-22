@@ -15,7 +15,18 @@ export const AdminAnnouncementsPage = () => {
   const fetchItems = async () => {
     try {
       const res = await api.get('/admin/announcements');
-      if (res.data?.success) setItems(res.data.data);
+      if (res.data?.success) {
+        const raw = res.data.data;
+        const announcementItems = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
+          : [];
+        setItems(announcementItems);
+      }
+    } catch (err) {
+      console.error(err);
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -90,7 +101,7 @@ export const AdminAnnouncementsPage = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {items.map(i => (
+          {(Array.isArray(items) ? items : []).map(i => (
             <Card key={i.id}>
               <CardHeader>
                 <span className="text-xs text-brand-600 font-semibold">{new Date(i.created_at).toLocaleDateString('id-ID')}</span>

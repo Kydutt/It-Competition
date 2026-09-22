@@ -32,11 +32,18 @@ export const AdminPaymentsPage = () => {
   const fetchCompetitions = async () => {
     try {
       const res = await competitionService.getAdminCompetitions({ per_page: 50 });
-      if (res.success && res.data) {
-        setCompetitions(res.data);
+      if (res?.success) {
+        const raw = res.data;
+        const items = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
+          : [];
+        setCompetitions(items);
       }
     } catch (err) {
       console.error(err);
+      setCompetitions([]);
     }
   };
 
@@ -52,13 +59,20 @@ export const AdminPaymentsPage = () => {
       };
 
       const res = await paymentService.getAdminPayments(params);
-      if (res.success && res.data) {
-        setPayments(res.data);
-        if (res.meta) {
+      if (res?.success) {
+        const raw = res.data;
+        const payItems = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
+          : [];
+        setPayments(payItems);
+        const meta = raw?.meta || res.meta;
+        if (meta) {
           setPagination({
-            current_page: res.meta.current_page,
-            last_page: res.meta.last_page,
-            total: res.meta.total,
+            current_page: meta.current_page || 1,
+            last_page: meta.last_page || 1,
+            total: meta.total || payItems.length,
           });
         }
       }
@@ -67,6 +81,7 @@ export const AdminPaymentsPage = () => {
         type: 'danger',
         message: err.response?.data?.message || 'Gagal memuat daftar pembayaran.',
       });
+      setPayments([]);
     } finally {
       setLoading(false);
     }
@@ -212,7 +227,7 @@ export const AdminPaymentsPage = () => {
                 className="w-full text-xs rounded-lg border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:border-brand-500"
               >
                 <option value="">Semua Cabang Lomba</option>
-                {competitions.map((c) => (
+                {(Array.isArray(competitions) ? competitions : []).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name || c.title}
                   </option>
@@ -262,14 +277,14 @@ export const AdminPaymentsPage = () => {
                     Memuat data pembayaran...
                   </td>
                 </tr>
-              ) : payments.length === 0 ? (
+              ) : (Array.isArray(payments) ? payments : []).length === 0 ? (
                 <tr>
                   <td colSpan="7" className="p-10 text-center text-gray-400">
                     Tidak ditemukan data pembayaran sesuai filter.
                   </td>
                 </tr>
               ) : (
-                payments.map((p) => {
+                (Array.isArray(payments) ? payments : []).map((p) => {
                   const reg = p.registration;
                   const comp = reg?.competition;
                   const canAct = ['submitted', 'under_review'].includes(p.status);

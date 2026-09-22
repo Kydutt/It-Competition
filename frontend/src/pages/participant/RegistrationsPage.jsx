@@ -23,43 +23,66 @@ export const RegistrationsPage = () => {
   const [newRegForm, setNewRegForm] = useState({ competition_id: '', team_id: '' });
   const [createSubmitting, setCreateSubmitting] = useState(false);
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    try {
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('id-ID', { dateStyle: 'medium' });
+    } catch {
+      return '-';
+    }
+  };
+
   const loadAllData = async () => {
     try {
       setLoading(true);
-      const [regRes, compRes, teamRes] = await Promise.all([
+      const [regResult, compResult, teamResult] = await Promise.allSettled([
         registrationService.getRegistrations(),
         api.get('/competitions'),
         registrationService.getTeams(),
       ]);
 
-      if (regRes?.data) {
-        const regItems = Array.isArray(regRes.data)
-          ? regRes.data
-          : Array.isArray(regRes.data?.data)
-          ? regRes.data.data
+      if (regResult.status === 'fulfilled' && regResult.value?.data) {
+        const raw = regResult.value.data;
+        const regItems = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
           : [];
         setRegistrations(regItems);
+      } else if (regResult.status === 'rejected') {
+        console.warn('Could not load registrations:', regResult.reason);
       }
 
-      if (compRes.data?.success) {
-        const compItems = Array.isArray(compRes.data.data?.data)
-          ? compRes.data.data.data
-          : Array.isArray(compRes.data.data)
-          ? compRes.data.data
+      if (compResult.status === 'fulfilled' && compResult.value?.data?.success) {
+        const raw = compResult.value.data.data;
+        const compItems = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
           : [];
         setCompetitions(compItems);
+      } else if (compResult.status === 'rejected') {
+        console.warn('Could not load competitions:', compResult.reason);
       }
 
-      if (teamRes?.data) {
-        const teamItems = Array.isArray(teamRes.data)
-          ? teamRes.data
-          : Array.isArray(teamRes.data?.data)
-          ? teamRes.data.data
+      if (teamResult.status === 'fulfilled' && teamResult.value?.data) {
+        const raw = teamResult.value.data;
+        const teamItems = Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw)
+          ? raw
           : [];
         setTeams(teamItems);
+      } else if (teamResult.status === 'rejected') {
+        console.warn('Could not load teams:', teamResult.reason);
       }
     } catch (err) {
       console.error('Failed to load registration data:', err);
+      setAlert({
+        type: 'danger',
+        message: 'Gagal memuat sebagian data. Silakan muat ulang halaman.',
+      });
     } finally {
       setLoading(false);
     }
@@ -184,6 +207,22 @@ export const RegistrationsPage = () => {
           </Button>
         </div>
       </div>
+
+      {user?.role === 'admin' && (
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div>
+            <span className="font-bold text-blue-900 block text-sm">Mode Administrator Terdeteksi</span>
+            <span className="text-blue-700">
+              Anda sedang membuka portal peserta. Untuk memverifikasi seluruh pendaftaran cabang lomba, silakan gunakan menu Admin.
+            </span>
+          </div>
+          <Link to="/admin/registrations">
+            <Button variant="primary" size="sm" className="font-bold whitespace-nowrap">
+              Buka Panel Admin &rarr;
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {alert && (
         <Alert variant={alert.type} onClose={() => setAlert(null)}>
@@ -323,10 +362,10 @@ export const RegistrationsPage = () => {
                   </div>
 
                   <div className="text-right text-xs text-gray-400">
-                    <div>Dibuat: {new Date(reg.created_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}</div>
+                    <div>Dibuat: {formatDate(reg.created_at)}</div>
                     {reg.submitted_at && (
                       <div className="text-brand-600 font-semibold">
-                        Disubmit: {new Date(reg.submitted_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}
+                        Disubmit: {formatDate(reg.submitted_at)}
                       </div>
                     )}
                   </div>
@@ -370,7 +409,7 @@ export const RegistrationsPage = () => {
                         <div>
                           <span className="font-bold text-gray-900">{reg.team.name}</span>
                           <div className="text-gray-500 text-[11px]">
-                            Kode: <span className="font-mono font-bold text-blue-700">{reg.team.code}</span> ({reg.team.members?.length || 1} anggota)
+                            Kode: <span className="font-mono font-bold text-blue-700">{reg.team.code}</span> ({Array.isArray(reg.team.members) ? reg.team.members.length : 1} anggota)
                           </div>
                         </div>
                       ) : (
@@ -381,20 +420,20 @@ export const RegistrationsPage = () => {
                     <div>
                       <span className="text-gray-400 block text-[11px]">Biaya Registrasi:</span>
                       <span className="font-bold text-gray-900 text-sm">
-                        {reg.competition?.registration_fee > 0
+                        {Number(reg.competition?.registration_fee || 0) > 0
                           ? `Rp ${Number(reg.competition.registration_fee).toLocaleString('id-ID')}`
                           : 'Gratis'}
                       </span>
                       {reg.reviewed_at && (
                         <div className="text-[11px] text-emerald-600 font-medium">
-                          Diverifikasi: {new Date(reg.reviewed_at).toLocaleDateString('id-ID')}
+                          Diverifikasi: {formatDate(reg.reviewed_at)}
                         </div>
                       )}
                     </div>
                   </div>
 
                   {/* TEAM MEMBERS SUMMARY IF TEAM-BASED */}
-                  {reg.team?.members && reg.team.members.length > 0 && (
+                  {Array.isArray(reg.team?.members) && reg.team.members.length > 0 && (
                     <div className="space-y-1.5 pt-1">
                       <span className="font-semibold text-gray-700 block">Anggota Tim Terdaftar:</span>
                       <div className="flex flex-wrap gap-2">
