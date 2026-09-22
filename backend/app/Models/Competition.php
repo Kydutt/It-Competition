@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\CompetitionCategory;
 use App\Enums\CompetitionStatus;
 use App\Enums\CompetitionTargetLevel;
+use App\Enums\CompetitionType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +23,7 @@ class Competition extends Model
         'name',
         'slug',
         'category',
+        'competition_type',
         'description',
         'theme',
         'target_level',
@@ -43,6 +45,7 @@ class Competition extends Model
     {
         return [
             'category' => CompetitionCategory::class,
+            'competition_type' => CompetitionType::class,
             'target_level' => CompetitionTargetLevel::class,
             'status' => CompetitionStatus::class,
             'registration_fee' => 'integer',
@@ -55,6 +58,16 @@ class Competition extends Model
             'submission_deadline' => 'datetime',
             'is_published' => 'boolean',
         ];
+    }
+
+    public function isTeamBased(): bool
+    {
+        return $this->competition_type === CompetitionType::Team;
+    }
+
+    public function isIndividual(): bool
+    {
+        return $this->competition_type === CompetitionType::Individual;
     }
 
     protected static function booted(): void

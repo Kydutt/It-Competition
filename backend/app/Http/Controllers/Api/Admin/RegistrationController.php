@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Enums\RegistrationStatus;
 use App\Http\Controllers\Api\ApiController;
-use App\Http\Requests\Admin\VerifyRegistrationRequest;
+use App\Http\Requests\Admin\RejectRegistrationRequest;
+use App\Http\Requests\Admin\RevisionRegistrationRequest;
 use App\Http\Resources\RegistrationResource;
 use App\Models\Registration;
 use App\Services\RegistrationService;
@@ -19,9 +19,15 @@ class RegistrationController extends ApiController
         protected RegistrationService $registrationService
     ) {}
 
+    /**
+     * Paginated list of registrations with search and filtering.
+     */
     public function index(Request $request): JsonResponse
     {
-        $registrations = $this->registrationService->getAdminPaginated((int) $request->query('per_page', 15));
+        $filters = $request->only(['competition_id', 'status', 'education_level', 'registration_date', 'search']);
+        $perPage = (int) $request->query('per_page', 15);
+
+        $registrations = $this->registrationService->getAdminPaginated($filters, $perPage);
 
         return $this->successResponse(
             RegistrationResource::collection($registrations)->response()->getData(true),
@@ -29,18 +35,63 @@ class RegistrationController extends ApiController
         );
     }
 
-    public function verify(VerifyRegistrationRequest $request, Registration $registration): JsonResponse
+    /**
+     * View single registration detail.
+     */
+    public function show(Registration $registration): JsonResponse
     {
-        $updated = $this->registrationService->verify(
+        $registration->load(['competition', 'team.leader', 'team.members.user', 'user', 'reviewer']);
+
+        return $this->successResponse(
+            new RegistrationResource($registration),
+            'Registration retrieved successfully'
+        );
+    }
+
+    /**
+     * Approve registration.
+     */
+    public function approve(Request $request, Registration $registration): JsonResponse
+    {
+        $approved = $this->registrationService->approveRegistration($registration, $request->user());
+
+        return $this->successResponse(
+            new RegistrationResource($approved),
+            'Pendaftaran berhasil disetujui'
+        );
+    }
+
+    /**
+     * Reject registration.
+     */
+    public function reject(RejectRegistrationRequest $request, Registration $registration): JsonResponse
+    {
+        $rejected = $this->registrationService->rejectRegistration(
             $registration,
-            $request->enum('status', RegistrationStatus::class),
-            $request->input('notes'),
-            $request->user()
+            $request->user(),
+            (string) $request->input('rejection_reason')
         );
 
         return $this->successResponse(
-            new RegistrationResource($updated),
-            'Registration status updated successfully'
+            new RegistrationResource($rejected),
+            'Pendaftaran berhasil ditolak'
+        );
+    }
+
+    /**
+     * Request revision for registration.
+     */
+    public function revision(RevisionRegistrationRequest $request, Registration $registration): JsonResponse
+    {
+        $revisioned = $this->registrationService->requestRevision(
+            $registration,
+            $request->user(),
+            (string) $request->input('revision_note')
+        );
+
+        return $this->successResponse(
+            new RegistrationResource($revisioned),
+            'Permintaan revisi berkas pendaftaran berhasil dikirim'
         );
     }
 }

@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Enums\CompetitionCategory;
 use App\Enums\CompetitionStatus;
 use App\Enums\CompetitionTargetLevel;
+use App\Enums\CompetitionType;
 use App\Models\Competition;
 use App\Models\JudgingCriteria;
 use Illuminate\Database\Seeder;
@@ -19,6 +20,7 @@ class CompetitionSeeder extends Seeder
             [
                 'name' => 'UI/UX Competition',
                 'slug' => 'ui-ux-competition',
+                'competition_type' => CompetitionType::Team,
                 'category' => CompetitionCategory::UiUx,
                 'target_level' => CompetitionTargetLevel::University,
                 'theme' => 'Inovasi Desain Solusi Digital untuk Kemajuan Ciayumajakuning',
@@ -44,6 +46,7 @@ class CompetitionSeeder extends Seeder
             [
                 'name' => 'Web Development Competition',
                 'slug' => 'web-development-competition',
+                'competition_type' => CompetitionType::Team,
                 'category' => CompetitionCategory::WebDevelopment,
                 'target_level' => CompetitionTargetLevel::University,
                 'theme' => 'Akselerasi Transformasi Digital UMKM Lokal Berbasis Web Modern',
@@ -69,6 +72,7 @@ class CompetitionSeeder extends Seeder
             [
                 'name' => 'LKTI (Lomba Karya Tulis Ilmiah)',
                 'slug' => 'lkti-competition',
+                'competition_type' => CompetitionType::Team,
                 'category' => CompetitionCategory::Lkti,
                 'target_level' => CompetitionTargetLevel::HighSchool,
                 'theme' => 'Peran Generasi Muda dalam Penerapan Green & Smart Technology',
@@ -94,6 +98,7 @@ class CompetitionSeeder extends Seeder
             [
                 'name' => 'Poster Competition',
                 'slug' => 'poster-competition',
+                'competition_type' => CompetitionType::Individual,
                 'category' => CompetitionCategory::Poster,
                 'target_level' => CompetitionTargetLevel::HighSchool,
                 'theme' => 'Edukasi Keamanan Data Pribadi dan Etika Berselancar di Dunia Siber',
@@ -118,6 +123,7 @@ class CompetitionSeeder extends Seeder
             [
                 'name' => 'AI Prompt Engineering Challenge (Draft)',
                 'slug' => 'ai-prompt-challenge',
+                'competition_type' => CompetitionType::Team,
                 'category' => CompetitionCategory::WebDevelopment,
                 'target_level' => CompetitionTargetLevel::University,
                 'theme' => 'Eksplorasi Rekayasa Prompt Cerdas untuk Produktivitas',

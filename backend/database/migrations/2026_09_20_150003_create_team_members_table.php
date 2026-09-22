@@ -14,15 +14,13 @@ return new class extends Migration
         Schema::create('team_members', function (Blueprint $table) {
             $table->id();
             $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
-            $table->string('name');
-            $table->string('email');
-            $table->string('phone')->nullable();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('role')->default(TeamMemberRole::Member->value);
-            $table->string('student_card_url')->nullable();
+            $table->timestamp('joined_at')->useCurrent();
             $table->timestamps();
 
-            $table->index(['team_id', 'email']);
+            $table->unique(['team_id', 'user_id']);
+            $table->index(['team_id', 'role']);
         });
     }
 

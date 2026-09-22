@@ -16,18 +16,26 @@ class TeamMember extends Model
     protected $fillable = [
         'team_id',
         'user_id',
-        'name',
-        'email',
-        'phone',
         'role',
-        'student_card_url',
+        'joined_at',
     ];
 
     protected function casts(): array
     {
         return [
             'role' => TeamMemberRole::class,
+            'joined_at' => 'datetime',
         ];
+    }
+
+    public function isLeader(): bool
+    {
+        return $this->role === TeamMemberRole::Leader;
+    }
+
+    public function isMember(): bool
+    {
+        return $this->role === TeamMemberRole::Member;
     }
 
     public function team(): BelongsTo

@@ -275,3 +275,54 @@ Status kompetisi dikontrol secara ketat menggunakan enum `CompetitionStatus` den
 * **Role Enforcement:** Seluruh endpoint `/api/v1/admin/competitions/*` dilindungi middleware `auth:sanctum` dan `role:admin`.
 * **Safe Deletion vs Archiving:** Kompetisi yang telah memiliki relasi tim, pendaftaran, atau submisi dilarang dihapus secara permanen (*hard delete*) dan diarahkan untuk menggunakan status `ARCHIVED`.
 * **SQL Injection Prevention:** Pengurutan (*sorting*) dibatasi pada daftar *whitelist* kolom yang diizinkan (`created_at`, `name`, `registration_fee`, dll.).
+
+---
+
+## 8. Participant Registration & Team Management Architecture (Phase 3)
+
+### 8.1 Team Concurrency & Capacity Protection
+* **Pessimistic Concurrency Locking:** Bergabung ke tim dengan kode undangan (`/api/v1/participant/teams/join`) menggunakan `Team::where('code', $code)->lockForUpdate()->first()` di dalam database transaction untuk mencegah *race condition* atau kelebihan kuota anggota saat banyak peserta bergabung bersamaan.
+* **Non-Sequential Invite Codes:** Setiap tim baru di-*generate* secara acak dengan format `HITC-XXXXX` (huruf kapital & angka non-ambigu) dengan pemeriksaan keunikan otomatis.
+
+### 8.2 Registration Lifecycle & State Machine
+Status pendaftaran diatur secara ketat melalui enum `RegistrationStatus`:
+```text
+           +---------+
+           |  DRAFT  | ─── (Batalkan) ───> CANCELLED
+           +----+----+
+                |
+                | (Submit Pendaftaran)
+                v
+          +-----------+
+          | SUBMITTED | ─── (Batalkan) ───> CANCELLED
+          +-----+-----+
+                |
+          +-----┴----------------------+
+          |                            |
+          v (Admin Review)             v (Admin Review)
+     +----------+             +-------------------+
+     | APPROVED |             | REVISION_REQUIRED |
+     +----------+             +---------+---------+
+          ^                             |
+          |                             | (Peserta submit ulang)
+          +─────────────────────────────+
+          |
+          v (Admin Reject)
+     +----------+
+     | REJECTED |
+     +----------+
+```
+
+### 8.3 Team Membership Locking
+Ketika pendaftaran tim mencapai status `submitted`, `under_review`, atau `approved`, tim berada dalam status terkunci (`team.isLocked() = true`). Pada kondisi ini:
+* Anggota baru dilarang bergabung.
+* Anggota tidak dapat meninggalkan tim atau dikeluarkan oleh ketua tim.
+* Kepemimpinan tim tidak dapat dialihkan.
+* Tim tidak dapat dibubarkan.
+
+### 8.4 Educational Eligibility Enforcement
+Tingkat pendidikan peserta diverifikasi secara otomatis terhadap `competition.target_level`:
+* `university`: Hanya dapat diikuti oleh peserta dengan jenjang `university` (Mahasiswa).
+* `high_school`: Hanya dapat diikuti oleh peserta dengan jenjang `high_school` (SMA/SMK/Sederajat).
+* Pada kompetisi beregu, seluruh anggota tim diperiksa kelayakan jenjangnya sebelum registrasi dapat disubmit.
+

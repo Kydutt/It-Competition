@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('leader_id')->constrained('users')->cascadeOnDelete();
             $table->string('name');
             $table->string('code', 20)->unique();
-            $table->string('institution');
-            $table->string('status')->default('ACTIVE');
+            $table->string('institution')->nullable();
             $table->timestamps();
 
-            $table->index(['competition_id', 'name']);
+            $table->unique(['competition_id', 'name']);
+            $table->index(['competition_id', 'leader_id']);
         });
     }
 

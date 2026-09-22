@@ -68,6 +68,7 @@ Cabang lomba yang diselenggarakan dengan manajemen lifecycle terstruktur.
 | `id` | BIGINT UNSIGNED | No | Primary Key |
 | `name` | VARCHAR(255) | No | Nama lomba (UI/UX, Web Dev, LKTI, Poster) |
 | `slug` | VARCHAR(255) | No | URL-friendly slug unik (Unique Index) |
+| `competition_type` | VARCHAR(50) | No | Format lomba: `team`, `individual` (default: `team`) |
 | `category` | VARCHAR(50) | No | Kategori lomba: `ui_ux`, `web_development`, `lkti`, `poster` (Index) |
 | `description` | TEXT | No | Deskripsi lengkap kompetisi |
 | `theme` | VARCHAR(255) | Yes | Tema perlombaan |
@@ -87,46 +88,53 @@ Cabang lomba yang diselenggarakan dengan manajemen lifecycle terstruktur.
 | `created_at` / `updated_at` | TIMESTAMP | Yes | Timestamps bawaan Eloquent |
 
 ### 3. `teams`
-Tim peserta yang mengikuti kompetisi.
+Tim peserta yang mengikuti kompetisi beregu.
 
 | Column | Type | Nullable | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | BIGINT UNSIGNED | No | Primary Key |
 | `competition_id` | BIGINT UNSIGNED | No | FK -> `competitions.id` (Cascade On Delete) |
 | `leader_id` | BIGINT UNSIGNED | No | FK -> `users.id` (Cascade On Delete) |
-| `name` | VARCHAR(255) | No | Nama tim |
-| `code` | VARCHAR(20) | No | Kode unik tim (Unique Index) |
+| `name` | VARCHAR(255) | No | Nama tim (Unique per competition) |
+| `code` | VARCHAR(20) | No | Kode unik undangan tim e.g. `HITC-XXXXX` (Unique Index) |
 | `institution` | VARCHAR(255) | No | Nama instansi perwakilan tim |
-| `status` | VARCHAR(50) | No | Status tim (default: `ACTIVE`) |
+| `created_at` / `updated_at` | TIMESTAMP | Yes | Timestamps bawaan Eloquent |
+
+*Unique constraint:* `['competition_id', 'name']`, `['code']`.
 
 ### 4. `team_members`
-Anggota tim selain ketua.
+Daftar seluruh anggota di dalam tim (termasuk ketua tim).
 
 | Column | Type | Nullable | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | BIGINT UNSIGNED | No | Primary Key |
 | `team_id` | BIGINT UNSIGNED | No | FK -> `teams.id` (Cascade On Delete) |
-| `user_id` | BIGINT UNSIGNED | Yes | FK -> `users.id` (jika punya akun) |
-| `name` | VARCHAR(255) | No | Nama anggota |
-| `email` | VARCHAR(255) | Yes | Email anggota |
-| `phone` | VARCHAR(20) | Yes | Nomor WhatsApp anggota |
-| `role` | VARCHAR(50) | No | Peran dalam tim (`LEADER` / `MEMBER`) |
-| `status` | VARCHAR(50) | No | Status keanggotaan (default: `INVITED`) |
+| `user_id` | BIGINT UNSIGNED | No | FK -> `users.id` (Cascade On Delete) |
+| `role` | VARCHAR(50) | No | Peran dalam tim: `leader`, `member` |
+| `joined_at` | TIMESTAMP | Yes | Waktu bergabung ke tim |
+| `created_at` / `updated_at` | TIMESTAMP | Yes | Timestamps bawaan Eloquent |
+
+*Unique constraint:* `['team_id', 'user_id']`.
 
 ### 5. `registrations`
-Pendaftaran resmi tim ke dalam cabang kompetisi.
+Pendaftaran resmi peserta/tim ke dalam cabang kompetisi.
 
 | Column | Type | Nullable | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | BIGINT UNSIGNED | No | Primary Key |
-| `registration_number`| VARCHAR(40) | No | Nomor registrasi unik (Index) |
+| `registration_number`| VARCHAR(40) | No | Nomor registrasi unik terformat e.g. `ITC-2026-XXXXX` (Unique Index) |
 | `competition_id` | BIGINT UNSIGNED | No | FK -> `competitions.id` |
-| `team_id` | BIGINT UNSIGNED | No | FK -> `teams.id` |
-| `user_id` | BIGINT UNSIGNED | No | FK -> `users.id` (Pendaftar) |
-| `status` | VARCHAR(50) | No | Status pendaftaran (RegistrationStatus Enum) |
-| `notes` | TEXT | Yes | Catatan panitia verifikator |
-| `verified_at` | TIMESTAMP | Yes | Waktu verifikasi administrasi |
-| `verified_by` | BIGINT UNSIGNED | Yes | FK -> `users.id` (Admin pemverifikasi) |
+| `team_id` | BIGINT UNSIGNED | Yes | FK -> `teams.id` (NULL untuk lomba individu) |
+| `user_id` | BIGINT UNSIGNED | No | FK -> `users.id` (Pendaftar / Ketua Tim) |
+| `status` | VARCHAR(50) | No | Status pendaftaran: `draft`, `submitted`, `under_review`, `revision_required`, `approved`, `rejected`, `cancelled` |
+| `submitted_at` | TIMESTAMP | Yes | Waktu submit pendaftaran |
+| `reviewed_at` | TIMESTAMP | Yes | Waktu verifikasi oleh panitia |
+| `reviewed_by` | BIGINT UNSIGNED | Yes | FK -> `users.id` (Admin verifikator) |
+| `revision_note` | TEXT | Yes | Catatan perbaikan dari panitia saat status `revision_required` |
+| `rejection_reason` | TEXT | Yes | Alasan penolakan dari panitia saat status `rejected` |
+| `created_at` / `updated_at` | TIMESTAMP | Yes | Timestamps bawaan Eloquent |
+
+*Unique constraint:* `['competition_id', 'user_id']`, `['registration_number']`.
 
 ### 6. `payments`
 Pencatatan bukti pembayaran biaya registrasi lomba.

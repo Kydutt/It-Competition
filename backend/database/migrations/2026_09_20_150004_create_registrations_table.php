@@ -15,15 +15,19 @@ return new class extends Migration
             $table->id();
             $table->string('registration_number', 40)->unique();
             $table->foreignId('competition_id')->constrained('competitions')->cascadeOnDelete();
-            $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
+            $table->foreignId('team_id')->nullable()->constrained('teams')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('status')->default(RegistrationStatus::Draft->value)->index();
-            $table->text('notes')->nullable();
-            $table->timestamp('verified_at')->nullable();
-            $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('submitted_at')->nullable();
+            $table->timestamp('reviewed_at')->nullable();
+            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->text('revision_note')->nullable();
+            $table->text('rejection_reason')->nullable();
             $table->timestamps();
 
+            $table->unique(['competition_id', 'user_id']);
             $table->index(['competition_id', 'team_id']);
+            $table->index(['status', 'created_at']);
         });
     }
 

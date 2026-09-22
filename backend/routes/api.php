@@ -59,9 +59,18 @@ Route::prefix('v1')->group(function () {
 
         Route::get('teams', [Participant\TeamController::class, 'index']);
         Route::post('teams', [Participant\TeamController::class, 'store']);
+        Route::post('teams/join', [Participant\TeamController::class, 'join']);
+        Route::get('teams/{team}', [Participant\TeamController::class, 'show']);
+        Route::post('teams/{team}/leave', [Participant\TeamController::class, 'leave']);
+        Route::delete('teams/{team}/members/{user}', [Participant\TeamController::class, 'removeMember']);
+        Route::post('teams/{team}/transfer-leadership', [Participant\TeamController::class, 'transferLeadership']);
+        Route::delete('teams/{team}', [Participant\TeamController::class, 'destroy']);
 
         Route::get('registrations', [Participant\RegistrationController::class, 'index']);
         Route::post('registrations', [Participant\RegistrationController::class, 'store']);
+        Route::get('registrations/{id}', [Participant\RegistrationController::class, 'show']);
+        Route::post('registrations/{registration}/submit', [Participant\RegistrationController::class, 'submit']);
+        Route::post('registrations/{registration}/cancel', [Participant\RegistrationController::class, 'cancel']);
 
         Route::get('payments', [Participant\PaymentController::class, 'index']);
         Route::post('payments', [Participant\PaymentController::class, 'store']);
@@ -85,7 +94,10 @@ Route::prefix('v1')->group(function () {
         Route::get('participants/{participant}', [Admin\ParticipantController::class, 'show']);
 
         Route::get('registrations', [Admin\RegistrationController::class, 'index']);
-        Route::put('registrations/{registration}/verify', [Admin\RegistrationController::class, 'verify']);
+        Route::get('registrations/{registration}', [Admin\RegistrationController::class, 'show']);
+        Route::post('registrations/{registration}/approve', [Admin\RegistrationController::class, 'approve']);
+        Route::post('registrations/{registration}/reject', [Admin\RegistrationController::class, 'reject']);
+        Route::post('registrations/{registration}/revision', [Admin\RegistrationController::class, 'revision']);
 
         Route::get('payments', [Admin\PaymentController::class, 'index']);
         Route::put('payments/{payment}/verify', [Admin\PaymentController::class, 'verify']);

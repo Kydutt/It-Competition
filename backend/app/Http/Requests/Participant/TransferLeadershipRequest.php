@@ -6,7 +6,7 @@ namespace App\Http\Requests\Participant;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateTeamRequest extends FormRequest
+class TransferLeadershipRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -19,9 +19,7 @@ class CreateTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'competition_id' => ['required', 'integer', 'exists:competitions,id'],
-            'name' => ['required', 'string', 'min:3', 'max:255'],
-            'institution' => ['required', 'string', 'max:255'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
         ];
     }
 }

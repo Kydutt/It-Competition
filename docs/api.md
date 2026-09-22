@@ -195,15 +195,27 @@ Mengambil rincian spesifik satu kompetisi aktif beserta rubrik kriteria penilaia
 
 ## 3. Participant Protected Endpoints (`role:participant`)
 
-### Profil & Tim
-* `GET /participant/profile`: Mengambil data profil peserta.
-* `PUT /participant/profile`: Memperbarui kontak dan instansi.
-* `GET /participant/teams`: Menampilkan daftar tim yang diketuai atau diikuti.
-* `POST /participant/teams`: Membentuk tim baru untuk cabang lomba tertentu.
+### Tim Peserta (Team Management)
+* `GET /participant/teams`: Menampilkan seluruh tim yang diketuai atau diikuti oleh pengguna.
+* `POST /participant/teams`: Membentuk tim baru (hanya untuk lomba beregu/team-based).
+  - Body: `{"competition_id": 1, "name": "Syntax Squad", "institution": "Universitas..."}`
+* `POST /participant/teams/join`: Bergabung ke dalam tim menggunakan kode unik undangan.
+  - Body: `{"code": "HITC-WEB01"}`
+* `GET /participant/teams/{team}`: Menampilkan detail tim dan anggota tim (hanya untuk anggota tim atau admin).
+* `POST /participant/teams/{team}/leave`: Anggota keluar dari tim (tidak dapat dilakukan jika pendaftaran terkunci atau oleh ketua).
+* `DELETE /participant/teams/{team}/members/{user}`: Ketua tim mengeluarkan anggota tim (sebelum registrasi disubmit/disetujui).
+* `POST /participant/teams/{team}/transfer-leadership`: Ketua mengalihkan kepemimpinan kepada anggota aktif lain.
+  - Body: `{"user_id": 2}`
+* `DELETE /participant/teams/{team}`: Ketua membubarkan tim (sebelum disubmit/disetujui).
 
-### Pendaftaran
-* `GET /participant/registrations`: Menampilkan daftar registrasi tim.
-* `POST /participant/registrations`: Mengirim formulir pendaftaran lomba.
+### Pendaftaran Lomba (Registration Lifecycle)
+* `GET /participant/registrations`: Menampilkan daftar pendaftaran lomba peserta/tim.
+* `POST /participant/registrations`: Membuat draf pendaftaran awal (`draft`).
+  - Body (Tim): `{"competition_id": 1, "team_id": 3}`
+  - Body (Individu): `{"competition_id": 4}`
+* `GET /participant/registrations/{id}`: Menampilkan detail pendaftaran tertentu.
+* `POST /participant/registrations/{registration}/submit`: Finalisasi dan submit pendaftaran untuk diverifikasi panitia (`submitted`). Memvalidasi batas min/max anggota tim dan kelayakan jenjang pendidikan seluruh anggota.
+* `POST /participant/registrations/{registration}/cancel`: Membatalkan pendaftaran yang masih berstatus `draft` atau `submitted`.
 
 ### Pembayaran
 * `GET /participant/payments`: Menampilkan riwayat pembayaran.
@@ -216,6 +228,15 @@ Mengambil rincian spesifik satu kompetisi aktif beserta rubrik kriteria penilaia
 ---
 
 ## 4. Admin Protected Endpoints (`role:admin`)
+
+### Verifikasi Pendaftaran (Registration Verification)
+* `GET /admin/registrations`: Daftar pendaftaran terpaginasi dengan filter `competition_id`, `status`, `education_level`, `registration_date`, dan pencarian `search`.
+* `GET /admin/registrations/{registration}`: Detail berkas pendaftaran peserta.
+* `POST /admin/registrations/{registration}/approve`: Menyetujui pendaftaran (`approved`).
+* `POST /admin/registrations/{registration}/reject`: Menolak pendaftaran (`rejected`).
+  - Body: `{"rejection_reason": "Alasan penolakan berkas..."}`
+* `POST /admin/registrations/{registration}/revision`: Meminta perbaikan berkas kepada peserta (`revision_required`).
+  - Body: `{"revision_note": "Catatan revisi yang perlu diperbaiki..."}`
 
 ### Manajemen Kompetisi (Lifecycle & Master Data)
 * `GET /admin/competitions`: Daftar seluruh kompetisi (termasuk draft & unpublish), filter status, jenjang, kategori, pencarian, dan paginasi.

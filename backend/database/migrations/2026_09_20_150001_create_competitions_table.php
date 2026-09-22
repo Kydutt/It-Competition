@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique()->index();
             $table->string('category')->index();
+            $table->string('competition_type')->default('team')->index();
             $table->text('description');
             $table->string('theme')->nullable();
             $table->string('target_level')->index();

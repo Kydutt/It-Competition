@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum TeamMemberRole: string
+enum CompetitionType: string
 {
-    case Leader = 'leader';
-    case Member = 'member';
+    case Team = 'team';
+    case Individual = 'individual';
 
     public function label(): string
     {
         return match ($this) {
-            self::Leader => 'Ketua Tim',
-            self::Member => 'Anggota Tim',
+            self::Team => 'Beregu (Tim)',
+            self::Individual => 'Individu (Perorangan)',
         };
     }
 
