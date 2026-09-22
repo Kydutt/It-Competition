@@ -28,9 +28,32 @@ export const MyCompetitionsPage = () => {
         registrationService.getTeams(),
       ]);
 
-      if (compRes.data?.success) setCompetitions(compRes.data.data || []);
-      if (regRes?.data) setRegistrations(regRes.data || []);
-      if (teamRes?.data) setTeams(teamRes.data || []);
+      if (compRes.data?.success) {
+        const compItems = Array.isArray(compRes.data.data?.data)
+          ? compRes.data.data.data
+          : Array.isArray(compRes.data.data)
+          ? compRes.data.data
+          : [];
+        setCompetitions(compItems);
+      }
+
+      if (regRes?.data) {
+        const regItems = Array.isArray(regRes.data)
+          ? regRes.data
+          : Array.isArray(regRes.data?.data)
+          ? regRes.data.data
+          : [];
+        setRegistrations(regItems);
+      }
+
+      if (teamRes?.data) {
+        const teamItems = Array.isArray(teamRes.data)
+          ? teamRes.data
+          : Array.isArray(teamRes.data?.data)
+          ? teamRes.data.data
+          : [];
+        setTeams(teamItems);
+      }
     } catch (err) {
       console.error('Failed to load competition data:', err);
     } finally {
@@ -107,7 +130,7 @@ export const MyCompetitionsPage = () => {
           <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
           <p className="text-sm text-gray-500">Memuat katalog cabang kompetisi...</p>
         </div>
-      ) : competitions.length === 0 ? (
+      ) : (Array.isArray(competitions) ? competitions : []).length === 0 ? (
         <Card>
           <div className="text-center py-12 text-gray-500">
             Belum ada cabang lomba yang dibuka saat ini.
@@ -115,12 +138,14 @@ export const MyCompetitionsPage = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {competitions.map((comp) => {
+          {(Array.isArray(competitions) ? competitions : []).map((comp) => {
             const eligible = isEligible(comp.target_level);
-            const userReg = registrations.find(
+            const regList = Array.isArray(registrations) ? registrations : [];
+            const teamList = Array.isArray(teams) ? teams : [];
+            const userReg = regList.find(
               (r) => r.competition_id === comp.id && r.status !== 'cancelled'
             );
-            const userTeam = teams.find((t) => t.competition_id === comp.id);
+            const userTeam = teamList.find((t) => t.competition_id === comp.id);
             const isTeam = comp.competition_type === 'team';
 
             return (

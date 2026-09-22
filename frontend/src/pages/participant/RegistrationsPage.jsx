@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import api from '../../services/api';
 import registrationService from '../../services/registrationService';
@@ -10,6 +10,7 @@ import Alert from '../../components/ui/Alert';
 
 export const RegistrationsPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
   const [competitions, setCompetitions] = useState([]);
   const [teams, setTeams] = useState([]);
@@ -31,9 +32,32 @@ export const RegistrationsPage = () => {
         registrationService.getTeams(),
       ]);
 
-      if (regRes?.data) setRegistrations(regRes.data || []);
-      if (compRes.data?.success) setCompetitions(compRes.data.data || []);
-      if (teamRes?.data) setTeams(teamRes.data || []);
+      if (regRes?.data) {
+        const regItems = Array.isArray(regRes.data)
+          ? regRes.data
+          : Array.isArray(regRes.data?.data)
+          ? regRes.data.data
+          : [];
+        setRegistrations(regItems);
+      }
+
+      if (compRes.data?.success) {
+        const compItems = Array.isArray(compRes.data.data?.data)
+          ? compRes.data.data.data
+          : Array.isArray(compRes.data.data)
+          ? compRes.data.data
+          : [];
+        setCompetitions(compItems);
+      }
+
+      if (teamRes?.data) {
+        const teamItems = Array.isArray(teamRes.data)
+          ? teamRes.data
+          : Array.isArray(teamRes.data?.data)
+          ? teamRes.data.data
+          : [];
+        setTeams(teamItems);
+      }
     } catch (err) {
       console.error('Failed to load registration data:', err);
     } finally {
@@ -139,9 +163,13 @@ export const RegistrationsPage = () => {
     }
   };
 
-  const selectedCompetition = competitions.find((c) => c.id === parseInt(newRegForm.competition_id, 10));
+  const compList = Array.isArray(competitions) ? competitions : [];
+  const teamList = Array.isArray(teams) ? teams : [];
+  const regList = Array.isArray(registrations) ? registrations : [];
+
+  const selectedCompetition = compList.find((c) => c.id === parseInt(newRegForm.competition_id, 10));
   const isSelectedTeamBased = selectedCompetition?.competition_type === 'team';
-  const eligibleTeams = teams.filter((t) => t.competition_id === selectedCompetition?.id && t.leader_id === user?.id);
+  const eligibleTeams = teamList.filter((t) => t.competition_id === selectedCompetition?.id && t.leader_id === user?.id);
 
   return (
     <div className="space-y-6">
@@ -182,7 +210,7 @@ export const RegistrationsPage = () => {
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                 >
                   <option value="">-- Pilih Cabang Kompetisi --</option>
-                  {competitions.map((c) => (
+                  {compList.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name || c.title} ({c.competition_type === 'team' ? 'Tim' : 'Individu'}) - Rp {Number(c.registration_fee || 0).toLocaleString('id-ID')}
                     </option>
@@ -249,7 +277,7 @@ export const RegistrationsPage = () => {
           <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
           <p className="text-sm text-gray-500">Memuat berkas pendaftaran...</p>
         </div>
-      ) : registrations.length === 0 ? (
+      ) : regList.length === 0 ? (
         <Card>
           <div className="text-center py-14 space-y-4">
             <div className="w-16 h-16 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
@@ -268,7 +296,7 @@ export const RegistrationsPage = () => {
         </Card>
       ) : (
         <div className="space-y-6">
-          {registrations.map((reg) => {
+          {regList.map((reg) => {
             const isOwner = reg.user_id === user?.id;
             const isDraft = reg.status === 'draft';
             const isRevision = reg.status === 'revision_required';

@@ -44,10 +44,22 @@ export const MyTeamPage = () => {
         api.get('/competitions'),
       ]);
 
-      if (teamRes?.data) setTeams(teamRes.data || []);
+      if (teamRes?.data) {
+        const teamItems = Array.isArray(teamRes.data)
+          ? teamRes.data
+          : Array.isArray(teamRes.data?.data)
+          ? teamRes.data.data
+          : [];
+        setTeams(teamItems);
+      }
+
       if (compRes.data?.success) {
-        // filter only team-based competitions
-        const teamComps = (compRes.data.data || []).filter(c => c.competition_type === 'team');
+        const rawComps = Array.isArray(compRes.data.data?.data)
+          ? compRes.data.data.data
+          : Array.isArray(compRes.data.data)
+          ? compRes.data.data
+          : [];
+        const teamComps = rawComps.filter(c => c.competition_type === 'team');
         setCompetitions(teamComps);
       }
     } catch (err) {
