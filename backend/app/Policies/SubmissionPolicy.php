@@ -9,35 +9,80 @@ use App\Models\User;
 
 class SubmissionPolicy
 {
-    public function viewAny(User $user): bool
-    {
-        return true;
-    }
-
+    /**
+     * Determine whether the user can view the submission.
+     */
     public function view(User $user, Submission $submission): bool
     {
         if ($user->isAdmin() || $user->isJudge()) {
             return true;
         }
 
-        $team = $submission->team;
-
-        return $team && ($team->leader_id === $user->id || $team->members()->where('user_id', $user->id)->exists());
-    }
-
-    public function create(User $user): bool
-    {
-        return $user->isParticipant() || $user->isAdmin();
-    }
-
-    public function update(User $user, Submission $submission): bool
-    {
-        if ($user->isAdmin()) {
+        $reg = $submission->registration;
+        if ($reg && $reg->user_id === $user->id) {
             return true;
         }
 
-        $team = $submission->team;
+        $team = $submission->team ?? $reg?->team;
+        if ($team && $team->members()->where('user_id', $user->id)->exists()) {
+            return true;
+        }
 
-        return $team && $team->leader_id === $user->id;
+        return false;
+    }
+
+    /**
+     * Determine whether the user can modify files or submit work.
+     */
+    public function update(User $user, Submission $submission): bool
+    {
+        if ($submission->isLocked()) {
+            return false;
+        }
+
+        $reg = $submission->registration;
+        if (! $reg) {
+            return false;
+        }
+
+        // Must be owner of registration or leader of the team
+        $team = $submission->team ?? $reg->team;
+        if ($team) {
+            return $team->leader_id === $user->id;
+        }
+
+        return $reg->user_id === $user->id;
+    }
+
+    /**
+     * Determine whether the user can upload a file.
+     */
+    public function uploadFile(User $user, Submission $submission): bool
+    {
+        return $this->update($user, $submission);
+    }
+
+    /**
+     * Determine whether the user can delete a file.
+     */
+    public function deleteFile(User $user, Submission $submission): bool
+    {
+        return $this->update($user, $submission);
+    }
+
+    /**
+     * Determine whether the user can finalize submission.
+     */
+    public function submit(User $user, Submission $submission): bool
+    {
+        return $this->update($user, $submission);
+    }
+
+    /**
+     * Determine whether the user can download a submission file.
+     */
+    public function downloadFile(User $user, Submission $submission): bool
+    {
+        return $this->view($user, $submission);
     }
 }

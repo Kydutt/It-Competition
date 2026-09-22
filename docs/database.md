@@ -137,44 +137,60 @@ Pendaftaran resmi peserta/tim ke dalam cabang kompetisi.
 *Unique constraint:* `['competition_id', 'user_id']`, `['registration_number']`.
 
 ### 6. `payments`
-Pencatatan bukti pembayaran biaya registrasi lomba.
+Pencatatan bukti pembayaran biaya registrasi lomba manual bank transfer dengan verifikasi panitia.
 
 | Column | Type | Nullable | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | BIGINT UNSIGNED | No | Primary Key |
-| `registration_id` | BIGINT UNSIGNED | No | FK -> `registrations.id` (Cascade On Delete) |
+| `registration_id` | BIGINT UNSIGNED | No | FK -> `registrations.id` (Unique Index, Cascade On Delete) |
 | `user_id` | BIGINT UNSIGNED | No | FK -> `users.id` |
-| `amount` | BIGINT UNSIGNED | No | Nominal transfer (IDR) |
-| `payment_method` | VARCHAR(100) | Yes | Metode pembayaran (e.g. Transfer BCA) |
-| `proof_url` | VARCHAR(255) | Yes | Tautan bukti transfer |
-| `status` | VARCHAR(50) | No | Status pembayaran (PaymentStatus Enum) |
-| `notes` | TEXT | Yes | Catatan admin keuangan |
-| `verified_at` | TIMESTAMP | Yes | Waktu verifikasi pembayaran |
-| `verified_by` | BIGINT UNSIGNED | Yes | FK -> `users.id` (Admin pemverifikasi) |
+| `amount` | BIGINT UNSIGNED | No | Nominal tagihan otomatis dari `competition.registration_fee` (IDR) |
+| `payment_method` | VARCHAR(100) | No | Metode pembayaran (default: Transfer Bank BCA) |
+| `status` | VARCHAR(50) | No | Enum: `pending`, `submitted`, `under_review`, `approved`, `rejected`, `cancelled` (Index) |
+| `proof_path` | VARCHAR(255) | Yes | Lokasi berkas bukti transfer di penyimpanan privat (`storage/app/private/`) |
+| `transaction_reference` | VARCHAR(100) | Yes | Nomor referensi/mutasi transaksi bank dari peserta |
+| `notes` | TEXT | Yes | Catatan tambahan peserta saat pembayaran |
+| `rejection_reason` | TEXT | Yes | Alasan penolakan dari admin jika pembayaran ditolak |
+| `submitted_at` | TIMESTAMP | Yes | Waktu peserta mengajukan verifikasi pembayaran |
+| `reviewed_at` | TIMESTAMP | Yes | Waktu verifikasi oleh panitia |
+| `reviewed_by` | BIGINT UNSIGNED | Yes | FK -> `users.id` (Admin pemverifikasi) |
+| `created_at` / `updated_at` | TIMESTAMP | Yes | Timestamps bawaan Eloquent |
 
 ### 7. `submissions`
-Pengumpulan karya akhir peserta.
+Pengumpulan karya peserta per nomor registrasi dengan validasi window batas waktu (deadline).
 
 | Column | Type | Nullable | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | BIGINT UNSIGNED | No | Primary Key |
-| `competition_id` | BIGINT UNSIGNED | No | FK -> `competitions.id` |
-| `team_id` | BIGINT UNSIGNED | No | FK -> `teams.id` |
-| `title` | VARCHAR(255) | No | Judul karya |
-| `description` | TEXT | Yes | Abstrak / deskripsi karya |
-| `file_url` | VARCHAR(255) | Yes | Tautan berkas proposal/laporan (Drive / Cloud) |
-| `demo_url` | VARCHAR(255) | Yes | Tautan demo aplikasi / desain Figma |
-| `repository_url` | VARCHAR(255) | Yes | Tautan repositori source code GitHub |
-| `status` | VARCHAR(50) | No | Status karya (SubmissionStatus Enum) |
-| `notes` | TEXT | Yes | Catatan revisi atau komentar |
-| `submitted_at` | TIMESTAMP | Yes | Waktu pengiriman karya |
+| `registration_id` | BIGINT UNSIGNED | No | FK -> `registrations.id` (Unique Index, Cascade On Delete) |
+| `competition_id` | BIGINT UNSIGNED | No | FK -> `competitions.id` (Cascade On Delete) |
+| `team_id` | BIGINT UNSIGNED | Yes | FK -> `teams.id` (Set NULL On Delete, untuk lomba beregu) |
+| `title` | VARCHAR(255) | No | Judul karya / proyek yang diajukan |
+| `description` | TEXT | Yes | Abstrak / deskripsi teknis solusi karya |
+| `status` | VARCHAR(50) | No | Enum: `draft`, `submitted`, `locked`, `withdrawn` (Index) |
+| `submitted_at` | TIMESTAMP | Yes | Waktu pengiriman / submit final karya |
+| `created_at` / `updated_at` | TIMESTAMP | Yes | Timestamps bawaan Eloquent |
 
-### 8. `judging_criteria` & `scores`
+### 8. `submission_files`
+Berkas lampiran digital karya (proposal PDF, source code ZIP/RAR, materi presentasi PPTX).
+
+| Column | Type | Nullable | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BIGINT UNSIGNED | No | Primary Key |
+| `submission_id` | BIGINT UNSIGNED | No | FK -> `submissions.id` (Cascade On Delete) |
+| `original_name` | VARCHAR(255) | No | Nama asli berkas saat diunggah peserta |
+| `stored_name` | VARCHAR(255) | No | Nama acak unik berkas di filesystem server |
+| `mime_type` | VARCHAR(100) | Yes | Tipe MIME berkas (e.g. `application/pdf`, `application/zip`) |
+| `size` | BIGINT UNSIGNED | No | Ukuran berkas dalam bytes (Maks 20MB) |
+| `path` | VARCHAR(255) | No | Path absolut privat di storage lokal server |
+| `created_at` / `updated_at` | TIMESTAMP | Yes | Timestamps bawaan Eloquent |
+
+### 9. `judging_criteria` & `scores`
 * **`judging_criteria`**: Kriteria penilaian setiap lomba (bobot total 100%).
 * **`scores`**: Nilai yang diinput oleh juri untuk setiap karya dan kriteria.
   - Formula Nilai Akhir: `Final Score = Σ (Score * (Weight / 100))`
 
-### 9. `announcements`, `faqs`, `sponsors`, `winners`
+### 10. `announcements`, `faqs`, `sponsors`, `winners`
 Tabel pendukung konten publik website (berita acara, tanya jawab, daftar sponsor, dan hall of fame juara).
 
 ---
@@ -185,7 +201,7 @@ Sistem menggunakan enum independen untuk setiap domain agar tidak mencampurkan s
 
 ### 1. `RegistrationStatus`
 ```text
-DRAFT ──► SUBMITTED ──► IN_REVIEW ──► APPROVED
+DRAFT ──► SUBMITTED ──► UNDER_REVIEW ──► APPROVED
                              │
                              ├──────► REVISION_REQUIRED ──► SUBMITTED
                              ├──────► REJECTED
@@ -194,17 +210,21 @@ DRAFT ──► SUBMITTED ──► IN_REVIEW ──► APPROVED
 
 ### 2. `PaymentStatus`
 ```text
-NOT_REQUIRED / UNPAID ──► WAITING_VERIFICATION ──► PAID
-                                   │
-                                   └─────────────► PAYMENT_REJECTED
+PENDING (Unpaid) ──► SUBMITTED / UNDER_REVIEW ──► APPROVED (Paid)
+                            │
+                            ├──────► REJECTED ──► SUBMITTED (Re-upload)
+                            └──────► CANCELLED
 ```
+*Note: Untuk kompetisi gratis (`registration_fee == 0`), pendaftaran yang disetujui langsung dinyatakan bebas biaya (`is_payment_cleared = true`).*
 
 ### 3. `SubmissionStatus`
 ```text
-NOT_OPEN ──► OPEN ──► SUBMITTED ──► UNDER_REVIEW ──► ACCEPTED / LOCKED
+DRAFT ──► SUBMITTED (Resubmission allowed before deadline) ──► LOCKED (Past deadline)
+              │
+              └──────► WITHDRAWN
 ```
 
-### 4. `JudgingStatus`
+### 4. `JudgingStatus` (Phase 5)
 ```text
 NOT_STARTED ──► IN_PROGRESS ──► COMPLETED
 ```

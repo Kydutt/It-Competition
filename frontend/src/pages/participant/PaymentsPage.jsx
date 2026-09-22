@@ -1,171 +1,185 @@
 import React, { useState, useEffect } from 'react';
-import paymentService from '../../services/paymentService';
+import { Link, useNavigate } from 'react-router-dom';
 import registrationService from '../../services/registrationService';
-import Card, { CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/Card';
+import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
 import Alert from '../../components/ui/Alert';
 
 export const PaymentsPage = () => {
-  const [payments, setPayments] = useState([]);
+  const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    registration_id: '',
-    amount: '',
-    payment_method: 'Transfer Bank BCA',
-    proof_url: '',
-  });
-  const [msg, setMsg] = useState(null);
+  const [alert, setAlert] = useState(null);
 
-  const fetchPayments = async () => {
+  const fetchRegistrations = async () => {
     try {
-      const res = await paymentService.getParticipantPayments();
+      setLoading(true);
+      const res = await registrationService.getRegistrations();
       if (res.success && res.data) {
-        setPayments(res.data);
+        setRegistrations(res.data);
       }
     } catch (err) {
-      console.error(err);
+      setAlert({
+        type: 'danger',
+        message: err.response?.data?.message || 'Gagal memuat riwayat pembayaran.',
+      });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPayments();
-    registrationService.getRegistrations().then(res => {
-      if (res.success && res.data) setRegistrations(res.data);
-    });
+    fetchRegistrations();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await paymentService.submitPayment(formData);
-      if (res.success) {
-        setMsg('Bukti pembayaran berhasil dikirim!');
-        setShowForm(false);
-        fetchPayments();
-      }
-    } catch (err) {
-      setMsg(err.response?.data?.message || 'Gagal mengirim pembayaran');
+  const getPaymentBadge = (reg) => {
+    const fee = Number(reg.competition?.registration_fee || 0);
+    if (fee === 0) {
+      return <Badge variant="success">GRATIS</Badge>;
     }
-  };
 
-  const formatRupiah = (val) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+    const pay = reg.payment;
+    if (!pay) {
+      return <Badge variant="warning">BELUM DIBAYAR</Badge>;
+    }
+
+    switch (pay.status) {
+      case 'approved':
+        return <Badge variant="success">LUNAS / DISETUJUI</Badge>;
+      case 'rejected':
+        return <Badge variant="danger">PEMBAYARAN DITOLAK</Badge>;
+      case 'submitted':
+      case 'under_review':
+        return <Badge variant="info">SEDANG DITINJAU</Badge>;
+      case 'cancelled':
+        return <Badge variant="secondary">DIBATALKAN</Badge>;
+      case 'pending':
+      default:
+        return <Badge variant="warning">MENUNGGU PEMBAYARAN</Badge>;
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-gray-950 tracking-tight">Riwayat & Konfirmasi Pembayaran</h2>
-          <p className="text-sm text-gray-500">Unggah bukti transfer biaya pendaftaran kompetisi</p>
+          <h2 className="text-2xl font-black text-gray-950 tracking-tight">Status & Riwayat Pembayaran</h2>
+          <p className="text-sm text-gray-500">Kelola konfirmasi transfer dan pantau status verifikasi biaya pendaftaran</p>
         </div>
-        <Button variant="primary" size="sm" onClick={() => setShowForm(!showForm)}>
-          {showForm ? 'Batal' : '+ Unggah Bukti Pembayaran'}
-        </Button>
       </div>
 
-      {msg && <Alert variant="info">{msg}</Alert>}
-
-      {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Form Bukti Pembayaran</CardTitle>
-            <CardDescription>Nomor Rekening Panitia: BCA 123-456-7890 a.n. HIMATIF Organizer</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Pilih Pendaftaran Lomba</label>
-                <select
-                  required
-                  value={formData.registration_id}
-                  onChange={e => setFormData({ ...formData, registration_id: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-brand-500"
-                >
-                  <option value="">-- Pilih Pendaftaran --</option>
-                  {registrations.map(r => (
-                    <option key={r.id} value={r.id}>
-                      {r.registration_number} - {r.competition?.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <Input
-                label="Nominal Transfer (Rp)"
-                type="number"
-                required
-                value={formData.amount}
-                onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                placeholder="75000"
-              />
-
-              <Input
-                label="Metode Pembayaran"
-                required
-                value={formData.payment_method}
-                onChange={e => setFormData({ ...formData, payment_method: e.target.value })}
-                placeholder="Transfer BCA / Mandiri / QRIS"
-              />
-
-              <Input
-                label="Tautan Bukti Transfer (Image / Drive URL)"
-                type="url"
-                required
-                value={formData.proof_url}
-                onChange={e => setFormData({ ...formData, proof_url: e.target.value })}
-                placeholder="https://drive.google.com/..."
-              />
-
-              <Button type="submit" variant="primary" className="font-bold">
-                Kirim untuk Diverifikasi
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+      {alert && (
+        <Alert variant={alert.type} onClose={() => setAlert(null)}>
+          {alert.message}
+        </Alert>
       )}
 
       {loading ? (
-        <div className="text-center py-16">
-          <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm text-gray-500">Memuat riwayat pembayaran...</p>
+        <div className="text-center py-20">
+          <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-gray-500">Memuat data pembayaran...</p>
         </div>
-      ) : payments.length === 0 ? (
+      ) : registrations.length === 0 ? (
         <Card>
-          <div className="text-center py-12 text-gray-500">
-            Belum ada riwayat pembayaran yang tercatat.
+          <div className="text-center py-16 space-y-3">
+            <span className="text-4xl">💳</span>
+            <p className="text-gray-500 text-sm">Anda belum memiliki pendaftaran kompetisi.</p>
+            <Button variant="primary" size="sm" onClick={() => navigate('/competitions')}>
+              Jelajahi Kompetisi Sekarang
+            </Button>
           </div>
         </Card>
       ) : (
         <div className="space-y-4">
-          {payments.map(pay => (
-            <Card key={pay.id}>
-              <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <span className="text-xs font-bold text-gray-400 block">ID Pembayaran #{pay.id}</span>
-                  <CardTitle className="text-lg mt-1">{formatRupiah(pay.amount)}</CardTitle>
-                </div>
-                <Badge variant={pay.status === 'PAID' ? 'success' : 'warning'}>
-                  {pay.status}
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-2 text-xs text-gray-600">
-                <p>Metode: <strong>{pay.payment_method}</strong></p>
-                <p>Waktu Pengajuan: <strong>{new Date(pay.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}</strong></p>
-                {pay.proof_url && (
-                  <a href={pay.proof_url} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline font-semibold block mt-1">
-                    🔍 Lihat Bukti Transfer
-                  </a>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+          {registrations.map((reg) => {
+            const fee = Number(reg.competition?.registration_fee || 0);
+            const isFree = fee === 0;
+            const pay = reg.payment;
+
+            return (
+              <Card key={reg.id} className="overflow-hidden">
+                <CardHeader className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50/50 border-b border-gray-100">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-gray-600 bg-white border border-gray-200 px-2 py-0.5 rounded">
+                        {reg.registration_number}
+                      </span>
+                      {getPaymentBadge(reg)}
+                    </div>
+                    <CardTitle className="text-lg text-gray-900 mt-1">
+                      {reg.competition?.title || reg.competition?.name}
+                    </CardTitle>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-xs text-gray-400 block font-medium">Nominal Biaya</span>
+                    <span className="text-lg font-black text-gray-950">
+                      {isFree ? (
+                        <span className="text-emerald-600">Bebas Biaya (Gratis)</span>
+                      ) : (
+                        `Rp ${fee.toLocaleString('id-ID')}`
+                      )}
+                    </span>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-5 space-y-3 text-xs">
+                  {/* REJECTION REASON BANNER */}
+                  {pay?.status === 'rejected' && (
+                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 space-y-1">
+                      <strong className="block text-xs">Alasan Penolakan dari Panitia:</strong>
+                      <p>{pay.rejection_reason || 'Bukti transfer tidak valid atau nominal tidak sesuai.'}</p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-gray-600 bg-white p-3 rounded-lg border border-gray-100">
+                    <div>
+                      <span className="text-gray-400 block text-[11px]">Entitas:</span>
+                      <span className="font-semibold text-gray-900">
+                        {reg.team ? `Tim ${reg.team.name}` : 'Perorangan'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-gray-400 block text-[11px]">Metode / Status:</span>
+                      <span className="font-semibold text-gray-900">
+                        {isFree ? 'Tanpa Biaya' : pay?.payment_method || 'Transfer BCA'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-gray-400 block text-[11px]">Pembaruan Terakhir:</span>
+                      <span className="font-semibold text-gray-900">
+                        {pay?.updated_at
+                          ? new Date(pay.updated_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })
+                          : new Date(reg.created_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex justify-end gap-2">
+                    <Button
+                      variant={isFree || pay?.status === 'approved' ? 'secondary' : 'primary'}
+                      size="sm"
+                      onClick={() => navigate(`/registrations/${reg.id}/payment`)}
+                      className="font-bold"
+                    >
+                      {isFree
+                        ? 'Lihat Rincian Biaya ➔'
+                        : pay?.status === 'approved'
+                        ? 'Lihat Bukti Terverifikasi ➔'
+                        : pay?.status === 'rejected'
+                        ? 'Unggah Ulang Bukti Transfer ➔'
+                        : pay?.status === 'submitted' || pay?.status === 'under_review'
+                        ? 'Pantau Status Verifikasi ➔'
+                        : 'Lakukan Pembayaran Sekarang ➔'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

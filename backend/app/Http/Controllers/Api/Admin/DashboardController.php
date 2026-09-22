@@ -24,7 +24,7 @@ class DashboardController extends ApiController
             'total_competitions' => Competition::count(),
             'total_registrations' => Registration::count(),
             'pending_registrations' => Registration::where('status', RegistrationStatus::Submitted)->count(),
-            'pending_payments' => Payment::where('status', PaymentStatus::WaitingVerification)->count(),
+            'pending_payments' => Payment::whereIn('status', [PaymentStatus::Submitted, PaymentStatus::UnderReview])->count(),
             'total_submissions' => Submission::count(),
         ];
 

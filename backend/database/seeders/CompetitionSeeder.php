@@ -104,7 +104,7 @@ class CompetitionSeeder extends Seeder
                 'theme' => 'Edukasi Keamanan Data Pribadi dan Etika Berselancar di Dunia Siber',
                 'description' => 'Kompetisi desain poster digital kreatif yang menyuarakan kampanye literasi digital dan keamanan siber untuk siswa SMA/SMK/sederajat.',
                 'guidebook_url' => 'https://example.com/guidebook-poster.pdf',
-                'registration_fee' => 35000,
+                'registration_fee' => 0,
                 'quota' => 100,
                 'min_team_member' => 1,
                 'max_team_member' => 1,

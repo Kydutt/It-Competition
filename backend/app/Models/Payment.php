@@ -18,11 +18,13 @@ class Payment extends Model
         'user_id',
         'amount',
         'payment_method',
-        'proof_url',
         'status',
-        'notes',
-        'verified_at',
-        'verified_by',
+        'proof_path',
+        'transaction_reference',
+        'submitted_at',
+        'reviewed_at',
+        'reviewed_by',
+        'rejection_reason',
     ];
 
     protected function casts(): array
@@ -30,8 +32,38 @@ class Payment extends Model
         return [
             'amount' => 'integer',
             'status' => PaymentStatus::class,
-            'verified_at' => 'datetime',
+            'submitted_at' => 'datetime',
+            'reviewed_at' => 'datetime',
         ];
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === PaymentStatus::Approved;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === PaymentStatus::Pending;
+    }
+
+    public function isUnderReview(): bool
+    {
+        return $this->status === PaymentStatus::UnderReview;
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === PaymentStatus::Rejected;
+    }
+
+    public function canUploadProof(): bool
+    {
+        return in_array($this->status, [
+            PaymentStatus::Pending,
+            PaymentStatus::Submitted,
+            PaymentStatus::Rejected,
+        ], true);
     }
 
     public function registration(): BelongsTo
@@ -44,8 +76,8 @@ class Payment extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function verifier(): BelongsTo
+    public function reviewer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'verified_by');
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }

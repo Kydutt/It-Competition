@@ -13,19 +13,16 @@ return new class extends Migration
     {
         Schema::create('submissions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('registration_id')->unique()->constrained('registrations')->cascadeOnDelete();
             $table->foreignId('competition_id')->constrained('competitions')->cascadeOnDelete();
-            $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
+            $table->foreignId('team_id')->nullable()->constrained('teams')->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('file_url')->nullable();
-            $table->string('demo_url')->nullable();
-            $table->string('repository_url')->nullable();
-            $table->string('status')->default(SubmissionStatus::NotOpen->value)->index();
-            $table->text('notes')->nullable();
-            $table->timestamp('submitted_at')->nullable();
+            $table->string('status')->default(SubmissionStatus::Draft->value)->index();
+            $table->timestamp('submitted_at')->nullable()->index();
             $table->timestamps();
 
-            $table->index(['competition_id', 'team_id']);
+            $table->index(['competition_id', 'status']);
         });
     }
 

@@ -389,6 +389,29 @@ export const RegistrationsPage = () => {
                     </div>
 
                     <div className="flex gap-2 w-full sm:w-auto justify-end">
+                      {reg.status === 'approved' && (
+                        <>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => navigate(`/registrations/${reg.id}/payment`)}
+                          >
+                            {reg.is_payment_cleared ? 'Rincian Pembayaran' : 'Bayar / Konfirmasi Transfer 💳'}
+                          </Button>
+
+                          {reg.is_eligible_for_submission && (
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => navigate(`/registrations/${reg.id}/submission`)}
+                              className="font-bold shadow-xs"
+                            >
+                              Kumpulkan Karya ➔
+                            </Button>
+                          )}
+                        </>
+                      )}
+
                       {canCancel && (
                         <Button
                           variant="danger"

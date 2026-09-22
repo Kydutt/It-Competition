@@ -63,6 +63,10 @@ class RegistrationResource extends JsonResource
             }),
             'rejection_reason' => $this->rejection_reason,
             'revision_note' => $this->revision_note,
+            'payment' => $this->whenLoaded('payment', fn () => new PaymentResource($this->payment)),
+            'submission' => $this->whenLoaded('submission', fn () => new SubmissionResource($this->submission)),
+            'is_payment_cleared' => $this->isPaymentCleared(),
+            'is_eligible_for_submission' => $this->isEligibleForSubmission(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

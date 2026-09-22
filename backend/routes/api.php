@@ -74,9 +74,18 @@ Route::prefix('v1')->group(function () {
 
         Route::get('payments', [Participant\PaymentController::class, 'index']);
         Route::post('payments', [Participant\PaymentController::class, 'store']);
+        Route::get('payments/{payment}', [Participant\PaymentController::class, 'show']);
+        Route::post('payments/{payment}/proof', [Participant\PaymentController::class, 'uploadProof']);
+        Route::get('payments/{payment}/proof', [Participant\PaymentController::class, 'downloadProof']);
+        Route::post('payments/{payment}/submit', [Participant\PaymentController::class, 'submit']);
 
         Route::get('submissions', [Participant\SubmissionController::class, 'index']);
         Route::post('submissions', [Participant\SubmissionController::class, 'store']);
+        Route::get('submissions/{submission}', [Participant\SubmissionController::class, 'show']);
+        Route::post('submissions/{submission}/files', [Participant\SubmissionController::class, 'uploadFile']);
+        Route::delete('submissions/{submission}/files/{fileId}', [Participant\SubmissionController::class, 'removeFile']);
+        Route::get('submissions/{submission}/files/{fileId}', [Participant\SubmissionController::class, 'downloadFile']);
+        Route::post('submissions/{submission}/submit', [Participant\SubmissionController::class, 'submit']);
     });
 
     // -------------------------------------------------------------
@@ -100,10 +109,14 @@ Route::prefix('v1')->group(function () {
         Route::post('registrations/{registration}/revision', [Admin\RegistrationController::class, 'revision']);
 
         Route::get('payments', [Admin\PaymentController::class, 'index']);
-        Route::put('payments/{payment}/verify', [Admin\PaymentController::class, 'verify']);
+        Route::get('payments/{payment}', [Admin\PaymentController::class, 'show']);
+        Route::get('payments/{payment}/proof', [Admin\PaymentController::class, 'downloadProof']);
+        Route::patch('payments/{payment}/approve', [Admin\PaymentController::class, 'approve']);
+        Route::patch('payments/{payment}/reject', [Admin\PaymentController::class, 'reject']);
 
         Route::get('submissions', [Admin\SubmissionController::class, 'index']);
         Route::get('submissions/{submission}', [Admin\SubmissionController::class, 'show']);
+        Route::get('submissions/{submission}/files/{fileId}', [Admin\SubmissionController::class, 'downloadFile']);
 
         Route::apiResource('announcements', Admin\AnnouncementController::class)->only(['index', 'store', 'destroy']);
         Route::apiResource('faqs', Admin\FaqController::class)->only(['index', 'store', 'destroy']);

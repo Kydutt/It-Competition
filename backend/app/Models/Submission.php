@@ -15,15 +15,12 @@ class Submission extends Model
     use HasFactory;
 
     protected $fillable = [
+        'registration_id',
         'competition_id',
         'team_id',
         'title',
         'description',
-        'file_url',
-        'demo_url',
-        'repository_url',
         'status',
-        'notes',
         'submitted_at',
     ];
 
@@ -33,6 +30,40 @@ class Submission extends Model
             'status' => SubmissionStatus::class,
             'submitted_at' => 'datetime',
         ];
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->status === SubmissionStatus::Draft;
+    }
+
+    public function isSubmitted(): bool
+    {
+        return $this->status === SubmissionStatus::Submitted;
+    }
+
+    public function isLocked(): bool
+    {
+        if ($this->status === SubmissionStatus::Locked) {
+            return true;
+        }
+
+        // Automatic locking if competition deadline has passed
+        if ($this->competition && $this->competition->submission_deadline && now()->gt($this->competition->submission_deadline)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function canBeModified(): bool
+    {
+        return ! $this->isLocked();
+    }
+
+    public function registration(): BelongsTo
+    {
+        return $this->belongsTo(Registration::class);
     }
 
     public function competition(): BelongsTo
@@ -45,8 +76,8 @@ class Submission extends Model
         return $this->belongsTo(Team::class);
     }
 
-    public function scores(): HasMany
+    public function files(): HasMany
     {
-        return $this->hasMany(Score::class);
+        return $this->hasMany(SubmissionFile::class);
     }
 }

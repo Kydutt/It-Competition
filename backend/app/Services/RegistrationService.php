@@ -29,7 +29,7 @@ class RegistrationService
                 $query->where('user_id', $user->id)
                     ->orWhereHas('team.members', fn ($q) => $q->where('user_id', $user->id));
             })
-            ->with(['competition', 'team.leader', 'team.members.user', 'user', 'reviewer'])
+            ->with(['competition', 'team.leader', 'team.members.user', 'user', 'reviewer', 'payment', 'submission.files'])
             ->latest()
             ->get();
     }
@@ -46,6 +46,8 @@ class RegistrationService
             'team.members.user',
             'user',
             'reviewer',
+            'payment',
+            'submission.files',
         ])->findOrFail($id);
 
         if (! $user->isAdmin() && $registration->user_id !== $user->id) {
@@ -298,6 +300,8 @@ class RegistrationService
             'team.members.user',
             'user',
             'reviewer',
+            'payment',
+            'submission.files',
         ]);
 
         if (! empty($filters['competition_id'])) {

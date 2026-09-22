@@ -120,8 +120,27 @@ class Registration extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    public function isPaymentCleared(): bool
+    {
+        if ($this->competition && (int) $this->competition->registration_fee === 0) {
+            return true;
+        }
+
+        return $this->payment?->isApproved() ?? false;
+    }
+
+    public function isEligibleForSubmission(): bool
+    {
+        return $this->isApproved() && $this->isPaymentCleared();
+    }
+
     public function payment(): HasOne
     {
         return $this->hasOne(Payment::class);
+    }
+
+    public function submission(): HasOne
+    {
+        return $this->hasOne(Submission::class);
     }
 }

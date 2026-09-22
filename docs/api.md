@@ -217,13 +217,24 @@ Mengambil rincian spesifik satu kompetisi aktif beserta rubrik kriteria penilaia
 * `POST /participant/registrations/{registration}/submit`: Finalisasi dan submit pendaftaran untuk diverifikasi panitia (`submitted`). Memvalidasi batas min/max anggota tim dan kelayakan jenjang pendidikan seluruh anggota.
 * `POST /participant/registrations/{registration}/cancel`: Membatalkan pendaftaran yang masih berstatus `draft` atau `submitted`.
 
-### Pembayaran
-* `GET /participant/payments`: Menampilkan riwayat pembayaran.
-* `POST /participant/payments`: Mengunggah bukti transfer biaya pendaftaran.
+### Pembayaran (Payment Lifecycle)
+* `GET /participant/payments`: Menampilkan daftar pembayaran seluruh pendaftaran peserta.
+* `POST /participant/payments`: Menginisialisasi pembayaran untuk pendaftaran lomba (nominal ditentukan otomatis oleh server dari biaya lomba).
+  - Body: `{"registration_id": 1, "payment_method": "Transfer Bank BCA", "transaction_reference": "REF12345", "notes": "Transfer atas nama Budi"}`
+* `GET /participant/payments/{id}`: Menampilkan detail rincian pembayaran.
+* `POST /participant/payments/{id}/proof`: Mengunggah berkas bukti transfer (multipart/form-data: `proof`, format JPG/PNG/PDF maks 2MB) ke penyimpanan privat server.
+* `POST /participant/payments/{id}/submit`: Mengirimkan pembayaran berbukti untuk ditinjau oleh tim verifikator panitia (`submitted` -> `under_review`).
+* `GET /participant/payments/{id}/proof`: Mengunduh berkas bukti transfer secara terotentikasi.
 
-### Pengumpulan Karya
-* `GET /participant/submissions`: Menampilkan riwayat karya yang dikumpulkan.
-* `POST /participant/submissions`: Mengirim berkas karya, link demo, dan link repositori.
+### Pengumpulan Karya (Submission Lifecycle)
+* `GET /participant/submissions`: Menampilkan riwayat karya yang dikumpulkan peserta.
+* `POST /participant/submissions`: Membuat entri submisi karya baru untuk pendaftaran yang telah lunas/disetujui dan berada di dalam rentang deadline.
+  - Body: `{"registration_id": 1, "title": "Aplikasi Edukasi Interaktif", "description": "Platform pembelajaran berbasis web..."}`
+* `GET /participant/submissions/{id}`: Menampilkan rincian karya dan daftar berkas lampiran.
+* `POST /participant/submissions/{id}/files`: Mengunggah berkas lampiran karya (multipart/form-data: `file`, format ZIP/RAR/7Z/PDF/DOC/DOCX/PPT/PPTX/JPG/PNG maks 20MB).
+* `DELETE /participant/submissions/{id}/files/{fileId}`: Menghapus berkas lampiran tertentu sebelum batas deadline berakhir.
+* `POST /participant/submissions/{id}/submit`: Melakukan finalisasi submit karya untuk siap dinilai oleh juri (wajib minimal 1 berkas terlampir).
+* `GET /participant/submissions/{id}/files/{fileId}`: Mengunduh berkas lampiran karya secara terotentikasi.
 
 ---
 
@@ -238,6 +249,19 @@ Mengambil rincian spesifik satu kompetisi aktif beserta rubrik kriteria penilaia
 * `POST /admin/registrations/{registration}/revision`: Meminta perbaikan berkas kepada peserta (`revision_required`).
   - Body: `{"revision_note": "Catatan revisi yang perlu diperbaiki..."}`
 
+### Verifikasi Pembayaran (Payment Verification)
+* `GET /admin/payments`: Menampilkan data pembayaran masuk (terpaginasi) dengan filter `competition_id`, `status`, dan `search`.
+* `GET /admin/payments/{id}`: Menampilkan detail pembayaran dan status registrasi.
+* `POST /admin/payments/{id}/approve`: Menyetujui pembayaran (`approved`). Pendaftaran otomatis dinyatakan lunas (`is_payment_cleared = true`).
+* `POST /admin/payments/{id}/reject`: Menolak pembayaran dengan alasan penolakan wajib.
+  - Body: `{"reason": "Nominal transfer kurang Rp 10.000 atau bukti tidak terbaca..."}`
+* `GET /admin/payments/{id}/proof`: Mengunduh / melihat berkas bukti transfer dari penyimpanan privat server.
+
+### Manajemen Karya Masuk (Submissions)
+* `GET /admin/submissions`: Melihat seluruh karya masuk dari peserta dengan filter `competition_id`, `status`, dan `search`.
+* `GET /admin/submissions/{id}`: Detail karya peserta, deskripsi solusi, dan daftar berkas lampiran.
+* `GET /admin/submissions/{id}/files/{fileId}`: Mengunduh berkas karya lampiran secara aman.
+
 ### Manajemen Kompetisi (Lifecycle & Master Data)
 * `GET /admin/competitions`: Daftar seluruh kompetisi (termasuk draft & unpublish), filter status, jenjang, kategori, pencarian, dan paginasi.
 * `POST /admin/competitions`: Menambahkan cabang lomba baru dengan auto-slug generator dan validasi lengkap.
@@ -246,25 +270,13 @@ Mengambil rincian spesifik satu kompetisi aktif beserta rubrik kriteria penilaia
 * `DELETE /admin/competitions/{id}`: Menghapus data kompetisi (hanya diizinkan jika belum memiliki tim terdaftar).
 * `PATCH /admin/competitions/{id}/publish`: Mempublikasikan kompetisi agar tampil untuk publik (`is_published: true`).
 * `PATCH /admin/competitions/{id}/unpublish`: Mengubah status menjadi unpublish / draft dari publik (`is_published: false`).
-* `PATCH /admin/competitions/{id}/status`: Memperbarui tahapan status kompetisi dengan validasi transisi alur lifecycle:
-  ```json
-  {
-      "status": "registration_closed"
-  }
-  ```
+* `PATCH /admin/competitions/{id}/status`: Memperbarui tahapan status kompetisi dengan validasi transisi alur lifecycle.
 
 ### Dashboard & Peserta
-* `GET /admin/dashboard`: Statistik total kompetisi, peserta, pendaftaran, dan status pending.
+* `GET /admin/dashboard`: Statistik total kompetisi, peserta, pendaftaran, pending pembayaran, dan submission.
 * `GET /admin/participants`: Menampilkan seluruh data peserta terdaftar.
 
-### Verifikasi
-* `GET /admin/registrations`: Menampilkan berkas pendaftaran masuk.
-* `PUT /admin/registrations/{id}/verify`: Mengubah status pendaftaran (`APPROVED`, `REJECTED`, dll).
-* `GET /admin/payments`: Menampilkan data pembayaran masuk.
-* `PUT /admin/payments/{id}/verify`: Memvalidasi bukti pembayaran (`PAID`, `PAYMENT_REJECTED`).
-
-### Konten & Submisi
-* `GET /admin/submissions`: Melihat seluruh karya masuk.
+### Konten Publik Website
 * `apiResource /admin/announcements`: Mengelola pengumuman resmi.
 * `apiResource /admin/faqs`: Mengelola tanya jawab.
 * `apiResource /admin/sponsors`: Mengelola mitra sponsor.

@@ -36,6 +36,8 @@ import ParticipantRegistrations from '../pages/participant/RegistrationsPage';
 import ParticipantSubmissions from '../pages/participant/SubmissionsPage';
 import ParticipantPayments from '../pages/participant/PaymentsPage';
 import ParticipantAnnouncements from '../pages/participant/AnnouncementsPage';
+import RegistrationPaymentPage from '../pages/participant/RegistrationPaymentPage';
+import RegistrationSubmissionPage from '../pages/participant/RegistrationSubmissionPage';
 
 // Admin Pages
 import AdminDashboard from '../pages/admin/DashboardPage';
@@ -92,6 +94,8 @@ export const AppRoutes = () => {
         <Route path="/registrations" element={<ParticipantRegistrations />} />
         <Route path="/submissions" element={<ParticipantSubmissions />} />
         <Route path="/payments" element={<ParticipantPayments />} />
+        <Route path="/registrations/:id/payment" element={<RegistrationPaymentPage />} />
+        <Route path="/registrations/:id/submission" element={<RegistrationSubmissionPage />} />
         <Route path="/my-announcements" element={<ParticipantAnnouncements />} />
       </Route>
 
