@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-highest": "#2e3447", "primary-fixed-dim": "#ffb690", "surface-bright": "#33394c", "on-primary-fixed": "#341100", "on-tertiary-container": "#00306e", "surface-tint": "#ffb690", "on-secondary-fixed-variant": "#264191", "secondary-container": "#264191", "outline": "#a78b7d", "on-secondary-container": "#9db2ff", "surface-container-low": "#151b2d", "surface-container-high": "#23293c", "on-secondary": "#05297a", "on-primary-container": "#582200", "surface-variant": "#2e3447", "on-tertiary": "#002e6a", "inverse-on-surface": "#2a3043", "error-container": "#93000a", "on-secondary-fixed": "#00164e", "inverse-primary": "#9d4300", "tertiary-fixed-dim": "#adc6ff", "outline-variant": "#584237", "error": "#ffb4ab", "tertiary-fixed": "#d8e2ff", "on-error": "#690005", "secondary-fixed": "#dce1ff", "on-primary-fixed-variant": "#783200", "on-surface": "#dce1fb", "on-tertiary-fixed": "#001a42", "background": "#0c1324", "surface": "#0c1324", "on-tertiary-fixed-variant": "#004395", "secondary-fixed-dim": "#b6c4ff", "on-surface-variant": "#e0c0b1", "tertiary": "#adc6ff", "on-error-container": "#ffdad6", "surface-container-lowest": "#070d1f", "inverse-surface": "#dce1fb", "primary": "#ffb690", "primary-container": "#f97316", "secondary": "#b6c4ff", "tertiary-container": "#6399ff", "on-primary": "#552100", "surface-container": "#191f31", "surface-dim": "#0c1324", "on-background": "#dce1fb", "primary-fixed": "#ffdbca" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-mobile": "1rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "space-sm": "0.5rem", "space-md": "1rem", "margin": "2rem", "gutter-mobile": "1rem", "gutter": "1.5rem" }, "fontFamily": { "body-sm": ["Inter"], "label-sm": ["Inter"], "display-hero-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "title-md": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "headline-xl": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "mono-metric": ["Inter"], "label-md": ["Inter"], "body-md": ["Inter"] }, "fontSize": { "body-sm": ["13px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700" }], "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "mono-metric": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-lg"><div class="flex items-center gap-space-sm px-2"><img alt="HIMATIF IT Competition 2026 Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Vn27S9pYnXDMmGaoQUrWSTzP7O0ZyJLb8z7rmvo6TvkQ5e4p7OuAYYt2QtvtUoF4k9i_YxSdQH9rUa6yDEEoR3ArfmbKEzkKp-s80G459tDtk0jpdwBKggsJuzXXoljghBruf3AiS-UBD9JlF2M8LaNLBNvMPPpV8OVRObczbf6woMmijFVjhXDCfK7dnkVea1G7QgOzJrE7Euw2LL2w3n-QGOVkvfLtH27jkLsw"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase leading-none">HIMATIF</span><span class="font-label-sm text-label-sm text-primary tracking-widest leading-none mt-1">CONSOLE '26</span></div></div><div class="p-1 rounded-lg bg-surface-container flex items-center gap-1"><a class="flex-1 py-1 px-2 text-center rounded font-label-md text-label-md bg-primary-container text-on-primary font-semibold" data-path="dashboard" href="#">Participant</a><a class="flex-1 py-1 px-2 text-center rounded font-label-md text-label-md text-on-surface-variant hover:text-on-surface font-semibold" data-path="admin-review" href="#">Admin</a></div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-title-md text-title-md rounded-lg"><a aria-current="page" class="flex items-center gap-space-sm px-3 py-2.5 transition-colors bg-primary-container text-on-primary font-title-md text-title-md rounded-lg" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="portal-competitions" href="#"><span class="material-symbols-outlined text-[20px]">terminal</span><span>Competitions</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="my-registrations" href="#"><span class="material-symbols-outlined text-[20px]">how_to_reg</span><span>My Registrations</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="my-team" href="#"><span class="material-symbols-outlined text-[20px]">group</span><span>My Team</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="payment" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span>Payment</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="submission" href="#"><span class="material-symbols-outlined text-[20px]">rocket_launch</span><span>Submission</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="admin-review" href="#"><span class="material-symbols-outlined text-[20px]">verified</span><span>Admin Review</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="profile" href="#"><span class="material-symbols-outlined text-[20px]">account_circle</span><span>Profile</span></a></nav></div><div class="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Arena Live</span></div><span class="font-label-sm text-label-sm text-primary">v2.6</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-sm"><div class="flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-surface-container-high"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface">Ciayumajakuning 2026</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="font-label-sm text-label-sm">Live Feed</span></div><div class="flex items-center gap-space-sm pl-space-sm"><div class="hidden md:flex flex-col text-right"><span class="font-title-md text-title-md text-on-surface leading-tight">Arya Pratama</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Captain • Synapse Dev</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfYnzAw9AIaTBB78JqgX_1kElfY_evGhaZKIWb0kgoI7azMaLQUtkKQ_lHS-CGZ6tef_4Ux4SbYvWWL18wKRrfEf4mCnlTebJsBOvCNf6SUgomOGbMa87mIl2Cvwy1EvLRCn7fcXt_uEm6mwPx5hWIxej8jiOKEpG0LcYXfZiEsr2W1F-cnZibTt-7d80sn6GkVnbOyCh-CUSemVaHHZT0JgTyZ9cDpfDa4KgYhw"/></div></div></header><main class="w-full pt-16 bg-background min-h-screen px-margin-mobile lg:px-margin py-space-lg"><div class="flex flex-col w-full gap-space-lg">
+<!-- Welcome & Profile Header Banner -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container p-space-lg shadow-xl">
+<div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-primary-container/10 blur-3xl pointer-events-none"></div>
+<div class="absolute right-1/3 bottom-0 w-64 h-32 rounded-full bg-secondary-container/20 blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs max-w-3xl">
+<div class="flex flex-wrap items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-container/15 text-primary text-label-sm font-label-sm uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+            Team Leader · UI/UX Track
+          </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[15px] text-tertiary">school</span>
+            Universitas Swadaya Gunung Jati · Informatics
+          </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[15px] text-secondary">tag</span>
+            Team Code: <strong class="text-on-surface ml-1">#ITC-CKG-88</strong>
+</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mt-1">
+          Welcome back, <span class="text-primary-container">Farhan Pratama</span>
+</h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+          Ready to compete and create something meaningful for Ciayumajakuning? Your team is currently in the active proposal and prototyping submission window.
+        </p>
+</div>
+<div class="flex items-center gap-space-sm self-start lg:self-auto shrink-0">
+<a class="inline-flex items-center gap-space-xs px-5 py-2.5 rounded-lg bg-primary-container text-on-primary font-title-md text-title-md font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all" data-path="submission" href="#">
+<span class="material-symbols-outlined text-[20px]">file_upload</span>
+<span>Submit Project</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-4 py-2.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest font-title-md text-title-md transition-colors" data-path="my-team" href="#">
+<span class="material-symbols-outlined text-[20px]">groups</span>
+<span>Team Room</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Statistics & KPI Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- KPI 1: Active Registrations -->
+<div class="rounded-xl bg-surface-container-low p-space-md shadow-md flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Active Registrations</span>
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">terminal</span>
+</div>
+</div>
+<div class="mt-4">
+<div class="font-headline-md text-headline-md text-on-surface font-bold">1 Competition</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">UI/UX Design · Universitas Tier</p>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-label-sm font-label-sm">
+<span class="text-tertiary">Tier: Regional Mahasiswa</span>
+<span class="text-on-surface-variant">Round 1 / 2</span>
+</div>
+</div>
+<!-- KPI 2: My Team Status -->
+<div class="rounded-xl bg-surface-container-low p-space-md shadow-md flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Team Roster</span>
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">group</span>
+</div>
+</div>
+<div class="mt-4">
+<div class="font-headline-md text-headline-md text-on-surface font-bold">CyberKuningan</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary text-label-sm font-label-sm font-semibold">3/3 Members</span>
+<span class="font-body-sm text-body-sm text-tertiary-fixed-dim">All Confirmed</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-label-sm font-label-sm">
+<div class="flex -space-x-2">
+<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-container text-[10px] font-bold text-on-primary">FP</span>
+<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-secondary-container text-[10px] font-bold text-on-secondary">AP</span>
+<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-tertiary-container text-[10px] font-bold text-on-tertiary">MR</span>
+</div>
+<a class="text-primary hover:underline" data-path="my-team" href="#">Manage →</a>
+</div>
+</div>
+<!-- KPI 3: Payment Status -->
+<div class="rounded-xl bg-surface-container-low p-space-md shadow-md flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Billing &amp; Verification</span>
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[22px]">verified</span>
+</div>
+</div>
+<div class="mt-4">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/40 text-secondary text-label-md font-label-md font-bold">
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+            Approved &amp; Verified
+          </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">Rp 65.000 · Early Bird Tier</p>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-label-sm font-label-sm">
+<span class="text-on-surface-variant">Inv: INV-2026-0892</span>
+<a class="text-on-surface hover:text-primary transition-colors" data-path="payment" href="#">View Receipt</a>
+</div>
+</div>
+<!-- KPI 4: Submission Status -->
+<div class="rounded-xl bg-surface-container-low p-space-md shadow-md flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Project Submission</span>
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[22px]">rocket_launch</span>
+</div>
+</div>
+<div class="mt-4">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-container/20 text-primary-fixed text-label-md font-label-md font-semibold">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+            In Progress
+          </span>
+</div>
+<p class="font-body-sm text-body-sm text-primary mt-2 font-medium">Due: 25 Oct 2026 · 23:59 WIB</p>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-label-sm font-label-sm">
+<span class="text-on-surface-variant">Draft v1.2 Saved</span>
+<span class="text-primary-container font-semibold">Stage 4 Active</span>
+</div>
+</div>
+</section>
+<!-- Interactive Workflow Stepper & Deadlines Banner -->
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg">
+<!-- Left Stepper Workflow Card (8 Cols) -->
+<div class="xl:col-span-8 rounded-xl bg-surface-container p-space-lg shadow-xl flex flex-col justify-between">
+<div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-lg">
+<div>
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Competition Progress Workflow</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Track your official qualification lifecycle for the HIMATIF 2026 Finals</p>
+</div>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-surface-container-highest text-label-sm font-label-sm text-tertiary shrink-0">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+            Automated Audit
+          </span>
+</div>
+<!-- Stepper Visual Track -->
+<div class="relative py-4">
+<!-- Desktop horizontal flow -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4 relative">
+<!-- Step 1: Registration Created -->
+<div class="relative flex flex-col items-start gap-2 group">
+<div class="flex items-center gap-2 w-full">
+<div class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary flex items-center justify-center shrink-0 shadow-md">
+<span class="material-symbols-outlined text-[20px] font-bold">check</span>
+</div>
+<div class="hidden md:block h-1 flex-1 bg-secondary-container rounded-full"></div>
+</div>
+<div class="flex flex-col pr-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Step 01</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold leading-snug">Registration</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-[12px] mt-0.5">Completed 12 Oct</span>
+</div>
+</div>
+<!-- Step 2: Payment Verified -->
+<div class="relative flex flex-col items-start gap-2 group">
+<div class="flex items-center gap-2 w-full">
+<div class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary flex items-center justify-center shrink-0 shadow-md">
+<span class="material-symbols-outlined text-[20px] font-bold">check</span>
+</div>
+<div class="hidden md:block h-1 flex-1 bg-secondary-container rounded-full"></div>
+</div>
+<div class="flex flex-col pr-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Step 02</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold leading-snug">Payment SLA</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-[12px] mt-0.5">Approved Rp 65k</span>
+</div>
+</div>
+<!-- Step 3: Admin Review -->
+<div class="relative flex flex-col items-start gap-2 group">
+<div class="flex items-center gap-2 w-full">
+<div class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary flex items-center justify-center shrink-0 shadow-md">
+<span class="material-symbols-outlined text-[20px] font-bold">check</span>
+</div>
+<div class="hidden md:block h-1 flex-1 bg-primary-container rounded-full"></div>
+</div>
+<div class="flex flex-col pr-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Step 03</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold leading-snug">Verification</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-[12px] mt-0.5">KTM &amp; Data Valid</span>
+</div>
+</div>
+<!-- Step 4: Submission (Current Action Required) -->
+<div class="relative flex flex-col items-start gap-2 group">
+<div class="flex items-center gap-2 w-full">
+<div class="w-9 h-9 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0 shadow-lg ring-4 ring-primary-container/30 animate-pulse">
+<span class="material-symbols-outlined text-[20px] font-bold">edit_document</span>
+</div>
+<div class="hidden md:block h-1 flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+<div class="flex flex-col pr-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">Step 04 · Action</span>
+<span class="font-title-md text-title-md text-primary-fixed font-bold leading-snug">Submission</span>
+<span class="font-body-sm text-body-sm text-primary text-[12px] font-medium mt-0.5">Draft v1.2 Uploaded</span>
+</div>
+</div>
+<!-- Step 5: Final Judging -->
+<div class="relative flex flex-col items-start gap-2 group opacity-60">
+<div class="flex items-center gap-2 w-full">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="font-label-md text-label-md font-bold">05</span>
+</div>
+</div>
+<div class="flex flex-col pr-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Step 05</span>
+<span class="font-title-md text-title-md text-on-surface-variant font-medium leading-snug">Judging</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-[12px] mt-0.5">28-30 Oct 2026</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Task Checklist Box within Stepper -->
+<div class="mt-space-lg p-space-md rounded-lg bg-surface-container-high flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-title-md text-title-md text-on-surface font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary-container">assignment_late</span>
+              Submission Requirements Checklist (Stage 4)
+            </span>
+<span class="font-label-sm text-label-sm text-primary-fixed bg-surface-container px-2 py-0.5 rounded">66% Completed</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm mt-1">
+<div class="flex items-center gap-2 bg-surface-container-low p-2.5 rounded-lg">
+<span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface truncate font-medium">UI/UX Proposal PDF</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">CyberKuningan_UIUX.pdf</span>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-low p-2.5 rounded-lg">
+<span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-on-surface truncate font-medium">Figma Prototype Link</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">figma.com/file/...</span>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-primary-container/10 p-2.5 rounded-lg border border-primary-container/30">
+<span class="material-symbols-outlined text-primary text-[20px]">pending</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm text-primary font-medium truncate">Pitch Video (3 Min)</span>
+<span class="font-label-sm text-label-sm text-primary/80 truncate">Pending final link</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Footer in Card -->
+<div class="mt-space-lg pt-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-tertiary">info</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Last saved automatically today at 14:22 WIB</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-4 py-2 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest font-label-md text-label-md transition-colors flex items-center gap-1.5" onclick="navigator.clipboard.writeText('#ITC-CKG-88'); alert('Team code copied to clipboard!');" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+            Copy Team Code
+          </button>
+<a class="px-5 py-2 rounded-lg bg-primary-container text-on-primary font-title-md text-title-md font-semibold hover:brightness-110 shadow transition-all flex items-center gap-1.5" data-path="submission" href="#">
+<span>Go to Submission Room</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Right Deadline & SLA Card (4 Cols) -->
+<div class="xl:col-span-4 flex flex-col gap-space-md">
+<!-- Submission Countdown Box -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container p-space-lg shadow-xl flex flex-col justify-between">
+<div class="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-primary-container/10 blur-xl pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-container/20 text-primary font-label-sm text-label-sm uppercase font-semibold">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+              Countdown
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Round 1 Cutoff</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold">Submission Closes In</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Strict server lock at 23:59 WIB sharp.</p>
+<!-- Metric Display Numbers -->
+<div class="grid grid-cols-3 gap-2 mt-4 text-center">
+<div class="p-3 rounded-lg bg-surface-container-high flex flex-col items-center">
+<span class="font-mono-metric text-mono-metric text-primary-container font-bold" id="timer-days">02</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Days</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-high flex flex-col items-center">
+<span class="font-mono-metric text-mono-metric text-primary-container font-bold" id="timer-hours">14</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Hours</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-high flex flex-col items-center">
+<span class="font-mono-metric text-mono-metric text-primary-container font-bold" id="timer-minutes">32</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Mins</span>
+</div>
+</div>
+<div class="mt-4 p-3 rounded-lg bg-surface-container-low flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Deadline Date</span>
+<span class="text-on-surface font-semibold">25 Oct 2026, 23:59 WIB</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-tertiary">lock_clock</span>
+          Late submissions will result in immediate disqualification.
+        </div>
+</div>
+<!-- Payment SLA & Admin Contact Card -->
+<div class="rounded-xl bg-surface-container p-space-md shadow-xl flex flex-col justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary shrink-0">
+<span class="material-symbols-outlined text-[22px]">policy</span>
+</div>
+<div>
+<h4 class="font-title-md text-title-md text-on-surface font-semibold">Verification Guarantee</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Standard HIMATIF Admin SLA: max 12 hours</p>
+</div>
+</div>
+<div class="mt-3 p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Payment ID: <strong class="text-secondary font-mono">#PAY-8921-UGJ</strong></span>
+</div>
+<span class="text-label-sm font-label-sm text-secondary font-bold">VERIFIED</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Split: Activity Feed & Resources Widget -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Recent Activity Feed (7 Cols) -->
+<div class="lg:col-span-7 rounded-xl bg-surface-container p-space-lg shadow-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">history</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Team Activity Log</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Real-time Telemetry</span>
+</div>
+<div class="flex flex-col gap-space-sm mt-2">
+<!-- Item 1 -->
+<div class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 text-primary-fixed flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between gap-2">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Submission draft v1.2 uploaded</span>
+<span class="font-label-sm text-label-sm text-primary font-medium shrink-0">2 hours ago</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Farhan Pratama updated prototype link and presentation deck PDF.</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="w-8 h-8 rounded-full bg-secondary-container/30 text-secondary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between gap-2">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Team member Anisa Putri joined</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">Yesterday, 19:40</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Redeemed invite token code <span class="font-mono text-on-surface">#ITC-CKG-88</span>. Student card verified.</p>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-tertiary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between gap-2">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Payment Rp 65.000 verified</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">2 days ago</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Verified by Admin HIMATIF (Muhammad Raihan). Official receipt generated.</p>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between gap-2">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Registration form submitted</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">3 days ago</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Track: UI/UX Design Category · Team CyberKuningan initialized.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-md pt-3 flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing latest 4 records</span>
+<a class="font-label-md text-label-md text-primary hover:underline" href="#">Full System Audit →</a>
+</div>
+</div>
+<!-- Quick Access Shortcuts & Official Assets (5 Cols) -->
+<div class="lg:col-span-5 rounded-xl bg-surface-container p-space-lg shadow-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">hub</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Quick Access Hub</h3>
+</div>
+<span class="font-label-sm text-label-sm text-primary-fixed">Official Hub</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Shortcut 1: Guidebook PDF -->
+<a class="p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-all flex items-center justify-between group" href="#">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-highest text-primary-container flex items-center justify-center group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[24px]">menu_book</span>
+</div>
+<div>
+<div class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-primary transition-colors">Competition Guidebook 2026</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Rules, scoring rubric, and format specifications (PDF)</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface transition-colors">download</span>
+</a>
+<!-- Shortcut 2: WhatsApp Helpdesk -->
+<a class="p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-all flex items-center justify-between group" href="#" target="_blank">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-highest text-secondary flex items-center justify-center group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[24px]">chat</span>
+</div>
+<div>
+<div class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-secondary transition-colors">WhatsApp Helpdesk Support</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Direct line to HIMATIF steering committee</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface transition-colors">open_in_new</span>
+</a>
+<!-- Shortcut 3: Discord Arena -->
+<a class="p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-all flex items-center justify-between group" href="#" target="_blank">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-highest text-tertiary flex items-center justify-center group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[24px]">forum</span>
+</div>
+<div>
+<div class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-tertiary transition-colors">ITC Discord Community</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">General channels, mentor Q&amp;A, tech support</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface transition-colors">open_in_new</span>
+</a>
+<!-- Shortcut 4: Design Assets Pack -->
+<a class="p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-all flex items-center justify-between group" href="#">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-highest text-on-surface-variant flex items-center justify-center group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[24px]">folder_zip</span>
+</div>
+<div>
+<div class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-on-surface transition-colors">Official Pitch Deck Template</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Figma &amp; Keynote slide system (.fig, .pptx)</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface transition-colors">download</span>
+</a>
+</div>
+</div>
+<div class="mt-space-md pt-3 flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span>Need emergency help?</span>
+<span class="text-primary">Liaison Officer: +62 821-1928-3001</span>
+</div>
+</div>
+</section>
+</div>
+<script>
+  (function() {
+    let days = 2;
+    let hours = 14;
+    let minutes = 32;
+
+    const daysEl = document.getElementById('timer-days');
+    const hoursEl = document.getElementById('timer-hours');
+    const minutesEl = document.getElementById('timer-minutes');
+
+    setInterval(() => {
+      if (minutes > 0) {
+        minutes--;
+      } else {
+        minutes = 59;
+        if (hours > 0) {
+          hours--;
+        } else {
+          hours = 23;
+          if (days > 0) {
+            days--;
+          }
+        }
+      }
+
+      if (daysEl) daysEl.innerText = String(days).padStart(2, '0');
+      if (hoursEl) hoursEl.innerText = String(hours).padStart(2, '0');
+      if (minutesEl) minutesEl.innerText = String(minutes).padStart(2, '0');
+    }, 60000);
+  })();
+</script></main></div></body></html>

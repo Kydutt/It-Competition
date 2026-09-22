@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-highest": "#2e3447", "primary-fixed-dim": "#ffb690", "surface-bright": "#33394c", "on-primary-fixed": "#341100", "on-tertiary-container": "#00306e", "surface-tint": "#ffb690", "on-secondary-fixed-variant": "#264191", "secondary-container": "#264191", "outline": "#a78b7d", "on-secondary-container": "#9db2ff", "surface-container-low": "#151b2d", "surface-container-high": "#23293c", "on-secondary": "#05297a", "on-primary-container": "#582200", "surface-variant": "#2e3447", "on-tertiary": "#002e6a", "inverse-on-surface": "#2a3043", "error-container": "#93000a", "on-secondary-fixed": "#00164e", "inverse-primary": "#9d4300", "tertiary-fixed-dim": "#adc6ff", "outline-variant": "#584237", "error": "#ffb4ab", "tertiary-fixed": "#d8e2ff", "on-error": "#690005", "secondary-fixed": "#dce1ff", "on-primary-fixed-variant": "#783200", "on-surface": "#dce1fb", "on-tertiary-fixed": "#001a42", "background": "#0c1324", "surface": "#0c1324", "on-tertiary-fixed-variant": "#004395", "secondary-fixed-dim": "#b6c4ff", "on-surface-variant": "#e0c0b1", "tertiary": "#adc6ff", "on-error-container": "#ffdad6", "surface-container-lowest": "#070d1f", "inverse-surface": "#dce1fb", "primary": "#ffb690", "primary-container": "#f97316", "secondary": "#b6c4ff", "tertiary-container": "#6399ff", "on-primary": "#552100", "surface-container": "#191f31", "surface-dim": "#0c1324", "on-background": "#dce1fb", "primary-fixed": "#ffdbca" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-mobile": "1rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "space-sm": "0.5rem", "space-md": "1rem", "margin": "2rem", "gutter-mobile": "1rem", "gutter": "1.5rem" }, "fontFamily": { "body-sm": ["Inter"], "label-sm": ["Inter"], "display-hero-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "title-md": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "headline-xl": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "mono-metric": ["Inter"], "label-md": ["Inter"], "body-md": ["Inter"] }, "fontSize": { "body-sm": ["13px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700" }], "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "mono-metric": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-lg"><div class="flex items-center gap-space-sm px-2"><img alt="HIMATIF IT Competition 2026 Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Vn27S9pYnXDMmGaoQUrWSTzP7O0ZyJLb8z7rmvo6TvkQ5e4p7OuAYYt2QtvtUoF4k9i_YxSdQH9rUa6yDEEoR3ArfmbKEzkKp-s80G459tDtk0jpdwBKggsJuzXXoljghBruf3AiS-UBD9JlF2M8LaNLBNvMPPpV8OVRObczbf6woMmijFVjhXDCfK7dnkVea1G7QgOzJrE7Euw2LL2w3n-QGOVkvfLtH27jkLsw"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase leading-none">HIMATIF</span><span class="font-label-sm text-label-sm text-primary tracking-widest leading-none mt-1">CONSOLE '26</span></div></div><div class="p-1 rounded-lg bg-surface-container flex items-center gap-1"><a class="flex-1 py-1 px-2 text-center rounded font-label-md text-label-md bg-primary-container text-on-primary font-semibold" data-path="dashboard" href="#">Participant</a><a class="flex-1 py-1 px-2 text-center rounded font-label-md text-label-md text-on-surface-variant hover:text-on-surface font-semibold" data-path="admin-review" href="#">Admin</a></div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-title-md text-title-md rounded-lg"><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="portal-competitions" href="#"><span class="material-symbols-outlined text-[20px]">terminal</span><span>Competitions</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="my-registrations" href="#"><span class="material-symbols-outlined text-[20px]">how_to_reg</span><span>My Registrations</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="my-team" href="#"><span class="material-symbols-outlined text-[20px]">group</span><span>My Team</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="payment" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span>Payment</span></a><a aria-current="page" class="flex items-center gap-space-sm px-3 py-2.5 transition-colors bg-primary-container text-on-primary font-title-md text-title-md rounded-lg" data-path="submission" href="#"><span class="material-symbols-outlined text-[20px]">rocket_launch</span><span>Submission</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="admin-review" href="#"><span class="material-symbols-outlined text-[20px]">verified</span><span>Admin Review</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="profile" href="#"><span class="material-symbols-outlined text-[20px]">account_circle</span><span>Profile</span></a></nav></div><div class="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Arena Live</span></div><span class="font-label-sm text-label-sm text-primary">v2.6</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-sm"><div class="flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-surface-container-high"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface">Ciayumajakuning 2026</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="font-label-sm text-label-sm">Live Feed</span></div><div class="flex items-center gap-space-sm pl-space-sm"><div class="hidden md:flex flex-col text-right"><span class="font-title-md text-title-md text-on-surface leading-tight">Arya Pratama</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Captain • Synapse Dev</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfYnzAw9AIaTBB78JqgX_1kElfY_evGhaZKIWb0kgoI7azMaLQUtkKQ_lHS-CGZ6tef_4Ux4SbYvWWL18wKRrfEf4mCnlTebJsBOvCNf6SUgomOGbMa87mIl2Cvwy1EvLRCn7fcXt_uEm6mwPx5hWIxej8jiOKEpG0LcYXfZiEsr2W1F-cnZibTt-7d80sn6GkVnbOyCh-CUSemVaHHZT0JgTyZ9cDpfDa4KgYhw"/></div></div></header><main class="w-full pt-16 bg-background min-h-screen px-margin-mobile lg:px-margin py-space-lg"><div class="flex flex-col w-full gap-space-lg">
+<!-- Registration Meta & Breadcrumb Strip -->
+<div class="flex flex-wrap items-center justify-between gap-space-md p-space-md rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex flex-wrap items-center gap-space-md">
+<div class="flex items-center gap-space-xs px-3 py-1.5 rounded-lg bg-surface-container">
+<span class="material-symbols-outlined text-[18px] text-primary">tag</span>
+<span class="font-mono-metric text-headline-sm text-primary tracking-tight">#ITC-2026-00042</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface">Web Development Competition</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm uppercase tracking-wide">Regional Hub</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Track: SMA/SMK &amp; Mahasiswa Ciayumajakuning 2026 • Team: <strong class="text-on-surface">Synapse Dev</strong></span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-bright font-label-md text-label-md flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[18px]">download_for_offline</span>
+<span>Guidebook v1.4</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-bright font-label-md text-label-md flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[18px]">support_agent</span>
+<span>Help Desk</span>
+</button>
+</div>
+</div>
+<!-- Stage Progress Stepper (Circuit Geometry) -->
+<div class="p-space-lg rounded-xl bg-surface-container shadow-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">Lifecycle Pipeline</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+        STAGE 03 / 04 ACTIVE
+      </span>
+</div>
+<!-- Step Track -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-space-md relative">
+<!-- Step 1: Payment -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-high">
+<div class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface leading-tight truncate">1. Payment</span>
+<span class="font-label-sm text-label-sm text-secondary truncate">Verified ✓ Rp 65.000</span>
+</div>
+</div>
+<!-- Step 2: Verification -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-high">
+<div class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface leading-tight truncate">2. Admin Verification</span>
+<span class="font-label-sm text-label-sm text-secondary truncate">Passed ✓ 22 Oct</span>
+</div>
+</div>
+<!-- Step 3: Project Submission (Active) -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-primary-container text-on-primary shadow-lg shadow-primary-container/20">
+<div class="w-9 h-9 rounded-full bg-surface-container-lowest text-primary flex items-center justify-center shrink-0 animate-bounce">
+<span class="material-symbols-outlined text-[20px]">cloud_upload</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1">
+<span class="font-title-md text-title-md font-bold leading-tight truncate">3. Submission</span>
+<span class="w-1.5 h-1.5 rounded-full bg-surface-container-lowest animate-ping"></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-primary-container font-semibold truncate">Active Now (Deadline near)</span>
+</div>
+</div>
+<!-- Step 4: Judging -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low opacity-60">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface leading-tight truncate">4. Jury Evaluation</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Locked until deadline</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Primary Split Grid: Workspace (Left 7 Cols) + Payment Proof & Audit (Right 5 Cols) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: SUBMISSION WORKSPACE -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- Urgent Deadline Metric Banner -->
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-surface-container-high via-surface-container to-surface-container-low p-space-lg shadow-md">
+<div class="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-primary-container/10 blur-2xl pointer-events-none"></div>
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md relative z-10">
+<div class="flex items-start gap-space-sm">
+<div class="w-12 h-12 rounded-xl bg-primary-container/20 flex items-center justify-center text-primary-fixed-dim shrink-0">
+<span class="material-symbols-outlined text-[28px]">timer</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">Submission Window</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary text-label-sm font-semibold">T-MINUS</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-0.5">25 October 2026, 23:59 WIB</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Late submissions are rejected automatically by server clock.</p>
+</div>
+</div>
+<!-- Countdown Counter -->
+<div class="flex items-center gap-space-xs self-stretch md:self-auto justify-center bg-surface-container-lowest/80 px-4 py-2.5 rounded-xl shadow-inner">
+<div class="flex flex-col items-center px-2">
+<span class="font-mono-metric text-mono-metric text-primary" id="cd-days">02</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Days</span>
+</div>
+<span class="font-headline-md text-on-surface-variant font-light">:</span>
+<div class="flex flex-col items-center px-2">
+<span class="font-mono-metric text-mono-metric text-primary" id="cd-hours">14</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Hours</span>
+</div>
+<span class="font-headline-md text-on-surface-variant font-light">:</span>
+<div class="flex flex-col items-center px-2">
+<span class="font-mono-metric text-mono-metric text-primary" id="cd-mins">32</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Mins</span>
+</div>
+<span class="font-headline-md text-on-surface-variant font-light">:</span>
+<div class="flex flex-col items-center px-2">
+<span class="font-mono-metric text-mono-metric text-primary" id="cd-secs">48</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Secs</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Submission Form Container -->
+<div class="rounded-xl bg-surface-container p-space-lg shadow-md flex flex-col gap-space-lg">
+<div class="flex items-center justify-between pb-space-sm border-b-0">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Deliverable Artifacts</h2>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Source code bundle, prototype mirrors, and project presentation</span>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">2 of 3 Uploaded</span>
+</div>
+<!-- Interactive Drag-and-Drop Area -->
+<div class="relative group cursor-pointer rounded-xl bg-surface-container-lowest p-space-xl flex flex-col items-center justify-center text-center transition-all hover:bg-surface-container-low" id="drop-zone">
+<input accept=".zip,.rar,.pdf,.7z" class="hidden" id="file-input" multiple="" type="file"/>
+<div class="w-16 h-16 rounded-full bg-surface-container-high group-hover:bg-primary-container/20 group-hover:text-primary text-on-surface-variant flex items-center justify-center mb-space-sm transition-transform duration-300 group-hover:scale-110">
+<span class="material-symbols-outlined text-[36px]">file_upload</span>
+</div>
+<div class="flex flex-col gap-1 max-w-md">
+<h4 class="font-title-md text-title-md text-on-surface">Drag &amp; drop project files here or <span class="text-primary underline cursor-pointer">Browse Files</span></h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Accepts bundled ZIP, RAR, PDF documentation up to 50MB. Make sure sensitive `.env` secrets are omitted.</p>
+</div>
+<div class="mt-space-md flex flex-wrap items-center justify-center gap-2">
+<span class="px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant">.ZIP (Source)</span>
+<span class="px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant">.PDF (Proposal/Deck)</span>
+<span class="px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant">Max 50MB per file</span>
+</div>
+</div>
+<!-- External URLs / Mirror Link Inputs -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">link</span>
+              Public Git Repository URL (GitHub/GitLab)
+            </label>
+<div class="flex items-center rounded-lg bg-surface-container-lowest px-3 py-2">
+<input class="w-full bg-transparent text-on-surface font-body-sm text-body-sm focus:outline-none" type="url" value="https://github.com/synapse-dev/ciayumajakuning-smart-agri"/>
+<span class="material-symbols-outlined text-[18px] text-secondary">check_circle</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Public repository or invite <code class="text-primary">jury@himatif-itc.id</code></span>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">play_circle</span>
+              Deployment / Live Demo URL
+            </label>
+<div class="flex items-center rounded-lg bg-surface-container-lowest px-3 py-2">
+<input class="w-full bg-transparent text-on-surface font-body-sm text-body-sm focus:outline-none" type="url" value="https://smart-agri-synapse.vercel.app"/>
+<a class="text-on-surface-variant hover:text-primary" href="#" target="_blank"><span class="material-symbols-outlined text-[18px]">open_in_new</span></a>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Live HTTPS production demo for jury evaluation</span>
+</div>
+</div>
+<!-- Uploaded Artifacts List -->
+<div class="flex flex-col gap-space-sm">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Uploaded Files (2 Attached)</span>
+<!-- Artifact 1 -->
+<div class="flex items-center justify-between p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-error-container text-on-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">picture_as_pdf</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate">CyberKuningan_UIUX_Proposal_v2.pdf</span>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
+<span>14.2 MB</span>
+<span>•</span>
+<span>Uploaded 24 Oct, 14:20 WIB</span>
+<span>•</span>
+<span class="text-secondary flex items-center gap-0.5"><span class="material-symbols-outlined text-[14px]">done_all</span> Checksum Verified</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="p-2 rounded-lg bg-surface-container-highest text-on-surface hover:text-primary transition-colors" title="Download File">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-highest text-on-surface hover:text-secondary transition-colors" title="Replace File">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-highest text-error hover:bg-error-container hover:text-on-error-container transition-colors" title="Remove File">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Artifact 2 -->
+<div class="flex items-center justify-between p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">description</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate">Figma_Prototype_Link_and_Video_Demo.txt</span>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
+<span>2 KB</span>
+<span>•</span>
+<span>Uploaded 24 Oct, 16:05 WIB</span>
+<span>•</span>
+<span class="text-secondary flex items-center gap-0.5"><span class="material-symbols-outlined text-[14px]">link</span> Embeds Verified</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="p-2 rounded-lg bg-surface-container-highest text-on-surface hover:text-primary transition-colors" title="Download File">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-highest text-on-surface hover:text-secondary transition-colors" title="Replace File">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-highest text-error hover:bg-error-container hover:text-on-error-container transition-colors" title="Remove File">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Honor Code & Integrity Affirmations -->
+<div class="flex flex-col gap-space-sm p-space-md rounded-xl bg-surface-container-low">
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-1 w-4 h-4 rounded bg-surface-container-highest text-primary-container focus:ring-0" id="affirm-originality" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">I confirm that this submission is original work and abides by the HIMATIF ITC 2026 Honor Code.</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Plagiarism, undisclosed closed-source components, or impersonation result in disqualification.</span>
+</div>
+</label>
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-1 w-4 h-4 rounded bg-surface-container-highest text-primary-container focus:ring-0" id="affirm-reproducible" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">All repository credentials and build scripts have been validated for jury execution.</span>
+</div>
+</label>
+</div>
+<!-- Submission Actions & Revision Lock Caution -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-highest text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px] text-primary">lock_clock</span>
+<span class="font-body-sm text-body-sm">
+<strong class="text-on-surface">Revision Policy:</strong> Submissions can be adjusted anytime prior to <span class="text-primary font-medium">25 Oct, 23:59 WIB</span>. Once the lock window closes, artifacts are permanently sealed for jury review.
+            </span>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md mt-space-xs">
+<button class="w-full sm:w-auto px-space-lg py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-title-md text-title-md transition-all">
+              Save Draft
+            </button>
+<button class="w-full sm:w-auto px-space-xl py-3 rounded-lg bg-primary-container text-on-primary font-title-md text-title-md font-bold shadow-lg shadow-primary-container/25 hover:opacity-95 active:scale-98 transition-all flex items-center justify-center gap-2" id="btn-finalize">
+<span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+<span>Finalize &amp; Submit Work</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Live Submission Activity Stream (Micro History) -->
+<div class="p-space-lg rounded-xl bg-surface-container shadow-sm flex flex-col gap-space-md">
+<h4 class="font-title-md text-title-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-secondary">history</span>
+<span>Version Changelog &amp; Audit Trail</span>
+</h4>
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between py-2 border-b border-surface-container-high/40">
+<div class="flex items-center gap-space-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Replaced Figma link &amp; added video demo URL</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Today at 16:05 WIB by Arya P.</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-surface-container-high/40">
+<div class="flex items-center gap-space-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-body-sm text-body-sm text-on-surface">Uploaded Proposal v2 (14.2 MB)</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Today at 14:20 WIB by Rian M.</span>
+</div>
+<div class="flex items-center justify-between py-2">
+<div class="flex items-center gap-space-sm">
+<span class="w-2 h-2 rounded-full bg-surface-container-highest"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Team repository linked to synapse-dev org</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">23 Oct at 09:12 WIB</span>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: SECTION B - PAYMENT AUDIT & PROOF SUMMARY -->
+<div class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- Official Verified Receipt Card -->
+<div class="rounded-xl bg-surface-container p-space-lg shadow-md flex flex-col gap-space-md relative overflow-hidden">
+<!-- Ambient Circuit Edge Glow -->
+<div class="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-secondary-container via-primary-container to-secondary"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary">receipt_long</span>
+<span class="font-label-md text-label-md text-on-surface uppercase tracking-wider">Payment Record</span>
+</div>
+<!-- Verification Pill -->
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Approved &amp; Verified</span>
+</div>
+</div>
+<!-- Amount Hero -->
+<div class="flex flex-col py-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Registration Fee Paid</span>
+<div class="flex items-baseline gap-2 mt-0.5">
+<span class="font-headline-xl text-headline-xl text-on-surface font-extrabold tracking-tight">Rp 65.000</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">EARLY BIRD</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1">Tier: Team Category (3 Participants + 1 Mentor)</span>
+</div>
+<!-- Ledger Line Items -->
+<div class="flex flex-col gap-space-sm rounded-lg bg-surface-container-low p-space-md">
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Payment Method</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium text-right">Bank BCA (Virtual Account)</span>
+</div>
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Account Target</span>
+<div class="flex flex-col text-right">
+<span class="font-title-md text-title-md text-primary font-mono tracking-wide">139-002-8849</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">HIMATIF Official a/n Bendahara ITC</span>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Reference Code</span>
+<span class="font-body-sm text-body-sm text-on-surface font-mono">TRX-2026-BCA-98102</span>
+</div>
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Verified On</span>
+<span class="font-body-sm text-body-sm text-on-surface">22 Oct 2026, 11:45 WIB</span>
+</div>
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Verified By</span>
+<span class="font-body-sm text-body-sm text-secondary">FinAdmin #04 (Dinda S.)</span>
+</div>
+</div>
+<!-- Download PDF Invoice / Receipt Button -->
+<button class="w-full py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-title-md text-title-md flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span>Download Official Receipt (.PDF)</span>
+</button>
+</div>
+<!-- Quick Proof Attachment Preview -->
+<div class="rounded-xl bg-surface-container p-space-lg shadow-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h4 class="font-title-md text-title-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">photo_camera</span>
+<span>Proof of Transfer Upload</span>
+</h4>
+<span class="font-label-sm text-label-sm text-secondary">Verified</span>
+</div>
+<div class="relative rounded-lg overflow-hidden bg-surface-container-lowest group">
+<img class="w-full h-44 object-cover object-center group-hover:scale-105 transition-transform duration-300" data-alt="A clean top-down photograph of an Indonesian digital mobile banking electronic transaction confirmation slip on an iPhone display with blue accents, dark UI theme, showing success badge and BCA transfer receipt to HIMATIF with date stamps and reference codes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyFRNry4aYXli890Kq4qpHvUz6V2_bknATwqNjyOKOfoHOdmy9iO3aQrwAl5ym4jdcKnYiG1yKmU5PewuC_4GdVko7O-6MGQ--z1SeMmjUNFQUomA8nTVBb63vE-SMORdihepkC_UGlxd3dw4t7ouTG2V9vtjq9jeikDfAWlL_Jjor_d61bDS0rUC2AyGip8U4LXloXM00wSVzqUoI_dOry4iI0MJpQQMuGWE0uA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 via-transparent to-transparent flex items-end p-space-md">
+<div class="flex items-center justify-between w-full">
+<span class="font-label-sm text-label-sm text-on-surface truncate">bca_transfer_receipt_65000.jpg</span>
+<button class="p-1.5 rounded-md bg-surface-container text-on-surface hover:text-primary"><span class="material-symbols-outlined text-[18px]">zoom_in</span></button>
+</div>
+</div>
+</div>
+<!-- Competition Rules Card -->
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-2">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-[18px]">shield</span>
+<span class="font-title-md text-title-md">Evaluation Criteria</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Scores are weighted by UI/UX originality (30%), code architecture &amp; cleanliness (35%), regional impact in Ciayumajakuning (25%), and live presentation demo (10%).</p>
+<div class="flex items-center gap-2 mt-1">
+<a class="font-label-md text-label-md text-primary hover:underline flex items-center gap-1" href="#">
+<span>View full rubrics table</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Direct Admin Support Box -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-high">
+<img class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="Portrait photo of a young Southeast Asian male IT competition student organizer wearing dark navy HIMATIF committee hoodie, smiling with a clean illuminated tech background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrdLIUyKdizNgJlby1GTwqiV4rPsz1L4xTOsmmpYoumhR19lUr0B7kbMxAgdeh_kkXH-CCIPo4pBGiMpp13OxtEGvdkMhtiIcvS3Nodk7st2dQW6W69GwvCL7KRh0qr3hF91s9JVRG32lQumIZLs2lq1fLx_YStv8vECtRHqmeLIwlvPgZxcEdFh2wk_2NaQz6mwxiyKGeFtt08-7ASE8ZM7-NioGIXYSUXk6ZQQ"/>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate">Need urgent changes?</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">WhatsApp Hotline: +62 821-4490-1288</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive JavaScript for Drag & Drop + Countdown Mock -->
+<script>
+    (function() {
+      // Simple countdown ticker simulation
+      let seconds = 48;
+      let minutes = 32;
+      const secEl = document.getElementById('cd-secs');
+      const minEl = document.getElementById('cd-mins');
+
+      setInterval(function() {
+        seconds--;
+        if (seconds < 0) {
+          seconds = 59;
+          minutes--;
+          if (minEl) minEl.textContent = minutes < 10 ? '0' + minutes : minutes;
+        }
+        if (secEl) secEl.textContent = seconds < 10 ? '0' + seconds : seconds;
+      }, 1000);
+
+      // Drag and drop dropzone behavior
+      const dropZone = document.getElementById('drop-zone');
+      const fileInput = document.getElementById('file-input');
+
+      if (dropZone && fileInput) {
+        dropZone.addEventListener('click', function() {
+          fileInput.click();
+        });
+
+        dropZone.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          dropZone.classList.add('bg-surface-container-high');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+          e.preventDefault();
+          dropZone.classList.remove('bg-surface-container-high');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          dropZone.classList.remove('bg-surface-container-high');
+          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            alert('Added ' + e.dataTransfer.files.length + ' file(s) to staging queue.');
+          }
+        });
+      }
+
+      // Finalize button confirmation
+      const btnFinalize = document.getElementById('btn-finalize');
+      if (btnFinalize) {
+        btnFinalize.addEventListener('click', function() {
+          const originalCheck = document.getElementById('affirm-originality');
+          if (originalCheck && !originalCheck.checked) {
+            alert('Please check and affirm the Honor Code statement before submission.');
+            return;
+          }
+          btnFinalize.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span> Submitting...';
+          setTimeout(function() {
+            btnFinalize.innerHTML = '<span class="material-symbols-outlined text-[20px]">check</span> Sealed & Submitted!';
+            btnFinalize.classList.remove('bg-primary-container');
+            btnFinalize.classList.add('bg-secondary-container', 'text-on-secondary-container');
+          }, 1200);
+        });
+      }
+    })();
+  </script>
+</div></main></div></body></html>

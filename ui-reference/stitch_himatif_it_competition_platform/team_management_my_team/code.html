@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-highest": "#2e3447", "primary-fixed-dim": "#ffb690", "surface-bright": "#33394c", "on-primary-fixed": "#341100", "on-tertiary-container": "#00306e", "surface-tint": "#ffb690", "on-secondary-fixed-variant": "#264191", "secondary-container": "#264191", "outline": "#a78b7d", "on-secondary-container": "#9db2ff", "surface-container-low": "#151b2d", "surface-container-high": "#23293c", "on-secondary": "#05297a", "on-primary-container": "#582200", "surface-variant": "#2e3447", "on-tertiary": "#002e6a", "inverse-on-surface": "#2a3043", "error-container": "#93000a", "on-secondary-fixed": "#00164e", "inverse-primary": "#9d4300", "tertiary-fixed-dim": "#adc6ff", "outline-variant": "#584237", "error": "#ffb4ab", "tertiary-fixed": "#d8e2ff", "on-error": "#690005", "secondary-fixed": "#dce1ff", "on-primary-fixed-variant": "#783200", "on-surface": "#dce1fb", "on-tertiary-fixed": "#001a42", "background": "#0c1324", "surface": "#0c1324", "on-tertiary-fixed-variant": "#004395", "secondary-fixed-dim": "#b6c4ff", "on-surface-variant": "#e0c0b1", "tertiary": "#adc6ff", "on-error-container": "#ffdad6", "surface-container-lowest": "#070d1f", "inverse-surface": "#dce1fb", "primary": "#ffb690", "primary-container": "#f97316", "secondary": "#b6c4ff", "tertiary-container": "#6399ff", "on-primary": "#552100", "surface-container": "#191f31", "surface-dim": "#0c1324", "on-background": "#dce1fb", "primary-fixed": "#ffdbca" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-mobile": "1rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "space-sm": "0.5rem", "space-md": "1rem", "margin": "2rem", "gutter-mobile": "1rem", "gutter": "1.5rem" }, "fontFamily": { "body-sm": ["Inter"], "label-sm": ["Inter"], "display-hero-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "title-md": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "headline-xl": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "mono-metric": ["Inter"], "label-md": ["Inter"], "body-md": ["Inter"] }, "fontSize": { "body-sm": ["13px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700" }], "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "mono-metric": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-lg"><div class="flex items-center gap-space-sm px-2"><img alt="HIMATIF IT Competition 2026 Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Vn27S9pYnXDMmGaoQUrWSTzP7O0ZyJLb8z7rmvo6TvkQ5e4p7OuAYYt2QtvtUoF4k9i_YxSdQH9rUa6yDEEoR3ArfmbKEzkKp-s80G459tDtk0jpdwBKggsJuzXXoljghBruf3AiS-UBD9JlF2M8LaNLBNvMPPpV8OVRObczbf6woMmijFVjhXDCfK7dnkVea1G7QgOzJrE7Euw2LL2w3n-QGOVkvfLtH27jkLsw"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase leading-none">HIMATIF</span><span class="font-label-sm text-label-sm text-primary tracking-widest leading-none mt-1">CONSOLE '26</span></div></div><div class="p-1 rounded-lg bg-surface-container flex items-center gap-1"><a class="flex-1 py-1 px-2 text-center rounded font-label-md text-label-md bg-primary-container text-on-primary font-semibold" data-path="dashboard" href="#">Participant</a><a class="flex-1 py-1 px-2 text-center rounded font-label-md text-label-md text-on-surface-variant hover:text-on-surface font-semibold" data-path="admin-review" href="#">Admin</a></div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-title-md text-title-md rounded-lg"><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="portal-competitions" href="#"><span class="material-symbols-outlined text-[20px]">terminal</span><span>Competitions</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="my-registrations" href="#"><span class="material-symbols-outlined text-[20px]">how_to_reg</span><span>My Registrations</span></a><a aria-current="page" class="flex items-center gap-space-sm px-3 py-2.5 transition-colors bg-primary-container text-on-primary font-title-md text-title-md rounded-lg" data-path="my-team" href="#"><span class="material-symbols-outlined text-[20px]">group</span><span>My Team</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="payment" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span>Payment</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="submission" href="#"><span class="material-symbols-outlined text-[20px]">rocket_launch</span><span>Submission</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="admin-review" href="#"><span class="material-symbols-outlined text-[20px]">verified</span><span>Admin Review</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="profile" href="#"><span class="material-symbols-outlined text-[20px]">account_circle</span><span>Profile</span></a></nav></div><div class="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Arena Live</span></div><span class="font-label-sm text-label-sm text-primary">v2.6</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-sm"><div class="flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-surface-container-high"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface">Ciayumajakuning 2026</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="font-label-sm text-label-sm">Live Feed</span></div><div class="flex items-center gap-space-sm pl-space-sm"><div class="hidden md:flex flex-col text-right"><span class="font-title-md text-title-md text-on-surface leading-tight">Arya Pratama</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Captain • Synapse Dev</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfYnzAw9AIaTBB78JqgX_1kElfY_evGhaZKIWb0kgoI7azMaLQUtkKQ_lHS-CGZ6tef_4Ux4SbYvWWL18wKRrfEf4mCnlTebJsBOvCNf6SUgomOGbMa87mIl2Cvwy1EvLRCn7fcXt_uEm6mwPx5hWIxej8jiOKEpG0LcYXfZiEsr2W1F-cnZibTt-7d80sn6GkVnbOyCh-CUSemVaHHZT0JgTyZ9cDpfDa4KgYhw"/></div></div></header><main class="w-full pt-16 bg-background min-h-screen px-margin-mobile lg:px-margin py-space-lg"><div class="flex flex-col w-full gap-space-lg">
+<!-- Top Flash Alert / Stage Banner -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm p-space-md rounded-xl bg-surface-container-high/60 backdrop-blur-md shadow-md">
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-container/15 text-primary-container">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<p class="font-title-md text-title-md text-on-surface">Registration Milestone Active: Team Roster Finalized</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">All 3 regional members verified with valid KTM. Stage 1 preliminary upload closes in 4 days.</p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end sm:self-center">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-container/15 text-primary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>
+        Status: Verified Active
+      </span>
+</div>
+</div>
+<!-- Hero Team Hub Card -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-low p-space-lg shadow-xl">
+<!-- Ambient circuit aura effect -->
+<div class="absolute -right-24 -top-24 w-80 h-80 rounded-full bg-primary-container/10 blur-3xl pointer-events-none"></div>
+<div class="absolute -left-20 -bottom-20 w-72 h-72 rounded-full bg-secondary-container/20 blur-3xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg">
+<!-- Team Info -->
+<div class="flex flex-col gap-space-xs max-w-2xl">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest text-primary font-label-sm text-label-sm tracking-wide uppercase">
+            Ciayumajakuning 2026
+          </span>
+<span class="px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">groups</span>
+            3/3 Members (Capacity Met)
+          </span>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest/80 text-secondary font-label-sm text-label-sm">
+            Track: UI/UX Design Competition
+          </span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight mt-1 flex items-center gap-3">
+          CyberKuningan Innovators
+          <span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;" title="Regional Seeded Team">verified</span>
+</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Category: <span class="text-on-surface font-medium">UI/UX Design Competition (Mahasiswa)</span> • Primary Focus: Civic Tech &amp; Smart City Services for East Priangan Region.
+        </p>
+</div>
+<!-- Quick Access Token & QR Hub -->
+<div class="flex flex-wrap items-center gap-space-md p-space-md rounded-xl bg-surface-container/90 shadow-sm backdrop-blur-sm">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Team Invitation Code</span>
+<div class="flex items-center gap-space-xs mt-1">
+<code class="font-mono-metric text-mono-metric text-primary font-bold tracking-wider" id="inviteCodeText">#ITC-CKG-88</code>
+<button class="p-2 rounded-lg bg-surface-container-high hover:bg-primary-container hover:text-on-primary text-on-surface transition-all active:scale-95 shadow-sm" id="copyBtn" onclick="copyInviteCode()" title="Copy code">
+<span class="material-symbols-outlined text-[18px]" id="copyIcon">content_copy</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-primary opacity-0 transition-opacity" id="copyFeedback">Copied to clipboard!</span>
+</div>
+<div class="w-px h-12 bg-surface-container-highest hidden sm:block"></div>
+<!-- Quick QR Modal Trigger -->
+<div class="flex items-center gap-space-sm">
+<div class="p-2 rounded-lg bg-surface-container-highest flex items-center justify-center">
+<!-- Inline SVG QR Placeholder for Instant Scanning -->
+<svg class="w-10 h-10 text-on-surface" fill="currentColor" viewbox="0 0 24 24">
+<path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 3h2v3h-2v-3zm-4-5h3v2h-3v-2zm5 0h3v5h-1v-3h-2v-2zm-5 5h2v4h-2v-4zm2-2h2v2h-2v-2zm2-5h2v2h-2v-2zM5 5h2v2H5V5zm12 0h2v2h-2V5zM5 17h2v2H5v-2z"></path>
+</svg>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface">Quick Pass</span>
+<button class="font-label-sm text-label-sm text-primary hover:underline text-left" onclick="toggleModal('qrModal')">View QR Code</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Telemetry / Requirements Pill-row -->
+<div class="mt-space-lg pt-space-md grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-high/40">
+<div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Team Composition</span>
+<span class="font-title-md text-title-md text-on-surface">3 of 3 Verified Students</span>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-high/40">
+<div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">KTM Validation</span>
+<span class="font-title-md text-title-md text-on-surface">100% Regional Accredited</span>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-high/40">
+<div class="w-2.5 h-2.5 rounded-full bg-primary-container"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Liaison Contact</span>
+<span class="font-title-md text-title-md text-primary">Rizky (HIMATIF Cirebon)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Mode Control Switch (Tab Navigation) -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-md">
+<div class="inline-flex p-1 rounded-xl bg-surface-container-low">
+<button class="px-space-md py-2 rounded-lg font-title-md text-title-md bg-primary-container text-on-primary transition-all shadow-sm">
+        Active Roster
+      </button>
+<button class="px-space-md py-2 rounded-lg font-title-md text-title-md text-on-surface-variant hover:text-on-surface transition-all" onclick="toggleModal('switchTeamModal')">
+        Join Another Team
+      </button>
+<button class="px-space-md py-2 rounded-lg font-title-md text-title-md text-on-surface-variant hover:text-on-surface transition-all" onclick="toggleModal('createTeamModal')">
+        Create New Squad
+      </button>
+</div>
+<!-- Quick action links -->
+<div class="flex items-center gap-space-sm self-end sm:self-center">
+<button class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors font-label-md text-label-md" onclick="toggleModal('guidelineModal')">
+<span class="material-symbols-outlined text-[18px]">info</span>
+        Eligibility Rules
+      </button>
+<a class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+        Team Card (.PDF)
+      </a>
+</div>
+</div>
+<!-- Member Roster Grid (3 Primary Cards) -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-lg">
+<!-- MEMBER 1: Farhan Pratama (Leader) -->
+<div class="relative flex flex-col justify-between rounded-xl bg-surface-container-low p-space-lg shadow-md hover:shadow-xl transition-all">
+<!-- Glow hint -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container/10 rounded-bl-full pointer-events-none"></div>
+<div class="flex flex-col gap-space-md">
+<!-- Card Top Bar -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="relative">
+<img class="w-16 h-16 rounded-xl object-cover shadow-inner" data-alt="Close-up professional portrait of Farhan Pratama, a male Indonesian tech student in his early twenties with glasses and dark tech hoodie, bathed in warm amber and cool deep blue rim lighting, sharp realistic photograph" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBr_4VZl2OeHqqD0koWzCf3mauNfZGVsg1UQkVDeZpPzPtC9y6Hfz4Qu0u6BxXphMlXQ6lLni0KLdS6hazZClNAnBajiOD4ka0brToiaJfqJY2kB-rM47JaCHGACYfjb_-1IIxKv2MZeslHSzaonzq1ZLjg6_vYB4M2t8OsY6Zl5F2YNDy-JmKJ0-ZGNGU6z5AJ9FgbTv6vidu-uVz6l6cbGcCiC0jhKxGwz55PeQ"/>
+<span class="absolute -bottom-1 -right-1 p-1 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-sm" title="Team Leader">
+<span class="material-symbols-outlined text-[14px]">star</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="px-2.5 py-1 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold tracking-wide">
+              Leader
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Captain ID: #CKG-01</span>
+</div>
+</div>
+<!-- Identity Block -->
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Farhan Pratama</h2>
+<p class="font-title-md text-title-md text-primary mt-0.5">Design Lead &amp; System Architect</p>
+<div class="flex items-center gap-1.5 mt-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary">school</span>
+<span class="font-body-sm text-body-sm font-medium">Universitas Swadaya Gunung Jati (UGJ)</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant ml-5">NIM: 220410889 • Teknik Informatika</p>
+</div>
+<!-- Verification Checklist -->
+<div class="flex flex-col gap-2 p-3 rounded-lg bg-surface-container">
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">check_circle</span>
+              Kartu Tanda Mahasiswa (KTM)
+            </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400">Verified</span>
+</div>
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">mark_email_read</span>
+              farhan.ugj@innovator.id
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Auth OK</span>
+</div>
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">phone_iphone</span>
+              +62 813-2411-9980
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">WhatsApp</span>
+</div>
+</div>
+</div>
+<!-- Action Footers -->
+<div class="mt-space-md pt-space-sm flex items-center gap-space-sm">
+<button class="flex-1 py-2 px-3 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md flex items-center justify-center gap-1.5 transition-colors" onclick="toggleModal('transferModal')">
+<span class="material-symbols-outlined text-[16px] text-primary">published_with_changes</span>
+          Transfer Leadership
+        </button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors" title="Edit Profile Details">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</div>
+</div>
+<!-- MEMBER 2: Anisa Nur Rahma -->
+<div class="relative flex flex-col justify-between rounded-xl bg-surface-container-low p-space-lg shadow-md hover:shadow-xl transition-all">
+<div class="flex flex-col gap-space-md">
+<!-- Card Top Bar -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="relative">
+<img class="w-16 h-16 rounded-xl object-cover shadow-inner" data-alt="Portrait of Anisa Nur Rahma, a female Southeast Asian university student wearing a sleek modern hijab and headphones around neck, soft cinematic blue and cyan lighting with subtle orange reflections, editorial style photograph" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP_yTVwxC4wqkwVdamJkKGXrkv0FftU98WTR0ruqj92LhUCqRAO6AZdU8NeMgIFVnPFZR8h1EONFWzH0W3vgnVaETraHBeDizzr96SGHpk_5fYCX66MhRPwxqP_9wY_AhdkcfXsSTBOQppxcGyXdxqIoRdFO9anhaL9NFJAQMppcKTDP3c6DWSY8jWzqj0NTDbY3dV3QELS6rxx5tyxVdGjmHTuXSxuDUHnG9QdA"/>
+<span class="absolute -bottom-1 -right-1 p-1 rounded-full bg-secondary-container text-on-secondary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold tracking-wide">
+              UI Researcher
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Member ID: #CKG-02</span>
+</div>
+</div>
+<!-- Identity Block -->
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Anisa Nur Rahma</h2>
+<p class="font-title-md text-title-md text-secondary mt-0.5">Qualitative UX &amp; User Testing</p>
+<div class="flex items-center gap-1.5 mt-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">school</span>
+<span class="font-body-sm text-body-sm font-medium">Institut Teknologi Telkom Cirebon</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant ml-5">NIM: 120221304 • Rekayasa Perangkat Lunak</p>
+</div>
+<!-- Verification Checklist -->
+<div class="flex flex-col gap-2 p-3 rounded-lg bg-surface-container">
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">check_circle</span>
+              Kartu Tanda Mahasiswa (KTM)
+            </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400">Verified</span>
+</div>
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">mark_email_read</span>
+              anisa.rahma@student.ittc.ac.id
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Auth OK</span>
+</div>
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">phone_iphone</span>
+              +62 821-4409-2211
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">WhatsApp</span>
+</div>
+</div>
+</div>
+<!-- Action Footers -->
+<div class="mt-space-md pt-space-sm flex items-center gap-space-sm">
+<button class="flex-1 py-2 px-3 rounded-lg bg-surface-container-high hover:bg-error-container hover:text-on-error text-error font-label-md text-label-md flex items-center justify-center gap-1.5 transition-colors" onclick="triggerRemoveMember('Anisa Nur Rahma', 'UI Researcher')">
+<span class="material-symbols-outlined text-[16px]">person_remove</span>
+          Remove Member
+        </button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors" title="Inspect Document">
+<span class="material-symbols-outlined text-[18px]">badge</span>
+</button>
+</div>
+</div>
+<!-- MEMBER 3: Dimas Satria -->
+<div class="relative flex flex-col justify-between rounded-xl bg-surface-container-low p-space-lg shadow-md hover:shadow-xl transition-all">
+<div class="flex flex-col gap-space-md">
+<!-- Card Top Bar -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="relative">
+<img class="w-16 h-16 rounded-xl object-cover shadow-inner" data-alt="Studio portrait of Dimas Satria, a focused Indonesian male university student sitting in a dark high-tech design computer laboratory, deep navy background with glowing orange circuit lines, authentic realistic photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDezLB39x-iGho6ufNwbXzerRqBHXEe5Z4z2xEKrApseKkKpgqaT_18WhlfXWO_PllyemtGgJmZRwU174OUYQoeeM1D_DipiCFXGHO0pr8XIQ1LT2rE_7HzOdXrNxeOzuy2PF7u813xpyK0usLrkCs9avbZ-sKKQN34h9bTdNUmQ5GMovX_rSZHzRiUkj47owqJBGM7KsycQQxp4bguDiVPXqDTSLNxqUIJaUiO1g"/>
+<span class="absolute -bottom-1 -right-1 p-1 rounded-full bg-secondary-container text-on-secondary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[14px]">animation</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold tracking-wide">
+              Prototyper &amp; Interaction
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Member ID: #CKG-03</span>
+</div>
+</div>
+<!-- Identity Block -->
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Dimas Satria</h2>
+<p class="font-title-md text-title-md text-secondary mt-0.5">Micro-interactions &amp; Figma Systems</p>
+<div class="flex items-center gap-1.5 mt-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">school</span>
+<span class="font-body-sm text-body-sm font-medium">STMIK IKMI Cirebon</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant ml-5">NIM: 41210982 • Sistem Informasi</p>
+</div>
+<!-- Verification Checklist -->
+<div class="flex flex-col gap-2 p-3 rounded-lg bg-surface-container">
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">check_circle</span>
+              Kartu Tanda Mahasiswa (KTM)
+            </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400">Verified</span>
+</div>
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">mark_email_read</span>
+              dimas.satria@ikmi.ac.id
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Auth OK</span>
+</div>
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-body-sm text-body-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">phone_iphone</span>
+              +62 896-7822-1049
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">WhatsApp</span>
+</div>
+</div>
+</div>
+<!-- Action Footers -->
+<div class="mt-space-md pt-space-sm flex items-center gap-space-sm">
+<button class="flex-1 py-2 px-3 rounded-lg bg-surface-container-high hover:bg-error-container hover:text-on-error text-error font-label-md text-label-md flex items-center justify-center gap-1.5 transition-colors" onclick="triggerRemoveMember('Dimas Satria', 'Prototyper &amp; Interaction')">
+<span class="material-symbols-outlined text-[16px]">person_remove</span>
+          Remove Member
+        </button>
+<button class="p-2 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors" title="Inspect Document">
+<span class="material-symbols-outlined text-[18px]">badge</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom Interactive Section: Requirements, Activity Feed & Liaison -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Eligibility Notice Box (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-[22px]">policy</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">HIMATIF Regional Regulations &amp; Guidelines</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          To maintain fair play and authentic student participation across the Ciayumajakuning zone (Cirebon, Indramayu, Majalengka, Kuningan), all roster changes must align with strict competition bylaws:
+        </p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm mt-space-xs">
+<div class="p-space-sm rounded-lg bg-surface-container flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">group_add</span>
+<div>
+<p class="font-title-md text-title-md text-on-surface">Team Size Constraint</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Min. 2 members, Max. 3 members. Cross-institutional teams within Ciayumajakuning are actively encouraged.</p>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">id_card</span>
+<div>
+<p class="font-title-md text-title-md text-on-surface">Mandatory KTM Upload</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Scanned Student Card (KTM) or active Surat Keterangan Mahasiswa is legally required prior to Stage 1 pitch deck review.</p>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">lock_clock</span>
+<div>
+<p class="font-title-md text-title-md text-on-surface">Roster Lock Deadline</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">All members locked on October 28, 2026 at 23:59 WIB. No replacements permitted after preliminary scoring starts.</p>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">domain_verification</span>
+<div>
+<p class="font-title-md text-title-md text-on-surface">Originality Covenant</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Designs must be genuinely produced during the competition timeline. Plagiarism results in immediate disqualification.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-md pt-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">verified_user</span>
+          Compliance Status: 100% Validated by HIMATIF Reviewers
+        </span>
+<button class="font-label-md text-label-md text-primary hover:underline flex items-center gap-1" onclick="toggleModal('guidelineModal')">
+          Read Competition Rulebook
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Official HIMATIF Committee Liaison Support (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">support_agent</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Assigned Liaison</h3>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-label-sm text-label-sm">
+            Online (Response &lt;10m)
+          </span>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container flex items-center gap-space-md">
+<img class="w-14 h-14 rounded-full object-cover shadow-sm" data-alt="Portrait of Muhammad Rizky, an Indonesian male student committee organizer wearing an official HIMATIF IT Competition dark polo shirt with orange lanyard, friendly approachable expression, crisp clean indoor lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMRq47gl-DYD7ke1zXmYUTpxnU3zl1a6ojUUL_8bw6JYzuICZkcmeKe1GQ6AFhh8KxZDMoS3y-d8tb5diPv8DWNuSiTrU2kYbWFS7Jb5HHz5Y15W93mvjY7EQxsaaeppmaKV0Ix1BnS_IeHJWTv4-gOQd5Nkrl46vAvuVlQVlya96Z06Gj2gGDbbBGY147-bA0D3UCQUI7gi7Iukl8aoa9nfQ0M1ixN4CBFQcqwQ"/>
+<div class="flex flex-col">
+<p class="font-title-md text-title-md text-on-surface font-bold">Muhammad Rizky S.</p>
+<p class="font-label-sm text-label-sm text-primary">Divisi Acara &amp; Pendamping Tim</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">HIMATIF Universitas Swadaya Gunung Jati</p>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Experiencing issues with teammate KTM scans, payment receipts, or account merging? Contact your squad's direct liaison immediately.
+        </p>
+<div class="flex flex-col gap-2">
+<a class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest transition-colors" href="https://wa.me/#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-400 text-[18px]">chat</span>
+<span class="font-label-md text-label-md text-on-surface">WhatsApp Emergency Desk</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">+62 822-1920-8831</span>
+</a>
+<a class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest transition-colors" href="mailto:support@himatif-itc.id">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">mail</span>
+<span class="font-label-md text-label-md text-on-surface">Official Ticket Email</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">liaison.ckg@himatif.id</span>
+</a>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Office Hours: 08:00 - 21:00 WIB</span>
+<button class="px-3 py-1.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-semibold hover:bg-primary transition-all">
+          Open Support Chat
+        </button>
+</div>
+</div>
+</div>
+<!-- MODAL 1: Invite QR Code Quick Preview -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-surface-container-lowest/80 backdrop-blur-md hidden p-4" id="qrModal">
+<div class="flex flex-col w-full max-w-sm rounded-xl bg-surface-container-low p-space-lg shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">qr_code_2</span>
+<h4 class="font-title-md text-title-md text-on-surface">Quick Pass Invitation</h4>
+</div>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container" onclick="toggleModal('qrModal')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="flex flex-col items-center text-center p-space-md rounded-xl bg-surface-container">
+<!-- Generative style high-contrast SVG QR Code -->
+<div class="p-4 bg-white rounded-lg shadow-md mb-space-sm">
+<svg class="w-48 h-48 text-surface-container-lowest" fill="currentColor" viewbox="0 0 200 200">
+<!-- Corners -->
+<rect fill="#0C1324" height="50" width="50" x="10" y="10"></rect>
+<rect fill="#FFFFFF" height="30" width="30" x="20" y="20"></rect>
+<rect fill="#F97316" height="16" width="16" x="27" y="27"></rect>
+<rect fill="#0C1324" height="50" width="50" x="140" y="10"></rect>
+<rect fill="#FFFFFF" height="30" width="30" x="150" y="20"></rect>
+<rect fill="#F97316" height="16" width="16" x="157" y="27"></rect>
+<rect fill="#0C1324" height="50" width="50" x="10" y="140"></rect>
+<rect fill="#FFFFFF" height="30" width="30" x="20" y="150"></rect>
+<rect fill="#F97316" height="16" width="16" x="27" y="157"></rect>
+<!-- Patterns -->
+<circle cx="100" cy="35" fill="#0C1324" r="8"></circle>
+<rect fill="#0C1324" height="15" width="15" x="75" y="15"></rect>
+<rect fill="#0C1324" height="25" width="15" x="110" y="25"></rect>
+<rect fill="#0C1324" height="20" width="20" x="90" y="65"></rect>
+<rect fill="#0C1324" height="10" width="35" x="130" y="70"></rect>
+<circle cx="175" cy="90" fill="#F97316" r="10"></circle>
+<rect fill="#0C1324" height="12" width="45" x="15" y="75"></rect>
+<rect fill="#0C1324" height="15" width="60" x="70" y="100"></rect>
+<rect fill="#0C1324" height="25" width="25" x="20" y="100"></rect>
+<rect fill="#0C1324" height="25" width="25" x="140" y="120"></rect>
+<rect fill="#0C1324" height="40" width="30" x="90" y="140"></rect>
+<rect fill="#0C1324" height="20" width="20" x="130" y="155"></rect>
+<rect fill="#0C1324" height="25" width="30" x="160" y="160"></rect>
+</svg>
+</div>
+<code class="font-mono-metric text-mono-metric text-primary">#ITC-CKG-88</code>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+          Scan using the HIMATIF Mobile Portal scanner to auto-join this squad directly.
+        </p>
+</div>
+<div class="mt-space-md flex gap-2">
+<button class="flex-1 py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md" onclick="toggleModal('qrModal')">
+          Close
+        </button>
+<button class="flex-1 py-2.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-semibold hover:bg-primary" onclick="copyInviteCode()">
+          Share Link
+        </button>
+</div>
+</div>
+</div>
+<!-- MODAL 2: Destructive Removal Modal -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-surface-container-lowest/80 backdrop-blur-md hidden p-4" id="removeMemberModal">
+<div class="flex flex-col w-full max-w-md rounded-xl bg-surface-container-low p-space-lg shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+<div class="flex items-center gap-space-sm text-error mb-space-sm">
+<div class="p-2 rounded-lg bg-error-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px]">warning</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Revoke Team Seat</h4>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        Are you certain you want to remove <span class="font-bold text-on-surface" id="removeTargetName">Member Name</span> (<span class="text-primary" id="removeTargetRole">Role</span>) from <span class="text-on-surface font-semibold">CyberKuningan Innovators</span>?
+      </p>
+<div class="p-space-sm rounded-lg bg-error-container/10 my-space-md">
+<p class="font-label-sm text-label-sm text-error">
+          Notice: Their verified KTM will be detached. Your roster will decrease to 2/3 members, which still satisfies the minimum threshold (2 members).
+        </p>
+</div>
+<div class="flex items-center justify-end gap-space-sm">
+<button class="px-4 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md" onclick="toggleModal('removeMemberModal')">
+          Cancel
+        </button>
+<button class="px-4 py-2 rounded-lg bg-error text-on-error font-label-md text-label-md font-bold hover:opacity-90" onclick="confirmMemberRemoval()">
+          Confirm Removal
+        </button>
+</div>
+</div>
+</div>
+<!-- MODAL 3: Transfer Leadership -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-surface-container-lowest/80 backdrop-blur-md hidden p-4" id="transferModal">
+<div class="flex flex-col w-full max-w-md rounded-xl bg-surface-container-low p-space-lg shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">swap_horiz</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Transfer Leadership</h4>
+</div>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container" onclick="toggleModal('transferModal')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-md">
+        Select a verified squad member to assume Team Captain privileges (document submission rights, roster invites, bank payout receiving):
+      </p>
+<div class="flex flex-col gap-space-xs mb-space-lg">
+<label class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<input checked="" class="accent-primary-container" name="newLeader" type="radio" value="anisa"/>
+<div>
+<p class="font-title-md text-title-md text-on-surface">Anisa Nur Rahma</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Institut Teknologi Telkom Cirebon</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container">UI Researcher</span>
+</label>
+<label class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<input class="accent-primary-container" name="newLeader" type="radio" value="dimas"/>
+<div>
+<p class="font-title-md text-title-md text-on-surface">Dimas Satria</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">STMIK IKMI Cirebon</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container">Prototyper</span>
+</label>
+</div>
+<div class="flex items-center justify-end gap-space-sm">
+<button class="px-4 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md" onclick="toggleModal('transferModal')">
+          Cancel
+        </button>
+<button class="px-4 py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold hover:bg-primary" onclick="executeTransfer()">
+          Confirm Handover
+        </button>
+</div>
+</div>
+</div>
+<!-- MODAL 4: Switch / Join Team Modal -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-surface-container-lowest/80 backdrop-blur-md hidden p-4" id="switchTeamModal">
+<div class="flex flex-col w-full max-w-md rounded-xl bg-surface-container-low p-space-lg shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">group_add</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Join Another Squad</h4>
+</div>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container" onclick="toggleModal('switchTeamModal')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-md">
+        Enter the 8-character invitation code provided by the Team Captain of an existing HIMATIF 2026 entry:
+      </p>
+<div class="flex flex-col gap-space-sm mb-space-md">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">Team Invitation Token</label>
+<input class="p-3 rounded-lg bg-surface-container text-on-surface placeholder:text-on-surface-variant/50 font-title-md text-title-md uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-primary-container" placeholder="e.g. #ITC-XYZ-99" type="text"/>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-high mb-space-md">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          ⚠️ Note: You cannot hold simultaneous active seats across two different teams competing in the same track (UI/UX Competition).
+        </p>
+</div>
+<div class="flex items-center justify-end gap-space-sm">
+<button class="px-4 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md" onclick="toggleModal('switchTeamModal')">
+          Cancel
+        </button>
+<button class="px-4 py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold hover:bg-primary" onclick="toggleModal('switchTeamModal')">
+          Verify &amp; Join
+        </button>
+</div>
+</div>
+</div>
+<!-- MODAL 5: Create New Team -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-surface-container-lowest/80 backdrop-blur-md hidden p-4" id="createTeamModal">
+<div class="flex flex-col w-full max-w-lg rounded-xl bg-surface-container-low p-space-lg shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">add_circle</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Establish New Squad</h4>
+</div>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container" onclick="toggleModal('createTeamModal')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-md">
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">Proposed Team Name</label>
+<input class="w-full mt-1 p-3 rounded-lg bg-surface-container text-on-surface placeholder:text-on-surface-variant/50 font-title-md text-title-md focus:outline-none focus:ring-2 focus:ring-primary-container" placeholder="e.g. Cirebon Cyber Collective" type="text"/>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">Competition Category</label>
+<select class="w-full mt-1 p-3 rounded-lg bg-surface-container text-on-surface font-title-md text-title-md focus:outline-none focus:ring-2 focus:ring-primary-container">
+<option selected="" value="uiux">UI/UX Design Competition (Mahasiswa)</option>
+<option value="web">Web Development Challenge (Siswa &amp; Mahasiswa)</option>
+<option value="cp">Competitive Programming (Regional Open)</option>
+<option value="iot">Smart City IoT Prototype (General)</option>
+</select>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase">Home Institution / Campus Base</label>
+<input class="w-full mt-1 p-3 rounded-lg bg-surface-container text-on-surface placeholder:text-on-surface-variant/50 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container" placeholder="e.g. Universitas Swadaya Gunung Jati (UGJ)" type="text"/>
+</div>
+</div>
+<div class="mt-space-lg flex items-center justify-end gap-space-sm">
+<button class="px-4 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md" onclick="toggleModal('createTeamModal')">
+          Cancel
+        </button>
+<button class="px-4 py-2 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold hover:bg-primary" onclick="toggleModal('createTeamModal')">
+          Generate Team Code
+        </button>
+</div>
+</div>
+</div>
+<!-- MODAL 6: Guidelines & Requirements Modal -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-surface-container-lowest/80 backdrop-blur-md hidden p-4" id="guidelineModal">
+<div class="flex flex-col w-full max-w-2xl max-h-[85vh] rounded-xl bg-surface-container-low p-space-lg shadow-2xl overflow-y-auto">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]">menu_book</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">HIMATIF IT Competition 2026 Manual</h4>
+</div>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container" onclick="toggleModal('guidelineModal')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-md text-on-surface-variant font-body-md text-body-md">
+<section>
+<h5 class="font-title-md text-title-md text-on-surface font-bold text-primary">1. Institutional Representation</h5>
+<p class="mt-1">
+            Teams may combine active students from different institutions within the Ciayumajakuning region (Kabupaten Cirebon, Kota Cirebon, Indramayu, Majalengka, Kuningan). Each member must possess a valid Kartu Tanda Mahasiswa (KTM) active for the 2025/2026 academic calendar.
+          </p>
+</section>
+<section>
+<h5 class="font-title-md text-title-md text-on-surface font-bold text-primary">2. Quota &amp; Role Allotment</h5>
+<p class="mt-1">
+            A squad is declared legally registered upon reaching at least two (2) verified members. The upper cap is rigidly bound to three (3) members. Any individual can only represent one team across the entire competition period.
+          </p>
+</section>
+<section>
+<h5 class="font-title-md text-title-md text-on-surface font-bold text-primary">3. Stage 1 Submission Deliverables</h5>
+<p class="mt-1">
+            Preliminary round requires: Design Executive Brief (PDF, max 10 pages), interactive Figma link with public viewing permissions, and recorded 3-minute video walkthrough pitched by team members.
+          </p>
+</section>
+<section>
+<h5 class="font-title-md text-title-md text-on-surface font-bold text-primary">4. Disqualification Criteria</h5>
+<p class="mt-1">
+            Submitting pre-existing commercial projects, utilizing unaccredited external contributors, or failure to produce valid institutional verification prior to the final judging round will yield immediate disqualification with zero fee refunds.
+          </p>
+</section>
+</div>
+<div class="mt-space-lg flex justify-end">
+<button class="px-5 py-2.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-semibold" onclick="toggleModal('guidelineModal')">
+          Understood &amp; Accept Terms
+        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Simple Vanilla Script for Micro-Interactions & Modals -->
+<script>
+  function toggleModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    if (modal.classList.contains('hidden')) {
+      modal.classList.remove('hidden');
+    } else {
+      modal.classList.add('hidden');
+    }
+  }
+
+  function copyInviteCode() {
+    const code = document.getElementById('inviteCodeText').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      const feedback = document.getElementById('copyFeedback');
+      const icon = document.getElementById('copyIcon');
+      feedback.classList.remove('opacity-0');
+      icon.innerText = 'check';
+      setTimeout(() => {
+        feedback.classList.add('opacity-0');
+        icon.innerText = 'content_copy';
+      }, 2500);
+    });
+  }
+
+  let pendingRemoveTarget = null;
+  function triggerRemoveMember(name, role) {
+    pendingRemoveTarget = name;
+    document.getElementById('removeTargetName').innerText = name;
+    document.getElementById('removeTargetRole').innerText = role;
+    toggleModal('removeMemberModal');
+  }
+
+  function confirmMemberRemoval() {
+    toggleModal('removeMemberModal');
+    // Display quick inline toast confirmation
+    alert('Member ' + pendingRemoveTarget + ' has been removed from this squad. Invitation slot opened.');
+  }
+
+  function executeTransfer() {
+    toggleModal('transferModal');
+    alert('Leadership authority successfully transferred. Session permissions updated.');
+  }
+</script></main></div></body></html>

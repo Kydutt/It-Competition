@@ -80,9 +80,7 @@ class PaymentService
         // 1. Check permission
         $isOwner = $payment->user_id === $user->id || $payment->registration?->user_id === $user->id;
         if (! $user->isAdmin() && ! $isOwner) {
-            throw ValidationException::withMessages([
-                'payment' => ['Anda tidak memiliki akses untuk mengunggah bukti pembayaran ini.'],
-            ]);
+            throw new \Illuminate\Auth\Access\AuthorizationException('Anda tidak memiliki akses untuk mengunggah bukti pembayaran ini.');
         }
 
         if (! $payment->canUploadProof()) {
@@ -146,9 +144,7 @@ class PaymentService
     {
         $isOwner = $payment->user_id === $user->id || $payment->registration?->user_id === $user->id;
         if (! $user->isAdmin() && ! $isOwner) {
-            throw ValidationException::withMessages([
-                'payment' => ['Anda tidak memiliki akses untuk mengajukan verifikasi pembayaran ini.'],
-            ]);
+            throw new \Illuminate\Auth\Access\AuthorizationException('Anda tidak memiliki akses untuk mengajukan verifikasi pembayaran ini.');
         }
 
         if (empty($payment->proof_path) || ! Storage::disk('local')->exists($payment->proof_path)) {

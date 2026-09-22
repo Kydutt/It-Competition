@@ -263,9 +263,7 @@ class SubmissionService
         $isLeader = $submission->team && $submission->team->leader_id === $user->id;
 
         if (! $user->isAdmin() && ! $isOwner && ! $isLeader) {
-            throw ValidationException::withMessages([
-                'submission' => ['Anda tidak memiliki hak akses untuk mengubah pengumpulan karya ini.'],
-            ]);
+            throw new \Illuminate\Auth\Access\AuthorizationException('Anda tidak memiliki hak akses untuk mengubah pengumpulan karya ini.');
         }
 
         if ($submission->isLocked()) {

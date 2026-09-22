@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-highest": "#2e3447", "primary-fixed-dim": "#ffb690", "surface-bright": "#33394c", "on-primary-fixed": "#341100", "on-tertiary-container": "#00306e", "surface-tint": "#ffb690", "on-secondary-fixed-variant": "#264191", "secondary-container": "#264191", "outline": "#a78b7d", "on-secondary-container": "#9db2ff", "surface-container-low": "#151b2d", "surface-container-high": "#23293c", "on-secondary": "#05297a", "on-primary-container": "#582200", "surface-variant": "#2e3447", "on-tertiary": "#002e6a", "inverse-on-surface": "#2a3043", "error-container": "#93000a", "on-secondary-fixed": "#00164e", "inverse-primary": "#9d4300", "tertiary-fixed-dim": "#adc6ff", "outline-variant": "#584237", "error": "#ffb4ab", "tertiary-fixed": "#d8e2ff", "on-error": "#690005", "secondary-fixed": "#dce1ff", "on-primary-fixed-variant": "#783200", "on-surface": "#dce1fb", "on-tertiary-fixed": "#001a42", "background": "#0c1324", "surface": "#0c1324", "on-tertiary-fixed-variant": "#004395", "secondary-fixed-dim": "#b6c4ff", "on-surface-variant": "#e0c0b1", "tertiary": "#adc6ff", "on-error-container": "#ffdad6", "surface-container-lowest": "#070d1f", "inverse-surface": "#dce1fb", "primary": "#ffb690", "primary-container": "#f97316", "secondary": "#b6c4ff", "tertiary-container": "#6399ff", "on-primary": "#552100", "surface-container": "#191f31", "surface-dim": "#0c1324", "on-background": "#dce1fb", "primary-fixed": "#ffdbca" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-mobile": "1rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "space-sm": "0.5rem", "space-md": "1rem", "margin": "2rem", "gutter-mobile": "1rem", "gutter": "1.5rem" }, "fontFamily": { "body-sm": ["Inter"], "label-sm": ["Inter"], "display-hero-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "title-md": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "headline-xl": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "mono-metric": ["Inter"], "label-md": ["Inter"], "body-md": ["Inter"] }, "fontSize": { "body-sm": ["13px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700" }], "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "mono-metric": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-lg"><div class="flex items-center gap-space-sm px-2"><img alt="HIMATIF IT Competition 2026 Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Vn27S9pYnXDMmGaoQUrWSTzP7O0ZyJLb8z7rmvo6TvkQ5e4p7OuAYYt2QtvtUoF4k9i_YxSdQH9rUa6yDEEoR3ArfmbKEzkKp-s80G459tDtk0jpdwBKggsJuzXXoljghBruf3AiS-UBD9JlF2M8LaNLBNvMPPpV8OVRObczbf6woMmijFVjhXDCfK7dnkVea1G7QgOzJrE7Euw2LL2w3n-QGOVkvfLtH27jkLsw"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase leading-none">HIMATIF</span><span class="font-label-sm text-label-sm text-primary tracking-widest leading-none mt-1">CONSOLE '26</span></div></div><div class="p-1 rounded-lg bg-surface-container flex items-center gap-1"><a class="flex-1 py-1 px-2 text-center rounded font-label-md text-label-md bg-primary-container text-on-primary font-semibold" data-path="dashboard" href="#">Participant</a><a class="flex-1 py-1 px-2 text-center rounded font-label-md text-label-md text-on-surface-variant hover:text-on-surface font-semibold" data-path="admin-review" href="#">Admin</a></div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-title-md text-title-md rounded-lg"><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="portal-competitions" href="#"><span class="material-symbols-outlined text-[20px]">terminal</span><span>Competitions</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="my-registrations" href="#"><span class="material-symbols-outlined text-[20px]">how_to_reg</span><span>My Registrations</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="my-team" href="#"><span class="material-symbols-outlined text-[20px]">group</span><span>My Team</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="payment" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span>Payment</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="submission" href="#"><span class="material-symbols-outlined text-[20px]">rocket_launch</span><span>Submission</span></a><a aria-current="page" class="flex items-center gap-space-sm px-3 py-2.5 transition-colors bg-primary-container text-on-primary font-title-md text-title-md rounded-lg" data-path="admin-review" href="#"><span class="material-symbols-outlined text-[20px]">verified</span><span>Admin Review</span></a><a class="flex items-center gap-space-sm px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-title-md text-title-md transition-colors" data-path="profile" href="#"><span class="material-symbols-outlined text-[20px]">account_circle</span><span>Profile</span></a></nav></div><div class="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface-variant">Arena Live</span></div><span class="font-label-sm text-label-sm text-primary">v2.6</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-sm"><div class="flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-surface-container-high"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface">Ciayumajakuning 2026</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="font-label-sm text-label-sm">Live Feed</span></div><div class="flex items-center gap-space-sm pl-space-sm"><div class="hidden md:flex flex-col text-right"><span class="font-title-md text-title-md text-on-surface leading-tight">Arya Pratama</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Captain • Synapse Dev</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfYnzAw9AIaTBB78JqgX_1kElfY_evGhaZKIWb0kgoI7azMaLQUtkKQ_lHS-CGZ6tef_4Ux4SbYvWWL18wKRrfEf4mCnlTebJsBOvCNf6SUgomOGbMa87mIl2Cvwy1EvLRCn7fcXt_uEm6mwPx5hWIxej8jiOKEpG0LcYXfZiEsr2W1F-cnZibTt-7d80sn6GkVnbOyCh-CUSemVaHHZT0JgTyZ9cDpfDa4KgYhw"/></div></div></header><main class="w-full pt-16 bg-background min-h-screen px-margin-mobile lg:px-margin py-space-lg"><div class="flex flex-col w-full gap-space-lg relative pb-16">
+<!-- Decorative Ambient Lighting (Contained) -->
+<div class="absolute -top-12 right-1/4 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-80 -left-20 w-80 h-80 bg-secondary-container/20 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<!-- Breadcrumbs & Meta Command Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<span>Admin Console</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-semibold">Registration Verification &amp; Review</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Competition Gatekeeper</h1>
+<span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary-fixed-dim font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>
+          Ciayumajakuning 2026
+        </span>
+</div>
+</div>
+<!-- Quick Ops Actions -->
+<div class="flex items-center gap-space-sm">
+<button class="px-3.5 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-md text-title-md flex items-center gap-2 transition-all duration-200">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Export CSV</span>
+</button>
+<button class="px-3.5 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-md text-title-md flex items-center gap-2 transition-all duration-200">
+<span class="material-symbols-outlined text-[18px]">rule</span>
+<span>Audit Log</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-title-md text-title-md flex items-center gap-2 font-bold shadow-lg shadow-primary-container/20 transition-all duration-200 active:scale-95" onclick="triggerBatchApproveModal()">
+<span class="material-symbols-outlined text-[18px]">checklist_rtl</span>
+<span>Bulk Verify</span>
+</button>
+</div>
+</div>
+<!-- 1. KPI Metric Modules (5-column Grid) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-md">
+<!-- Card 1: Total Participants -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Total Participants</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">groups</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="flex items-baseline gap-2">
+<span class="font-mono-metric text-mono-metric text-on-surface font-bold">482</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Students</span>
+</div>
+<div class="flex items-center gap-1.5 mt-2 text-primary-fixed-dim font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+18% from target quota</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-3 overflow-hidden">
+<div class="bg-secondary-container h-full rounded-full" style="width: 82%"></div>
+</div>
+</div>
+<!-- Card 2: Total Registrations -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Registrations</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="flex items-baseline gap-2">
+<span class="font-mono-metric text-mono-metric text-on-surface font-bold">164</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Teams</span>
+</div>
+<div class="flex items-center gap-1.5 mt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span>Target: 180 Teams (91.1%)</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-3 overflow-hidden">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 91%"></div>
+</div>
+</div>
+<!-- Card 3: Pending Verification (Alert State) -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-semibold">Pending Review</span>
+<div class="w-8 h-8 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary animate-pulse">
+<span class="material-symbols-outlined text-[18px]">pending_actions</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="flex items-baseline gap-2">
+<span class="font-mono-metric text-mono-metric text-primary font-bold">12</span>
+<span class="font-label-sm text-label-sm text-primary-fixed-dim font-medium">Submissions</span>
+</div>
+<div class="flex items-center gap-1.5 mt-2 text-primary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<span>Requires rapid sign-off</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<!-- Card 4: Pending Payment Reviews -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Payment Validation</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="flex items-baseline gap-2">
+<span class="font-mono-metric text-mono-metric text-on-surface font-bold">5</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Slips</span>
+</div>
+<div class="flex items-center gap-1.5 mt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span>Total: Rp 650.000 unverified</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-3 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 25%"></div>
+</div>
+</div>
+<!-- Card 5: Prize Budget Pool -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Prize Pool Locked</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[18px]">military_tech</span>
+</div>
+</div>
+<div class="mt-3">
+<div class="flex items-baseline gap-1">
+<span class="font-mono-metric text-mono-metric text-on-surface font-bold">25.0M</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">IDR</span>
+</div>
+<div class="flex items-center gap-1.5 mt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span>Allocated across 4 Tracks</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-3 overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+<!-- Regional Distribution & Real-Time Pipeline Visualizer -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<!-- Mini Pipeline Flow -->
+<div class="lg:col-span-8 p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">account_tree</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold">Registration Flow Telemetry</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Active Batch #02 • Closes in 4d 12h</span>
+</div>
+<!-- Inline Dynamic Funnel SVG -->
+<div class="w-full py-2">
+<div class="grid grid-cols-4 gap-2 text-center relative">
+<div class="p-3 rounded-lg bg-surface-container flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">1. Registered</span>
+<span class="font-mono-metric text-mono-metric text-on-surface mt-1">164</span>
+<span class="text-[11px] text-primary-fixed-dim mt-0.5">100% Inflow</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">2. Paid &amp; Proof</span>
+<span class="font-mono-metric text-mono-metric text-on-surface mt-1">159</span>
+<span class="text-[11px] text-secondary mt-0.5">96.9% Rate</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container flex flex-col items-center border-b-2 border-primary">
+<span class="font-label-sm text-label-sm text-primary font-semibold">3. Admin Verified</span>
+<span class="font-mono-metric text-mono-metric text-primary mt-1">147</span>
+<span class="text-[11px] text-primary-fixed-dim mt-0.5">12 In Queue</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">4. Final Stage</span>
+<span class="font-mono-metric text-mono-metric text-tertiary mt-1">140</span>
+<span class="text-[11px] text-tertiary-fixed mt-0.5">Locked In</span>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between pt-3 mt-2 text-on-surface-variant font-label-sm text-label-sm border-t border-surface-container-highest/40">
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+          Avg Review SLA: <strong class="text-on-surface ml-1">42 Minutes</strong>
+</span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+          Rejection Rate: <strong class="text-on-surface ml-1">3.6% (Resubmitted)</strong>
+</span>
+<span class="text-on-surface">Auto-escalate alerts active</span>
+</div>
+</div>
+<!-- Ciayumajakuning Coverage -->
+<div class="lg:col-span-4 p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">map</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold">Regional Density</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">Ciayumajakuning</span>
+</div>
+<div class="space-y-2 py-1">
+<div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface mb-1">
+<span>Cirebon (City &amp; Regency)</span>
+<span class="font-semibold text-primary">68 Teams (41%)</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 41%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface mb-1">
+<span>Kuningan Regency</span>
+<span class="font-semibold text-secondary">38 Teams (23%)</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 23%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface mb-1">
+<span>Majalengka Regency</span>
+<span class="font-semibold text-tertiary">34 Teams (21%)</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 21%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface mb-1">
+<span>Indramayu Regency</span>
+<span class="font-semibold text-on-surface-variant">24 Teams (15%)</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-surface-container-highest rounded-full" style="width: 15%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. Filter & Action Toolbar -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-sm">
+<!-- Search Box with Icon -->
+<div class="relative flex-1 min-w-[280px]">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full pl-11 pr-4 py-2.5 rounded-lg bg-surface-container text-on-surface placeholder:text-on-surface-variant/60 font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-200" id="teamSearchInput" oninput="filterTable()" placeholder="Search by Reg Number (#ITC-...), Team Name, or Campus / School..." type="text"/>
+</div>
+<!-- Quick Filter Pills -->
+<div class="flex flex-wrap items-center gap-space-xs">
+<!-- Track Dropdown -->
+<select class="px-3 py-2.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer" id="trackFilter" onchange="filterTable()">
+<option value="ALL">All Tracks (4)</option>
+<option value="WEB">Web Development</option>
+<option value="UIUX">UI/UX Design</option>
+<option value="LKTI">LKTI Inovasi</option>
+<option value="POSTER">IT Infographic</option>
+</select>
+<!-- Tier / Level Dropdown -->
+<select class="px-3 py-2.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer" id="levelFilter" onchange="filterTable()">
+<option value="ALL">All Levels</option>
+<option value="UNIVERSITY">Perguruan Tinggi</option>
+<option value="SMA">SMA / SMK / MA</option>
+</select>
+<!-- Status Filter -->
+<select class="px-3 py-2.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer" id="statusFilter" onchange="filterTable()">
+<option value="ALL">All Statuses</option>
+<option value="PENDING">Pending Review</option>
+<option value="APPROVED">Approved</option>
+<option value="REVISION">Needs Revision</option>
+<option value="REJECTED">Rejected</option>
+</select>
+<button class="p-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" onclick="resetFilters()" title="Reset Filters">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+</div>
+</div>
+<!-- Active Filter Summary & Batch Selection Indicator -->
+<div class="flex items-center justify-between pt-2 border-t border-surface-container/60 text-label-sm font-label-sm">
+<div class="flex items-center gap-space-sm text-on-surface-variant">
+<span>Showing <strong class="text-on-surface" id="visibleRowCount">6</strong> of 164 registered teams</span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+          Queue sorting: Oldest submission first
+        </span>
+</div>
+<div class="flex items-center gap-space-xs">
+<label class="flex items-center gap-2 cursor-pointer text-on-surface-variant hover:text-on-surface">
+<input class="rounded bg-surface-container-high text-primary-container focus:ring-primary" id="selectAllCheckbox" onchange="toggleSelectAll(this)" type="checkbox"/>
+<span>Select All on Page</span>
+</label>
+</div>
+</div>
+</div>
+<!-- 3. Comprehensive Admin Review Data Table -->
+<div class="w-full rounded-xl bg-surface-container-low shadow-sm overflow-hidden flex flex-col">
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse" id="reviewDataTable">
+<thead>
+<tr class="bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-3.5 px-4 w-12 text-center">
+<span class="sr-only">Select</span>
+</th>
+<th class="py-3.5 px-4">Reg Number</th>
+<th class="py-3.5 px-4">Team &amp; Leader</th>
+<th class="py-3.5 px-4">Track &amp; Level</th>
+<th class="py-3.5 px-4">Institution &amp; City</th>
+<th class="py-3.5 px-4">Payment</th>
+<th class="py-3.5 px-4">Proposal / Files</th>
+<th class="py-3.5 px-4">Review Status</th>
+<th class="py-3.5 px-4 text-right">Gate Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest/30 font-body-sm text-body-sm text-on-surface" id="tableBody">
+<!-- Row 1: Target row with side drawer modal trigger -->
+<tr class="hover:bg-surface-container/70 transition-colors group cursor-pointer" onclick="openReviewDrawer('ITC-2026-00042')">
+<td class="py-4 px-4 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded bg-surface-container text-primary-container focus:ring-primary" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-mono text-primary font-bold">#ITC-2026-00042</span>
+<span class="text-[11px] text-on-surface-variant font-medium">12 Feb 2026, 14:22</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<img class="w-9 h-9 rounded-lg object-cover shadow-sm bg-surface-container-high" data-alt="Close-up portrait of a young Indonesian male developer smiling confidently with modern developer glasses and dark tech hoodie in a studio with subtle orange rim light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD97TFv0SseGi428VGWhaWNRQfqJm2h14csjdAUd-hb7YAyP_9mF9BdAVqjZ4Gfd-xdS9g4gIqdn3ZEYIqRC7Ej_MgtQL9CMIL612d1yg7AK0e8nB4U3UOzGrWGQL33jXVGIajjsH5uPAwdokaMv5lKJXixUFVZ1iuuyCdLjVRTWEp_EfoDdHSQRexBbpXadj7aUwNRN1cizrvsdkLTJHWsNundmWN0PQpR4GiMJQ"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold text-on-surface truncate">Synapse Cirebon</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-[10px] font-semibold text-secondary">3/3</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm truncate">Arya Pratama (Lead)</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-primary-container/20 text-primary-fixed-dim">
+                  Web Development
+                </span>
+<span class="text-[11px] text-on-surface-variant">Perguruan Tinggi</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">UGJ Cirebon</span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">location_on</span>
+                  Kota Cirebon
+                </span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary font-label-sm text-label-sm font-bold">
+                  Under Review
+                </span>
+</div>
+</td>
+<td class="py-4 px-4" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container text-on-surface hover:text-primary transition-colors text-[12px] font-mono" href="#">
+<span class="material-symbols-outlined text-[16px] text-primary">description</span>
+<span>synapse_proposal.pdf</span>
+<span class="text-on-surface-variant text-[10px]">(14MB)</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold bg-primary-container/20 text-primary flex items-center gap-1.5 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                Pending Review
+              </span>
+</td>
+<td class="py-4 px-4 text-right" onclick="event.stopPropagation()">
+<div class="flex items-center justify-end gap-1.5">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-green-950/40 text-green-400 flex items-center justify-center transition-colors" onclick="quickApprove('ITC-2026-00042')" title="Quick Approve">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</button>
+<button class="px-2.5 py-1 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold hover:bg-primary transition-colors flex items-center gap-1" onclick="openReviewDrawer('ITC-2026-00042')">
+<span>Verify</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: SMKN 1 Majalengka (UIUX) -->
+<tr class="hover:bg-surface-container/70 transition-colors group cursor-pointer" onclick="openReviewDrawer('ITC-2026-00043')">
+<td class="py-4 px-4 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded bg-surface-container text-primary-container focus:ring-primary" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-mono text-on-surface font-bold">#ITC-2026-00043</span>
+<span class="text-[11px] text-on-surface-variant font-medium">12 Feb 2026, 15:10</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<img class="w-9 h-9 rounded-lg object-cover shadow-sm bg-surface-container-high" data-alt="Portrait of an Indonesian female high school vocational student smiling in a light blue tech lab setting wearing an orange lanyard and glasses with cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL7WEw73eRTJsZMF7GN5LkDlKT1_HP3Qa5OdRtt41hcVgYafD3qi87Yqf082S_WCVuvUTkgir9pWZ-bQj4jwz-kSZPD9VP1pC_MYBuaoH_c88-BREqG3fmTxgNCY0BUKQOC6a00Ik9c_Z-nKnBMV5aeX_AblmPaaBS4UnGiJiUOp3yOzs-CHEj5R3WSpmnzkDCBoZm56j6kQDkriHD_Fef3VlUZSLjV_T305eYfQ"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold text-on-surface truncate">Majalengka UX Lab</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-[10px] font-semibold text-secondary">2/2</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm truncate">Siti Nurhaliza (Lead)</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-secondary-container/50 text-secondary-fixed">
+                  UI/UX Design
+                </span>
+<span class="text-[11px] text-on-surface-variant">SMA / SMK</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">SMKN 1 Majalengka</span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">location_on</span>
+                  Kab. Majalengka
+                </span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="px-2 py-0.5 rounded-full bg-green-950/40 text-green-400 font-label-sm text-label-sm font-bold flex items-center gap-1 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                Verified (BCA)
+              </span>
+</td>
+<td class="py-4 px-4" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container text-on-surface hover:text-primary transition-colors text-[12px] font-mono" href="#">
+<span class="material-symbols-outlined text-[16px] text-secondary">design_services</span>
+<span>ux_figma_deck.pdf</span>
+<span class="text-on-surface-variant text-[10px]">(8.4MB)</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold bg-green-950/40 text-green-400 flex items-center gap-1.5 w-fit">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                Approved
+              </span>
+</td>
+<td class="py-4 px-4 text-right" onclick="event.stopPropagation()">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" onclick="openReviewDrawer('ITC-2026-00043')">
+                  Details
+                </button>
+</div>
+</td>
+</tr>
+<!-- Row 3: SMK Pertiwi Kuningan (Web Dev) - Revision Required -->
+<tr class="hover:bg-surface-container/70 transition-colors group cursor-pointer" onclick="openReviewDrawer('ITC-2026-00044')">
+<td class="py-4 px-4 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded bg-surface-container text-primary-container focus:ring-primary" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-mono text-on-surface font-bold">#ITC-2026-00044</span>
+<span class="text-[11px] text-on-surface-variant font-medium">13 Feb 2026, 09:40</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<img class="w-9 h-9 rounded-lg object-cover shadow-sm bg-surface-container-high" data-alt="Side profile headshot of a concentrated young Indonesian male programmer wearing a tech hoodie typing on computer screen reflecting orange terminal glow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_oUUSH1a6i6A0Xgn1LFlqNCgIKUM2ZYkC8sSCkrKEZziimcO7LQ2yzjAvcgOsdLtelbJN1JwCdi_ZM6I932o4At7kTu97cEf232Z7Keoz836kQ7xgWhXQh6Q_Wh2jcRl2aGcqYeidg8NkieqUW1WQpMhCRF8RD0tDFDY7_-GXil0T8z_CDqH_cgyhrpAlhTtxntCOV635PA675AP5H5DTNq7ICisFkiXn8MC6Ng"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold text-on-surface truncate">Pertiwi Cyber Crew</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-[10px] font-semibold text-secondary">3/3</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm truncate">Fajar Ramadhan (Lead)</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-primary-container/20 text-primary-fixed-dim">
+                  Web Development
+                </span>
+<span class="text-[11px] text-on-surface-variant">SMA / SMK</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">SMK Pertiwi Kuningan</span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">location_on</span>
+                  Kab. Kuningan
+                </span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="px-2 py-0.5 rounded-full bg-red-950/40 text-red-300 font-label-sm text-label-sm font-bold flex items-center gap-1 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                Blurry Slip
+              </span>
+</td>
+<td class="py-4 px-4" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container text-on-surface hover:text-primary transition-colors text-[12px] font-mono" href="#">
+<span class="material-symbols-outlined text-[16px] text-primary">description</span>
+<span>pertiwi_web.zip</span>
+<span class="text-on-surface-variant text-[10px]">(32MB)</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold bg-red-950/30 text-red-300 flex items-center gap-1.5 w-fit">
+<span class="material-symbols-outlined text-[14px]">error</span>
+                Needs Revision
+              </span>
+</td>
+<td class="py-4 px-4 text-right" onclick="event.stopPropagation()">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" onclick="openReviewDrawer('ITC-2026-00044')">
+                  Review
+                </button>
+</div>
+</td>
+</tr>
+<!-- Row 4: UNWIR Indramayu (LKTI) -->
+<tr class="hover:bg-surface-container/70 transition-colors group cursor-pointer" onclick="openReviewDrawer('ITC-2026-00045')">
+<td class="py-4 px-4 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded bg-surface-container text-primary-container focus:ring-primary" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-mono text-on-surface font-bold">#ITC-2026-00045</span>
+<span class="text-[11px] text-on-surface-variant font-medium">13 Feb 2026, 11:15</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container-highest flex items-center justify-center font-bold text-tertiary">
+                  WI
+                </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold text-on-surface truncate">Wiralodra AI</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-[10px] font-semibold text-secondary">3/3</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm truncate">Budi Santoso (Lead)</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-tertiary-container/40 text-tertiary-fixed">
+                  LKTI Inovasi
+                </span>
+<span class="text-[11px] text-on-surface-variant">Perguruan Tinggi</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">UNWIR Indramayu</span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">location_on</span>
+                  Kab. Indramayu
+                </span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="px-2 py-0.5 rounded-full bg-green-950/40 text-green-400 font-label-sm text-label-sm font-bold flex items-center gap-1 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                Verified (Mandiri)
+              </span>
+</td>
+<td class="py-4 px-4" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container text-on-surface hover:text-primary transition-colors text-[12px] font-mono" href="#">
+<span class="material-symbols-outlined text-[16px] text-tertiary">article</span>
+<span>karya_tulis_unwir.pdf</span>
+<span class="text-on-surface-variant text-[10px]">(6.1MB)</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold bg-green-950/40 text-green-400 flex items-center gap-1.5 w-fit">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                Approved
+              </span>
+</td>
+<td class="py-4 px-4 text-right" onclick="event.stopPropagation()">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" onclick="openReviewDrawer('ITC-2026-00045')">
+                  Details
+                </button>
+</div>
+</td>
+</tr>
+<!-- Row 5: CIC Cirebon (IT Infographic / Poster) -->
+<tr class="hover:bg-surface-container/70 transition-colors group cursor-pointer" onclick="openReviewDrawer('ITC-2026-00046')">
+<td class="py-4 px-4 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded bg-surface-container text-primary-container focus:ring-primary" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-mono text-primary font-bold">#ITC-2026-00046</span>
+<span class="text-[11px] text-on-surface-variant font-medium">13 Feb 2026, 16:02</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container-highest flex items-center justify-center font-bold text-primary">
+                  CP
+                </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold text-on-surface truncate">PixelCraft CIC</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-[10px] font-semibold text-secondary">1/1</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm truncate">Dinda Larasati</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-surface-container-highest text-on-surface">
+                  IT Infographic
+                </span>
+<span class="text-[11px] text-on-surface-variant">Perguruan Tinggi</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Universitas CIC</span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">location_on</span>
+                  Kota Cirebon
+                </span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary font-label-sm text-label-sm font-bold">
+                  Under Review
+                </span>
+</div>
+</td>
+<td class="py-4 px-4" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container text-on-surface hover:text-primary transition-colors text-[12px] font-mono" href="#">
+<span class="material-symbols-outlined text-[16px] text-primary">image</span>
+<span>poster_final_a3.pdf</span>
+<span class="text-on-surface-variant text-[10px]">(19MB)</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold bg-primary-container/20 text-primary flex items-center gap-1.5 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                Pending Review
+              </span>
+</td>
+<td class="py-4 px-4 text-right" onclick="event.stopPropagation()">
+<div class="flex items-center justify-end gap-1.5">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-green-950/40 text-green-400 flex items-center justify-center transition-colors" onclick="quickApprove('ITC-2026-00046')" title="Quick Approve">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</button>
+<button class="px-2.5 py-1 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold hover:bg-primary transition-colors flex items-center gap-1" onclick="openReviewDrawer('ITC-2026-00046')">
+<span>Verify</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: SMAN 1 Kuningan (Web Dev) -->
+<tr class="hover:bg-surface-container/70 transition-colors group cursor-pointer" onclick="openReviewDrawer('ITC-2026-00047')">
+<td class="py-4 px-4 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded bg-surface-container text-primary-container focus:ring-primary" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-mono text-on-surface font-bold">#ITC-2026-00047</span>
+<span class="text-[11px] text-on-surface-variant font-medium">14 Feb 2026, 08:30</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container-highest flex items-center justify-center font-bold text-secondary">
+                  SM
+                </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold text-on-surface truncate">Smansa CodeCraft</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-[10px] font-semibold text-secondary">3/3</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm truncate">Rafi Fauzan (Lead)</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm font-semibold bg-primary-container/20 text-primary-fixed-dim">
+                  Web Development
+                </span>
+<span class="text-[11px] text-on-surface-variant">SMA / SMK</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">SMAN 1 Kuningan</span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">location_on</span>
+                  Kab. Kuningan
+                </span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="px-2 py-0.5 rounded-full bg-green-950/40 text-green-400 font-label-sm text-label-sm font-bold flex items-center gap-1 w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                Verified (QRIS)
+              </span>
+</td>
+<td class="py-4 px-4" onclick="event.stopPropagation()">
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container text-on-surface hover:text-primary transition-colors text-[12px] font-mono" href="#">
+<span class="material-symbols-outlined text-[16px] text-primary">description</span>
+<span>smansa_itc26.pdf</span>
+<span class="text-on-surface-variant text-[10px]">(11MB)</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold bg-green-950/40 text-green-400 flex items-center gap-1.5 w-fit">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                Approved
+              </span>
+</td>
+<td class="py-4 px-4 text-right" onclick="event.stopPropagation()">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" onclick="openReviewDrawer('ITC-2026-00047')">
+                  Details
+                </button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Data Table Pagination Footer -->
+<div class="p-space-md bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm text-on-surface-variant font-label-sm text-label-sm">
+<span>Rows per page:</span>
+<select class="px-2 py-1 rounded bg-surface-container text-on-surface focus:outline-none">
+<option>10</option>
+<option>25</option>
+<option>50</option>
+</select>
+<span>1-6 of 164 records</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center disabled:opacity-40">
+<span class="material-symbols-outlined text-[18px]">first_page</span>
+</button>
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center disabled:opacity-40">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary-container text-on-primary font-bold text-label-sm">1</button>
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface-variant hover:text-on-surface text-label-sm">2</button>
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface-variant hover:text-on-surface text-label-sm">3</button>
+<span class="px-1 text-on-surface-variant">...</span>
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface-variant hover:text-on-surface text-label-sm">17</button>
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+<button class="w-8 h-8 rounded bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">last_page</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 4. Interactive Review Modal & Side Drawer System -->
+<div class="fixed inset-0 bg-background/80 backdrop-blur-md z-50 opacity-0 pointer-events-none transition-opacity duration-300 flex justify-end" id="reviewDrawerOverlay" onclick="closeReviewDrawer()">
+<!-- Drawer Panel (Stops Click Propagation) -->
+<div class="w-full max-w-2xl h-full bg-surface-container-low shadow-2xl p-6 overflow-y-auto flex flex-col justify-between translate-x-full transition-transform duration-300" id="reviewDrawerContent" onclick="event.stopPropagation()">
+<!-- Drawer Header -->
+<div class="flex flex-col gap-space-md pb-4 border-b border-surface-container-highest/40">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="px-2.5 py-1 rounded bg-primary-container text-on-primary font-mono font-bold text-label-md" id="modalRegNumber">#ITC-2026-00042</span>
+<span class="px-2.5 py-1 rounded bg-primary-container/20 text-primary-fixed-dim font-label-sm text-label-sm font-semibold">Web Development</span>
+</div>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center" onclick="closeReviewDrawer()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold" id="modalTeamName">Synapse Cirebon</h2>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Submitted on 12 February 2026 • Universitas Swadaya Gunung Jati (UGJ) Cirebon</p>
+</div>
+</div>
+<!-- Drawer Body: Verification Checklist & Evidence Tabs -->
+<div class="flex flex-col gap-space-lg py-4 flex-1">
+<!-- Team Roster Card -->
+<div class="p-4 rounded-xl bg-surface-container flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-title-md text-title-md font-semibold text-on-surface">Registered Members (3/3)</span>
+<span class="text-xs text-green-400 flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[14px]">check</span> KTM Complete
+            </span>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<div class="p-3 rounded-lg bg-surface-container-high flex flex-col gap-1">
+<span class="text-primary font-semibold text-xs uppercase tracking-wide">Leader</span>
+<span class="font-bold text-on-surface text-sm truncate">Arya Pratama</span>
+<span class="text-[11px] text-on-surface-variant font-mono">220511048</span>
+<span class="text-[11px] text-secondary mt-1">Informatics '22</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-high flex flex-col gap-1">
+<span class="text-on-surface-variant font-semibold text-xs uppercase tracking-wide">Member 1</span>
+<span class="font-bold text-on-surface text-sm truncate">Rian Hidayat</span>
+<span class="text-[11px] text-on-surface-variant font-mono">220511072</span>
+<span class="text-[11px] text-secondary mt-1">Informatics '22</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-high flex flex-col gap-1">
+<span class="text-on-surface-variant font-semibold text-xs uppercase tracking-wide">Member 2</span>
+<span class="font-bold text-on-surface text-sm truncate">Nabila Putri</span>
+<span class="text-[11px] text-on-surface-variant font-mono">230511019</span>
+<span class="text-[11px] text-secondary mt-1">Informatics '23</span>
+</div>
+</div>
+</div>
+<!-- Document Preview Inspection Tabs -->
+<div class="flex flex-col gap-3">
+<span class="font-title-md text-title-md font-semibold text-on-surface">Verification Artifacts</span>
+<!-- Tab Selector Buttons -->
+<div class="flex items-center gap-2 p-1 rounded-lg bg-surface-container">
+<button class="flex-1 py-1.5 rounded-md font-label-md text-label-md text-center bg-primary-container text-on-primary font-bold transition-colors" id="tabBtnSlip" onclick="switchDocTab('slip')">
+              Payment Receipt (QRIS)
+            </button>
+<button class="flex-1 py-1.5 rounded-md font-label-md text-label-md text-center text-on-surface-variant hover:text-on-surface transition-colors" id="tabBtnKtm" onclick="switchDocTab('ktm')">
+              Student IDs (KTM)
+            </button>
+<button class="flex-1 py-1.5 rounded-md font-label-md text-label-md text-center text-on-surface-variant hover:text-on-surface transition-colors" id="tabBtnProposal" onclick="switchDocTab('proposal')">
+              Proposal Deck
+            </button>
+</div>
+<!-- Document Inspection Viewport -->
+<div class="p-4 rounded-xl bg-surface-container-high flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden">
+<!-- Payment Preview -->
+<div class="flex flex-col items-center gap-2 w-full" id="docPreviewSlip">
+<div class="p-4 rounded-lg bg-surface-container-lowest w-full max-w-sm flex flex-col gap-2">
+<div class="flex justify-between items-center pb-2 border-b border-surface-container-highest">
+<span class="text-xs text-on-surface-variant">BCA Virtual Account / QRIS</span>
+<span class="text-xs text-green-400 font-mono font-bold">MATCH 100%</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant">Amount:</span>
+<span class="font-mono font-bold text-on-surface">Rp 125.000</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Ref No:</span>
+<span class="font-mono text-primary">TRX-ITC-2026-99182</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-on-surface-variant">Timestamp:</span>
+<span class="text-on-surface">12 Feb 2026 - 14:15:22 WIB</span>
+</div>
+</div>
+<span class="text-xs text-on-surface-variant">Bank reconciliation verified against HIMATIF treasury balance</span>
+</div>
+<!-- KTM Preview (Hidden by default) -->
+<div class="hidden flex flex-col items-center gap-2 w-full" id="docPreviewKtm">
+<div class="grid grid-cols-2 gap-3 w-full">
+<div class="p-3 rounded-lg bg-surface-container-lowest flex flex-col gap-1">
+<span class="text-[11px] text-primary font-semibold">Leader KTM - Verified Active</span>
+<div class="w-full h-24 bg-surface-container rounded flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[32px] text-secondary">badge</span>
+</div>
+<span class="text-xs text-on-surface font-mono mt-1">NIM: 220511048</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-lowest flex flex-col gap-1">
+<span class="text-[11px] text-primary font-semibold">Dean Endorsement Letter</span>
+<div class="w-full h-24 bg-surface-container rounded flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[32px] text-tertiary">assignment_turned_in</span>
+</div>
+<span class="text-xs text-on-surface font-mono mt-1">Official Stamp Stamped</span>
+</div>
+</div>
+</div>
+<!-- Proposal Preview (Hidden by default) -->
+<div class="hidden flex flex-col items-center gap-2 w-full" id="docPreviewProposal">
+<div class="p-4 rounded-lg bg-surface-container-lowest w-full flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[32px]">picture_as_pdf</span>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">synapse_smart_ciayu_v2.pdf</span>
+<span class="text-xs text-on-surface-variant">14.2 MB • 24 Pages • Clean Metadata</span>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded bg-surface-container text-primary font-semibold text-xs hover:bg-surface-container-highest">
+                  Open PDF Viewer
+                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Admin Revision Notes Form -->
+<div class="flex flex-col gap-2">
+<label class="font-title-md text-title-md font-semibold text-on-surface flex items-center justify-between" for="adminNoteTextarea">
+<span>Admin Review Notes &amp; Feedback</span>
+<span class="text-xs text-on-surface-variant">Dispatched directly via Email + WA Gateway</span>
+</label>
+<textarea class="w-full p-3 rounded-lg bg-surface-container text-on-surface placeholder:text-on-surface-variant/50 font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary" id="adminNoteTextarea" placeholder="Type feedback if requesting revision (e.g., 'KTM scanned image member #2 is blurry, please re-upload clear version before 15 Feb')..." rows="3"></textarea>
+</div>
+</div>
+<!-- Drawer Bottom Command Actions -->
+<div class="pt-4 border-t border-surface-container-highest/40 flex flex-col sm:flex-row items-center gap-3">
+<button class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors" onclick="drawerAction('REJECT')">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+<span>Reject</span>
+</button>
+<button class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors" onclick="drawerAction('REVISION')">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+<span>Request Revision</span>
+</button>
+<button class="w-full sm:flex-1 px-5 py-2.5 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-title-md text-title-md font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary-container/20 transition-all active:scale-98" onclick="drawerAction('APPROVE')">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span>Approve &amp; Issue Reg Pass</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Notification Toast Container -->
+<div class="fixed bottom-6 right-6 p-4 rounded-xl bg-surface-container-high border-l-4 border-primary-container shadow-2xl text-on-surface flex items-center gap-3 translate-y-24 opacity-0 transition-all duration-300 z-50 pointer-events-none" id="toastNotification">
+<span class="material-symbols-outlined text-primary" id="toastIcon">check_circle</span>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-bold" id="toastTitle">Team Approved</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant" id="toastMessage">Registration pass successfully assigned.</span>
+</div>
+</div>
+</div>
+<script>
+  // Filter & Search Logic
+  function filterTable() {
+    const searchVal = document.getElementById('teamSearchInput').value.toLowerCase();
+    const trackVal = document.getElementById('trackFilter').value;
+    const levelVal = document.getElementById('levelFilter').value;
+    const statusVal = document.getElementById('statusFilter').value;
+
+    const rows = document.querySelectorAll('#tableBody tr');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      const matchesSearch = text.includes(searchVal);
+
+      let matchesTrack = true;
+      if (trackVal === 'WEB') matchesTrack = text.includes('web development');
+      else if (trackVal === 'UIUX') matchesTrack = text.includes('ui/ux');
+      else if (trackVal === 'LKTI') matchesTrack = text.includes('lkti');
+      else if (trackVal === 'POSTER') matchesTrack = text.includes('infographic');
+
+      let matchesLevel = true;
+      if (levelVal === 'UNIVERSITY') matchesLevel = text.includes('perguruan tinggi');
+      else if (levelVal === 'SMA') matchesLevel = text.includes('sma / smk');
+
+      let matchesStatus = true;
+      if (statusVal === 'PENDING') matchesStatus = text.includes('pending review');
+      else if (statusVal === 'APPROVED') matchesStatus = text.includes('approved');
+      else if (statusVal === 'REVISION') matchesStatus = text.includes('needs revision');
+      else if (statusVal === 'REJECTED') matchesStatus = text.includes('rejected');
+
+      if (matchesSearch && matchesTrack && matchesLevel && matchesStatus) {
+        row.style.display = '';
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    const countElem = document.getElementById('visibleRowCount');
+    if (countElem) countElem.innerText = visibleCount;
+  }
+
+  function resetFilters() {
+    document.getElementById('teamSearchInput').value = '';
+    document.getElementById('trackFilter').value = 'ALL';
+    document.getElementById('levelFilter').value = 'ALL';
+    document.getElementById('statusFilter').value = 'ALL';
+    filterTable();
+  }
+
+  // Select All Checkbox
+  function toggleSelectAll(source) {
+    const checkboxes = document.querySelectorAll('.row-checkbox');
+    checkboxes.forEach(cb => {
+      cb.checked = source.checked;
+    });
+  }
+
+  // Review Drawer Modal Management
+  function openReviewDrawer(regNumber) {
+    const overlay = document.getElementById('reviewDrawerOverlay');
+    const drawer = document.getElementById('reviewDrawerContent');
+    const regLabel = document.getElementById('modalRegNumber');
+    const teamLabel = document.getElementById('modalTeamName');
+
+    if (regLabel) regLabel.innerText = '#' + regNumber;
+    
+    // Customize preview details slightly based on item
+    if (regNumber === 'ITC-2026-00042') {
+      teamLabel.innerText = 'Synapse Cirebon';
+    } else if (regNumber === 'ITC-2026-00043') {
+      teamLabel.innerText = 'Majalengka UX Lab';
+    } else if (regNumber === 'ITC-2026-00044') {
+      teamLabel.innerText = 'Pertiwi Cyber Crew';
+    } else {
+      teamLabel.innerText = 'Competition Participant Team';
+    }
+
+    overlay.classList.remove('opacity-0', 'pointer-events-none');
+    overlay.classList.add('opacity-100', 'pointer-events-auto');
+    drawer.classList.remove('translate-x-full');
+    drawer.classList.add('translate-x-0');
+  }
+
+  function closeReviewDrawer() {
+    const overlay = document.getElementById('reviewDrawerOverlay');
+    const drawer = document.getElementById('reviewDrawerContent');
+    drawer.classList.remove('translate-x-0');
+    drawer.classList.add('translate-x-full');
+    overlay.classList.remove('opacity-100', 'pointer-events-auto');
+    overlay.classList.add('opacity-0', 'pointer-events-none');
+  }
+
+  // Document Tab Switching
+  function switchDocTab(tab) {
+    const slip = document.getElementById('docPreviewSlip');
+    const ktm = document.getElementById('docPreviewKtm');
+    const proposal = document.getElementById('docPreviewProposal');
+
+    const btnSlip = document.getElementById('tabBtnSlip');
+    const btnKtm = document.getElementById('tabBtnKtm');
+    const btnProposal = document.getElementById('tabBtnProposal');
+
+    // Reset styles
+    [btnSlip, btnKtm, btnProposal].forEach(b => {
+      b.className = "flex-1 py-1.5 rounded-md font-label-md text-label-md text-center text-on-surface-variant hover:text-on-surface transition-colors";
+    });
+
+    slip.classList.add('hidden');
+    ktm.classList.add('hidden');
+    proposal.classList.add('hidden');
+
+    if (tab === 'slip') {
+      slip.classList.remove('hidden');
+      btnSlip.className = "flex-1 py-1.5 rounded-md font-label-md text-label-md text-center bg-primary-container text-on-primary font-bold transition-colors";
+    } else if (tab === 'ktm') {
+      ktm.classList.remove('hidden');
+      btnKtm.className = "flex-1 py-1.5 rounded-md font-label-md text-label-md text-center bg-primary-container text-on-primary font-bold transition-colors";
+    } else if (tab === 'proposal') {
+      proposal.classList.remove('hidden');
+      btnProposal.className = "flex-1 py-1.5 rounded-md font-label-md text-label-md text-center bg-primary-container text-on-primary font-bold transition-colors";
+    }
+  }
+
+  // Action Triggers & Feedback
+  function showToast(title, message, icon = 'check_circle') {
+    const toast = document.getElementById('toastNotification');
+    document.getElementById('toastTitle').innerText = title;
+    document.getElementById('toastMessage').innerText = message;
+    document.getElementById('toastIcon').innerText = icon;
+
+    toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    setTimeout(() => {
+      toast.classList.remove('translate-y-0', 'opacity-100');
+      toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+    }, 3500);
+  }
+
+  function quickApprove(regNum) {
+    showToast('Instant Approval Dispatched', 'Team ' + regNum + ' marked as Approved and registration ticket sent.');
+  }
+
+  function drawerAction(actionType) {
+    closeReviewDrawer();
+    if (actionType === 'APPROVE') {
+      showToast('Registration Approved', 'Pass created and sent to team captain WhatsApp & Email.', 'verified');
+    } else if (actionType === 'REVISION') {
+      showToast('Revision Request Dispatched', 'Admin note delivered to participant portal.', 'history_edu');
+    } else if (actionType === 'REJECT') {
+      showToast('Application Rejected', 'Notice sent to team representative.', 'cancel');
+    }
+  }
+
+  function triggerBatchApproveModal() {
+    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+    if (checkedBoxes.length === 0) {
+      showToast('No Rows Selected', 'Please check at least one team checkbox for bulk actions.', 'info');
+    } else {
+      showToast('Batch Process Completed', checkedBoxes.length + ' teams verified and updated successfully.', 'done_all');
+    }
+  }
+</script></main></div></body></html>
