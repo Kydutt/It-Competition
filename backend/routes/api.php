@@ -111,8 +111,8 @@ Route::prefix('v1')->group(function () {
         Route::get('payments', [Admin\PaymentController::class, 'index']);
         Route::get('payments/{payment}', [Admin\PaymentController::class, 'show']);
         Route::get('payments/{payment}/proof', [Admin\PaymentController::class, 'downloadProof']);
-        Route::patch('payments/{payment}/approve', [Admin\PaymentController::class, 'approve']);
-        Route::patch('payments/{payment}/reject', [Admin\PaymentController::class, 'reject']);
+        Route::match(['patch', 'post'], 'payments/{payment}/approve', [Admin\PaymentController::class, 'approve']);
+        Route::match(['patch', 'post'], 'payments/{payment}/reject', [Admin\PaymentController::class, 'reject']);
 
         Route::get('submissions', [Admin\SubmissionController::class, 'index']);
         Route::get('submissions/{submission}', [Admin\SubmissionController::class, 'show']);

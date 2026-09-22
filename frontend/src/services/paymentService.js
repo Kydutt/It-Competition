@@ -50,12 +50,12 @@ export const paymentService = {
   },
 
   async approvePayment(id) {
-    const response = await api.post(`/admin/payments/${id}/approve`);
+    const response = await api.patch(`/admin/payments/${id}/approve`);
     return response.data;
   },
 
   async rejectPayment(id, reason) {
-    const response = await api.post(`/admin/payments/${id}/reject`, { reason });
+    const response = await api.patch(`/admin/payments/${id}/reject`, { reason });
     return response.data;
   },
 
