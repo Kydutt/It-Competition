@@ -254,14 +254,11 @@ export const CompetitionDetailPage = () => {
             </div>
 
             <div className="pt-4 border-t border-gray-100">
-              <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-center">
-                <p className="text-xs font-semibold text-orange-800">
-                  Pendaftaran Peserta Dibuka pada Fase 3
-                </p>
-                <p className="text-[11px] text-orange-600 mt-0.5">
-                  Fitur pembuatan tim & formulir registrasi sedang dipersiapkan.
-                </p>
-              </div>
+              <Link to="/registrations" className="block">
+                <Button variant="primary" size="lg" className="w-full font-bold shadow-md shadow-brand-500/20">
+                  Daftar Cabang Lomba Ini ➔
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -14,7 +14,12 @@ export const HomePage = () => {
       try {
         const res = await competitionService.getCompetitions();
         if (res.success && res.data) {
-          setCompetitions(res.data);
+          const items = Array.isArray(res.data?.data)
+            ? res.data.data
+            : Array.isArray(res.data)
+            ? res.data
+            : [];
+          setCompetitions(items);
         }
       } catch (err) {
         console.error('Failed to load competitions:', err);

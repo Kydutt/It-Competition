@@ -103,11 +103,11 @@ export const CompetitionCard = ({ competition }) => {
             Lihat Detail
           </Button>
         </Link>
-        <div className="flex-1" title="Pendaftaran peserta akan dibuka pada Fase 3">
-          <Button variant="primary" size="sm" className="w-full font-semibold opacity-60 cursor-not-allowed" disabled>
-            Daftar (Fase 3)
+        <Link to="/registrations" className="flex-1">
+          <Button variant="primary" size="sm" className="w-full font-semibold shadow-xs">
+            Daftar Sekarang
           </Button>
-        </div>
+        </Link>
       </div>
     </div>
   );

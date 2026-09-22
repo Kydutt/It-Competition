@@ -42,12 +42,16 @@ export const CompetitionsPage = () => {
 
       const res = await competitionService.getCompetitions(params);
       if (res.success && res.data) {
-        // Backend returns paginated resource: res.data.data
-        const items = res.data.data || res.data;
+        const items = Array.isArray(res.data?.data)
+          ? res.data.data
+          : Array.isArray(res.data)
+          ? res.data
+          : [];
         setCompetitions(items);
-        if (res.data.meta) {
-          setTotalPages(res.data.meta.last_page || 1);
-          setTotalCount(res.data.meta.total || items.length);
+        const meta = res.data.meta || res.meta;
+        if (meta) {
+          setTotalPages(meta.last_page || 1);
+          setTotalCount(meta.total ?? items.length);
         } else {
           setTotalPages(1);
           setTotalCount(items.length);
@@ -55,7 +59,8 @@ export const CompetitionsPage = () => {
       }
     } catch (err) {
       console.error('Failed to load competitions:', err);
-      setError('Gagal memuat data kompetisi. Silakan coba kembali.');
+      const errMsg = err.response?.data?.message || err.message || 'Gagal memuat data kompetisi. Silakan coba kembali.';
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
