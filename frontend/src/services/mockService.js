@@ -13,7 +13,10 @@ import {
   INITIAL_SCHEDULES,
   INITIAL_ANNOUNCEMENTS,
   INITIAL_ACTIVITIES,
+  INITIAL_WEBSITE_CONFIG,
 } from '../data/mockData';
+import { INITIAL_BUILDER_PAGES, INITIAL_BUILDER_ASSETS } from '../builder/defaultPages';
+
 
 // Helper to get or init localStorage data safely
 const getStored = (key, fallback) => {
@@ -49,6 +52,10 @@ class MockService {
     this.schedules = getStored('schedules', INITIAL_SCHEDULES);
     this.announcements = getStored('announcements', INITIAL_ANNOUNCEMENTS);
     this.activities = getStored('activities', INITIAL_ACTIVITIES);
+    this.websiteConfig = getStored('website_config', INITIAL_WEBSITE_CONFIG);
+    this.builderPages = getStored('builder_pages', INITIAL_BUILDER_PAGES);
+    this.builderSnapshots = getStored('builder_snapshots', []);
+    this.builderAssets = getStored('builder_assets', INITIAL_BUILDER_ASSETS);
 
     // Normalize any legacy or missing fields in competitions
     this.normalizeCompetitions();
@@ -101,7 +108,351 @@ class MockService {
     setStored('schedules', this.schedules);
     setStored('announcements', this.announcements);
     setStored('activities', this.activities);
+    setStored('website_config', this.websiteConfig);
+    setStored('builder_pages', this.builderPages);
+    setStored('builder_snapshots', this.builderSnapshots);
+    setStored('builder_assets', this.builderAssets);
   }
+
+  // --- WEBSITE MANAGEMENT METHODS ---
+  getWebsiteConfig() {
+    return this.websiteConfig;
+  }
+
+  saveWebsiteConfig(newConfig, isPublished = false) {
+    this.websiteConfig = {
+      ...this.websiteConfig,
+      ...newConfig,
+      status: isPublished ? 'published' : 'draft',
+      lastPublishedAt: isPublished ? new Date().toISOString() : this.websiteConfig.lastPublishedAt,
+    };
+
+    this.activities.unshift({
+      id: `act-${Date.now()}`,
+      type: 'website_config',
+      description: isPublished 
+        ? 'Admin mempublikasikan konfigurasi baru website NEXUS ITC' 
+        : 'Admin menyimpan draft pengaturan website',
+      timestamp: 'Baru saja',
+    });
+
+    this.saveState();
+
+    // Dispatch global event for live reactive update across public pages
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('fest:website_config_updated', {
+        detail: this.websiteConfig
+      }));
+    }
+
+    return this.websiteConfig;
+  }
+
+  resetWebsiteConfig() {
+    this.websiteConfig = JSON.parse(JSON.stringify(INITIAL_WEBSITE_CONFIG));
+    this.saveState();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('fest:website_config_updated', {
+        detail: this.websiteConfig
+      }));
+    }
+    return this.websiteConfig;
+  }
+
+  addOrUpdateSponsor(data) {
+    if (!this.websiteConfig.sponsors) {
+      this.websiteConfig.sponsors = [];
+    }
+
+    if (data.id) {
+      const idx = this.websiteConfig.sponsors.findIndex((s) => s.id === data.id);
+      if (idx !== -1) {
+        this.websiteConfig.sponsors[idx] = { ...this.websiteConfig.sponsors[idx], ...data };
+        this.saveState();
+        return this.websiteConfig.sponsors[idx];
+      }
+    }
+
+    const newSponsor = {
+      id: `sp-${Date.now()}`,
+      name: data.name,
+      tier: data.tier || 'silver',
+      logoText: data.logoText || data.name,
+      websiteUrl: data.websiteUrl || '#',
+      status: data.status || 'published',
+      order: this.websiteConfig.sponsors.length + 1,
+    };
+
+    this.websiteConfig.sponsors.push(newSponsor);
+    this.saveState();
+    return newSponsor;
+  }
+
+  deleteSponsor(id) {
+    if (!this.websiteConfig.sponsors) return;
+    this.websiteConfig.sponsors = this.websiteConfig.sponsors.filter((s) => s.id !== id);
+    this.saveState();
+  }
+
+  addOrUpdateFaq(data) {
+    if (!this.websiteConfig.faqs) {
+      this.websiteConfig.faqs = [];
+    }
+
+    if (data.id) {
+      const idx = this.websiteConfig.faqs.findIndex((f) => f.id === data.id);
+      if (idx !== -1) {
+        this.websiteConfig.faqs[idx] = { ...this.websiteConfig.faqs[idx], ...data };
+        this.saveState();
+        return this.websiteConfig.faqs[idx];
+      }
+    }
+
+    const newFaq = {
+      id: `faq-${Date.now()}`,
+      category: data.category || 'umum',
+      question: data.question,
+      answer: data.answer,
+      order: this.websiteConfig.faqs.length + 1,
+    };
+
+    this.websiteConfig.faqs.push(newFaq);
+    this.saveState();
+    return newFaq;
+  }
+
+  deleteFaq(id) {
+    if (!this.websiteConfig.faqs) return;
+    this.websiteConfig.faqs = this.websiteConfig.faqs.filter((f) => f.id !== id);
+    this.saveState();
+  }
+
+  // --- VISUAL WEBSITE BUILDER METHODS ---
+  getBuilderPages() {
+    return this.builderPages;
+  }
+
+  getBuilderPage(pageIdOrSlug) {
+    if (!pageIdOrSlug) return this.builderPages[0] || null;
+    return (
+      this.builderPages.find((p) => p.id === pageIdOrSlug || p.slug === pageIdOrSlug) ||
+      this.builderPages[0] ||
+      null
+    );
+  }
+
+  saveBuilderPageDraft(pageId, updatedPage) {
+    const idx = this.builderPages.findIndex((p) => p.id === pageId);
+    if (idx === -1) return null;
+
+    this.builderPages[idx] = {
+      ...this.builderPages[idx],
+      ...updatedPage,
+      status: 'draft',
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.saveState();
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('fest:builder_page_updated', {
+          detail: { page: this.builderPages[idx], action: 'save_draft' },
+        })
+      );
+    }
+
+    return this.builderPages[idx];
+  }
+
+  publishBuilderPage(pageId, updatedPage) {
+    const idx = this.builderPages.findIndex((p) => p.id === pageId);
+    if (idx === -1) return null;
+
+    const publishedAt = new Date().toISOString();
+    const finalPage = {
+      ...this.builderPages[idx],
+      ...updatedPage,
+      status: 'published',
+      lastPublishedAt: publishedAt,
+      updatedAt: publishedAt,
+    };
+
+    this.builderPages[idx] = finalPage;
+
+    // Create automatic snapshot for version history
+    const newSnapshot = {
+      id: `snp-${Date.now()}`,
+      pageId,
+      version: `v${this.builderSnapshots.filter((s) => s.pageId === pageId).length + 1}.0`,
+      publishedAt,
+      publishedBy: 'Administrator HIMATIF',
+      note: `Publikasi visual halaman ${finalPage.title}`,
+      elements: JSON.parse(JSON.stringify(finalPage.elements)),
+    };
+    this.builderSnapshots.unshift(newSnapshot);
+
+    // Record activity log
+    this.activities.unshift({
+      id: `act-${Date.now()}`,
+      type: 'builder_publish',
+      description: `Admin menerbitkan pembaruan visual halaman: ${finalPage.title}`,
+      timestamp: 'Baru saja',
+    });
+
+    this.saveState();
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('fest:builder_page_updated', {
+          detail: { page: finalPage, action: 'publish' },
+        })
+      );
+    }
+
+    return finalPage;
+  }
+
+  createBuilderPage(pageData) {
+    const newId = pageData.slug.replace(/[^a-z0-9]/gi, '-').toLowerCase().replace(/^-|-$/g, '') || `page-${Date.now()}`;
+    const newPage = {
+      id: newId,
+      slug: pageData.slug.startsWith('/') ? pageData.slug : `/${pageData.slug}`,
+      title: pageData.title || 'Halaman Kustom Baru',
+      description: pageData.description || 'Halaman kustom baru NEXUS ITC',
+      status: 'draft',
+      lastPublishedAt: null,
+      updatedAt: new Date().toISOString(),
+      elements: pageData.elements || [
+        {
+          id: `sec-${Date.now()}`,
+          type: 'section',
+          props: {
+            name: 'Section Utama',
+            paddingY: 'py-20',
+            background: 'bg-[#100B08]',
+            glow: true,
+            maxWidth: 'max-w-7xl',
+          },
+          children: [
+            {
+              id: `hdg-${Date.now()}`,
+              type: 'heading',
+              props: {
+                level: 'h1',
+                text: pageData.title || 'Halaman Kustom Baru',
+                size: 'text-4xl sm:text-5xl',
+                align: 'center',
+                gradient: true,
+              },
+            },
+            {
+              id: `txt-${Date.now()}`,
+              type: 'text',
+              props: {
+                content: 'Halaman ini dibuat melalui Visual Website Builder. Edit teks dan elemen ini langsung di canvas.',
+                size: 'text-base sm:text-lg',
+                align: 'center',
+                color: 'text-[#C4B3A7]',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    this.builderPages.push(newPage);
+    this.saveState();
+    return newPage;
+  }
+
+  deleteBuilderPage(pageId) {
+    // Protect core default pages
+    const protectedIds = ['home', 'about', 'competitions', 'timeline', 'faq', 'contact'];
+    if (protectedIds.includes(pageId)) {
+      throw new Error(`Halaman inti "${pageId}" tidak boleh dihapus.`);
+    }
+
+    this.builderPages = this.builderPages.filter((p) => p.id !== pageId);
+    this.builderSnapshots = this.builderSnapshots.filter((s) => s.pageId !== pageId);
+    this.saveState();
+    return true;
+  }
+
+  resetBuilderPage(pageId) {
+    const initial = INITIAL_BUILDER_PAGES.find((p) => p.id === pageId);
+    if (!initial) return null;
+
+    const idx = this.builderPages.findIndex((p) => p.id === pageId);
+    if (idx !== -1) {
+      this.builderPages[idx] = JSON.parse(JSON.stringify(initial));
+    } else {
+      this.builderPages.push(JSON.parse(JSON.stringify(initial)));
+    }
+
+    this.saveState();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('fest:builder_page_updated', {
+          detail: { page: this.builderPages[idx], action: 'reset' },
+        })
+      );
+    }
+    return this.builderPages[idx];
+  }
+
+  getBuilderSnapshots(pageId) {
+    return this.builderSnapshots.filter((s) => s.pageId === pageId);
+  }
+
+  restoreBuilderSnapshot(pageId, snapshotId) {
+    const snapshot = this.builderSnapshots.find((s) => s.id === snapshotId);
+    if (!snapshot) return null;
+
+    const pageIdx = this.builderPages.findIndex((p) => p.id === pageId);
+    if (pageIdx === -1) return null;
+
+    this.builderPages[pageIdx].elements = JSON.parse(JSON.stringify(snapshot.elements));
+    this.builderPages[pageIdx].updatedAt = new Date().toISOString();
+    this.saveState();
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('fest:builder_page_updated', {
+          detail: { page: this.builderPages[pageIdx], action: 'restore' },
+        })
+      );
+    }
+
+    return this.builderPages[pageIdx];
+  }
+
+  getBuilderAssets() {
+    return this.builderAssets;
+  }
+
+  uploadBuilderAsset(assetData) {
+    const newAsset = {
+      id: `ast-${Date.now()}`,
+      name: assetData.name || 'Unggahan Aset Baru',
+      category: assetData.category || 'general',
+      url: assetData.url,
+      type: assetData.type || 'image/png',
+      size: assetData.size || '120 KB',
+      alt: assetData.alt || assetData.name || 'Visual Asset',
+    };
+
+    this.builderAssets.unshift(newAsset);
+    this.saveState();
+    return newAsset;
+  }
+
+  deleteBuilderAsset(assetId) {
+    this.builderAssets = this.builderAssets.filter((a) => a.id !== assetId);
+    this.saveState();
+    return true;
+  }
+
 
   // --- AUTH METHODS ---
   async login({ email, password }) {

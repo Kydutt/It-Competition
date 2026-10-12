@@ -3,8 +3,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, ChevronDown, Trophy, Users, Calendar, ShieldCheck } from 'lucide-react';
 import Button from '../ui/Button';
+import { useWebsiteConfig } from '../../context/WebsiteConfigContext';
 
 export const HeroSection = () => {
+  const { config } = useWebsiteConfig();
+  const hero = config?.hero || {};
+  const general = config?.general || {};
+
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -35,9 +40,13 @@ export const HeroSection = () => {
               className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#1C1410] border border-[rgba(255,179,107,0.28)] shadow-[0_0_15px_rgba(255,106,0,0.12)] text-xs font-mono text-[#FFB36B]"
             >
               <span className="w-2 h-2 rounded-full bg-[#FF6A00] animate-ping" />
-              <span className="font-bold tracking-wider uppercase">EDITION 2026 // NATIONAL TECHFEST</span>
+              <span className="font-bold tracking-wider uppercase">
+                {hero.badgeText || general.editionTag || 'EDITION 2026 // NATIONAL TECHFEST'}
+              </span>
               <span className="text-[rgba(255,179,107,0.4)]">|</span>
-              <span className="text-[#C4B3A7] hidden sm:inline">HYBRID FESTIVAL</span>
+              <span className="text-[#C4B3A7] hidden sm:inline">
+                {general.editionType || 'HYBRID FESTIVAL'}
+              </span>
             </motion.div>
 
             {/* Oversized Cinematic Headline */}
@@ -48,10 +57,10 @@ export const HeroSection = () => {
               className="space-y-1"
             >
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black font-display tracking-tight text-[#FFF7F0] leading-[1.05]">
-                SHAPE THE <br />
-                FUTURE OF <br />
+                {hero.headlineLine1 || 'SHAPE THE'} <br />
+                {hero.headlineLine2 || 'FUTURE OF'} <br />
                 <span className="text-gradient-orange drop-shadow-sm">
-                  INNOVATION.
+                  {hero.headlineAccent || 'INNOVATION.'}
                 </span>
               </h1>
             </motion.div>
@@ -63,7 +72,7 @@ export const HeroSection = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-base sm:text-lg text-[#C4B3A7] max-w-xl mx-auto lg:mx-0 leading-relaxed font-sans"
             >
-              Where technology meets bold creativity, ambitious minds collaborate, and breakthrough digital architectures redefine the future of Ciayumajakuning and Indonesia.
+              {hero.description || 'Where technology meets bold creativity, ambitious minds collaborate, and breakthrough digital architectures redefine the future of Ciayumajakuning and Indonesia.'}
             </motion.p>
 
             {/* Primary & Secondary Action CTAs */}
@@ -73,22 +82,29 @@ export const HeroSection = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2"
             >
-              <Link to="/register" className="w-full sm:w-auto">
+              <Link to={hero.primaryCtaLink || '/register'} className="w-full sm:w-auto">
                 <Button variant="glow" size="lg" className="w-full sm:w-auto gap-2 group">
-                  <span>Daftar Sekarang</span>
+                  <span>{hero.primaryCtaText || 'Daftar Sekarang'}</span>
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
               <Button 
                 variant="secondary" 
                 size="lg" 
-                onClick={() => scrollToSection('competitions')}
+                onClick={() => {
+                  if (hero.secondaryCtaLink?.startsWith('#')) {
+                    scrollToSection(hero.secondaryCtaLink.substring(1));
+                  } else {
+                    scrollToSection('competitions');
+                  }
+                }}
                 className="w-full sm:w-auto gap-2"
               >
                 <Sparkles className="w-4 h-4 text-[#FFB36B]" />
-                <span>Eksplorasi Cabang Lomba</span>
+                <span>{hero.secondaryCtaText || 'Eksplorasi Cabang Lomba'}</span>
               </Button>
             </motion.div>
+
 
             {/* Technical Verification Status */}
             <motion.div 
@@ -161,20 +177,20 @@ export const HeroSection = () => {
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#948277]">
               <Trophy className="w-3.5 h-3.5 text-[#FF6A00]" />
-              <span>Total Hadiah</span>
+              <span>{hero.highlightStats?.[0]?.label || 'Total Hadiah'}</span>
             </div>
             <p className="text-xl sm:text-2xl font-black font-display text-[#FFF7F0]">
-              Rp 50.000.000+
+              {hero.highlightStats?.[0]?.value || 'Rp 50.000.000+'}
             </p>
           </div>
 
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#948277]">
               <Users className="w-3.5 h-3.5 text-[#FF7A1A]" />
-              <span>Jenjang Peserta</span>
+              <span>{hero.highlightStats?.[1]?.label || 'Jenjang Peserta'}</span>
             </div>
             <p className="text-xl sm:text-2xl font-black font-display text-[#FFF7F0]">
-              Mahasiswa & SMA
+              {hero.highlightStats?.[1]?.value || 'Mahasiswa & SMA'}
             </p>
           </div>
 
@@ -184,17 +200,17 @@ export const HeroSection = () => {
               <span>Periode Lomba</span>
             </div>
             <p className="text-xl sm:text-2xl font-black font-display text-[#FFF7F0]">
-              Februari - Mei 2026
+              {general.eventDates || 'Februari - Mei 2026'}
             </p>
           </div>
 
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#948277]">
               <Sparkles className="w-3.5 h-3.5 text-[#FF6A00]" />
-              <span>Cabang Utama</span>
+              <span>{hero.highlightStats?.[2]?.label || 'Cabang Utama'}</span>
             </div>
             <p className="text-xl sm:text-2xl font-black font-display text-[#FFF7F0]">
-              6 Kategori Kompetisi
+              {hero.highlightStats?.[2]?.value || '6 Kategori Kompetisi'}
             </p>
           </div>
         </motion.div>

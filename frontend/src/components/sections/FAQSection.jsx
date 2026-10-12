@@ -1,19 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle, FileText, MessageSquare } from 'lucide-react';
 import SectionHeading from '../ui/SectionHeading';
 import Button from '../ui/Button';
 import { FAQ_DATA, FESTIVAL_INFO } from '../../data/festivalData';
+import { useWebsiteConfig } from '../../context/WebsiteConfigContext';
 
 export const FAQSection = () => {
-  const [activeCategory, setActiveCategory] = useState(0);
-  const [openIndex, setOpenIndex] = useState(0); // first item open by default
+  const { config } = useWebsiteConfig();
+  const dynamicFaqs = config?.faqs || [];
+  const general = config?.general || {};
 
-  const currentQuestions = FAQ_DATA[activeCategory]?.questions || [];
+  const categories = useMemo(() => {
+    if (dynamicFaqs.length === 0) {
+      return FAQ_DATA.map((c) => c.category);
+    }
+    const cats = new Set(
+      dynamicFaqs.map((f) => {
+        const cat = f.category || 'umum';
+        return cat.charAt(0).toUpperCase() + cat.slice(1);
+      })
+    );
+    return ['Semua', ...Array.from(cats)];
+  }, [dynamicFaqs]);
+
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
+  const [openIndex, setOpenIndex] = useState(0);
+
+  const currentQuestions = useMemo(() => {
+    if (dynamicFaqs.length === 0) {
+      return FAQ_DATA[activeCategoryIndex]?.questions || [];
+    }
+    const selectedCat = categories[activeCategoryIndex];
+    if (selectedCat === 'Semua') {
+      return dynamicFaqs.map((f) => ({ q: f.question, a: f.answer }));
+    }
+    return dynamicFaqs
+      .filter((f) => (f.category || 'umum').toLowerCase() === selectedCat.toLowerCase())
+      .map((f) => ({ q: f.question, a: f.answer }));
+  }, [dynamicFaqs, categories, activeCategoryIndex]);
 
   const toggleQuestion = (index) => {
     setOpenIndex(openIndex === index ? -1 : index);
   };
+
+  const contactPhone = general.contactPhone || FESTIVAL_INFO.contactWhatsapp;
 
   return (
     <section id="faq" className="relative py-24 sm:py-32 bg-[#100B08] border-b border-[rgba(255,179,107,0.12)] overflow-hidden">
@@ -32,23 +63,24 @@ export const FAQSection = () => {
 
         {/* Category Selector Tabs */}
         <div className="flex flex-wrap justify-center gap-2">
-          {FAQ_DATA.map((cat, idx) => (
+          {categories.map((cat, idx) => (
             <button
-              key={cat.category}
+              key={cat}
               onClick={() => {
-                setActiveCategory(idx);
+                setActiveCategoryIndex(idx);
                 setOpenIndex(0);
               }}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
-                activeCategory === idx
+                activeCategoryIndex === idx
                   ? 'bg-[#FF6A00] text-white shadow-orange-glow'
                   : 'bg-[#1C1410] text-[#C4B3A7] hover:text-[#FFF7F0] border border-[rgba(255,179,107,0.18)] hover:border-[#FF7A1A]'
               }`}
             >
-              {cat.category}
+              {cat}
             </button>
           ))}
         </div>
+
 
         {/* Accordion Container */}
         <div className="space-y-4">

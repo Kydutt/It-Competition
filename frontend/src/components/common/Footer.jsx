@@ -2,8 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Terminal, Shield, Mail, Phone, ExternalLink, ArrowUpRight } from 'lucide-react';
 import { FESTIVAL_INFO, COMPETITIONS_DATA } from '../../data/festivalData';
+import { useWebsiteConfig } from '../../context/WebsiteConfigContext';
 
 export const Footer = () => {
+  const { config } = useWebsiteConfig();
+  const general = config?.general || {};
+  const footer = config?.footer || {};
+
   return (
     <footer className="bg-[#100B08] text-[#C4B3A7] border-t border-[rgba(255,179,107,0.16)] relative overflow-hidden">
       {/* Background Subtle Ambient Glow */}
@@ -18,20 +23,20 @@ export const Footer = () => {
           <div className="lg:col-span-5 space-y-4">
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FF6A00] to-[#FFB36B] flex items-center justify-center text-white font-black text-xl shadow-orange-glow">
-                N
+                {general.siteName ? general.siteName.charAt(0) : 'N'}
               </div>
               <div>
                 <span className="text-xl font-black tracking-tight text-[#FFF7F0] block leading-tight font-display">
-                  NEXUS <span className="text-[#FF6A00]">ITC</span>
+                  {general.siteName || 'NEXUS ITC'}
                 </span>
                 <span className="text-[10px] font-mono text-[#FFB36B] uppercase tracking-wider block">
-                  EDITION 2026 // TECH FESTIVAL
+                  {general.editionTag || 'EDITION 2026 // TECH FESTIVAL'}
                 </span>
               </div>
             </Link>
 
             <p className="text-sm text-[#948277] max-w-sm leading-relaxed font-sans">
-              Festival kompetisi teknologi tahunan persembahan HIMATIF. Wadah pembuktian inovasi, karya rekayasa perangkat lunak, dan keunggulan digital bagi talenta muda Indonesia.
+              {footer.bioText || 'Festival kompetisi teknologi tahunan persembahan HIMATIF. Wadah pembuktian inovasi, karya rekayasa perangkat lunak, dan keunggulan digital bagi talenta muda Indonesia.'}
             </p>
 
             {/* Region Pills */}
@@ -83,14 +88,14 @@ export const Footer = () => {
               Sekretariat
             </h4>
             <div className="space-y-2 text-xs text-[#948277]">
-              <p>Gedung HIMATIF Center, Ciayumajakuning, Jawa Barat</p>
+              <p>{general.address || 'Gedung HIMATIF Center, Ciayumajakuning, Jawa Barat'}</p>
               <p className="flex items-center gap-1.5 text-[#C4B3A7]">
                 <Mail className="w-3.5 h-3.5 text-[#FF7A1A]" />
-                <span>{FESTIVAL_INFO.contactEmail}</span>
+                <span>{general.contactEmail || FESTIVAL_INFO.contactEmail}</span>
               </p>
               <p className="flex items-center gap-1.5 text-[#C4B3A7]">
                 <Phone className="w-3.5 h-3.5 text-[#FF7A1A]" />
-                <span>{FESTIVAL_INFO.contactWhatsapp}</span>
+                <span>{general.contactPhone || FESTIVAL_INFO.contactWhatsapp}</span>
               </p>
             </div>
             <div className="pt-2">
@@ -115,7 +120,7 @@ export const Footer = () => {
             <span>SYS_STATUS: NOMINAL // HYBRID EVENT ENGINE READY</span>
           </div>
 
-          <p>&copy; 2026 HIMATIF IT Competition. All Rights Reserved.</p>
+          <p>{footer.copyrightText || '© 2026 HIMATIF IT Competition. All Rights Reserved.'}</p>
         </div>
 
       </div>
@@ -124,3 +129,4 @@ export const Footer = () => {
 };
 
 export default Footer;
+

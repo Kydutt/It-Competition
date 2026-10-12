@@ -13,7 +13,9 @@ import {
   CheckSquare, 
   LogOut,
   X,
-  FileText
+  FileText,
+  Sliders,
+  Sparkles
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 
@@ -37,6 +39,8 @@ export const Sidebar = ({ role = 'participant', isOpen = false, onClose = () => 
           { label: 'Jadwal & Milestone', to: '/admin/schedule', icon: Calendar },
           { label: 'Pengumuman', to: '/admin/announcements', icon: Megaphone },
           { label: 'Laporan & Rekap', to: '/admin/reports', icon: BarChart3 },
+          { label: 'Pengaturan Website', to: '/admin/website-management', icon: Sliders },
+          { label: 'Visual Builder', to: '/admin/website-editor', icon: Sparkles },
         ];
       case 'judge':
         return [

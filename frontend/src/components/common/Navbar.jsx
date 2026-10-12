@@ -3,9 +3,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, ArrowRight, Sparkles, Terminal } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import Button from '../ui/Button';
+import { useWebsiteConfig } from '../../context/WebsiteConfigContext';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout, role } = useAuth();
+  const { config } = useWebsiteConfig();
+  const general = config?.general || {};
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -66,17 +69,24 @@ export const Navbar = () => {
           {/* Typographic Brand Logo */}
           <Link to="/" className="flex items-center space-x-3 group focus:outline-none">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FF6A00] to-[#FFB36B] flex items-center justify-center text-white font-black text-xl shadow-orange-glow group-hover:scale-105 transition-transform">
-              N
+              {general.siteName ? general.siteName.charAt(0) : 'N'}
             </div>
             <div>
               <span className="text-lg font-black tracking-tight text-[#FFF7F0] block leading-tight font-display">
-                NEXUS <span className="text-[#FF6A00]">ITC</span>
+                {general.siteName ? (
+                  general.siteName
+                ) : (
+                  <>
+                    NEXUS <span className="text-[#FF6A00]">ITC</span>
+                  </>
+                )}
               </span>
               <span className="text-[10px] font-mono text-[#FFB36B] uppercase tracking-wider block">
-                TECHFEST 2026
+                {general.editionTag || 'TECHFEST 2026'}
               </span>
             </div>
           </Link>
+
 
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 bg-[#17110D]/70 border border-[rgba(255,179,107,0.12)] px-4 py-1.5 rounded-full backdrop-blur-md">

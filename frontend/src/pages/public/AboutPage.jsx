@@ -2,14 +2,27 @@ import React from 'react';
 import SectionHeading from '../../components/ui/SectionHeading';
 import { FESTIVAL_INFO } from '../../data/festivalData';
 import { ShieldCheck, Target, Users, Sparkles } from 'lucide-react';
+import { useBuilderPage } from '../../builder/useBuilderPage';
+import DynamicPageRenderer from '../../builder/DynamicPageRenderer';
 
 export const AboutPage = () => {
+  const builderPage = useBuilderPage('about');
+
+  if (builderPage && builderPage.elements && builderPage.elements.length > 0 && builderPage.status === 'published') {
+    return (
+      <div className="relative overflow-hidden min-h-screen">
+        <DynamicPageRenderer page={builderPage} isEditMode={false} />
+      </div>
+    );
+  }
+
   return (
     <div className="relative py-28 sm:py-32 bg-[#100B08] overflow-hidden min-h-screen">
       {/* Background Lighting */}
       <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(circle,rgba(255,106,0,0.1)_0%,transparent_70%)] pointer-events-none blur-3xl -z-10" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+
         
         {/* Header */}
         <SectionHeading

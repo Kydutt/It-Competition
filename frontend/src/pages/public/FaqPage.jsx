@@ -4,12 +4,24 @@ import { ChevronDown, MessageSquare, FileText } from 'lucide-react';
 import SectionHeading from '../../components/ui/SectionHeading';
 import Button from '../../components/ui/Button';
 import { FAQ_DATA, FESTIVAL_INFO } from '../../data/festivalData';
+import { useBuilderPage } from '../../builder/useBuilderPage';
+import DynamicPageRenderer from '../../builder/DynamicPageRenderer';
 
 export const FaqPage = () => {
+  const builderPage = useBuilderPage('faq');
   const [activeCategory, setActiveCategory] = useState(0);
   const [openIndex, setOpenIndex] = useState(0);
 
+  if (builderPage && builderPage.elements && builderPage.elements.length > 0 && builderPage.status === 'published') {
+    return (
+      <div className="relative overflow-hidden min-h-screen">
+        <DynamicPageRenderer page={builderPage} isEditMode={false} />
+      </div>
+    );
+  }
+
   const currentQuestions = FAQ_DATA[activeCategory]?.questions || [];
+
 
   const toggleQuestion = (index) => {
     setOpenIndex(openIndex === index ? -1 : index);

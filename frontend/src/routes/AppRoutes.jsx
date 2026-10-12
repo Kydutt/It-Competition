@@ -44,6 +44,8 @@ import AdminJudges from '../pages/admin/JudgesPage';
 import AdminSchedule from '../pages/admin/SchedulePage';
 import AdminAnnouncements from '../pages/admin/AnnouncementsPage';
 import AdminReports from '../pages/admin/ReportsPage';
+import AdminWebsiteManagement from '../pages/admin/WebsiteManagementPage';
+import WebsiteEditorPage from '../pages/admin/WebsiteEditorPage';
 
 // Judge Pages
 import JudgeDashboard from '../pages/judge/DashboardPage';
@@ -116,7 +118,20 @@ export const AppRoutes = () => {
         <Route path="schedule" element={<AdminSchedule />} />
         <Route path="announcements" element={<AdminAnnouncements />} />
         <Route path="reports" element={<AdminReports />} />
+        <Route path="website-management" element={<AdminWebsiteManagement />} />
+        <Route path="website-settings" element={<Navigate to="/admin/website-management" replace />} />
       </Route>
+
+      {/* 4.5. ADMIN VISUAL WEBSITE BUILDER (FULL-SCREEN EDITOR) */}
+      <Route
+        path="/admin/website-editor"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <WebsiteEditorPage />
+          </ProtectedRoute>
+        }
+      />
+
 
       {/* 5. JUDGE PROTECTED ROUTES */}
       <Route

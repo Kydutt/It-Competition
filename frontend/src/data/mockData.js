@@ -553,3 +553,130 @@ export const INITIAL_ACTIVITIES = [
     timestamp: '2 hari yang lalu',
   },
 ];
+
+export const INITIAL_WEBSITE_CONFIG = {
+  version: '2026.1',
+  status: 'published', // 'published' | 'draft'
+  lastPublishedAt: new Date().toISOString(),
+  
+  // A. Identity & General
+  general: {
+    siteName: 'NEXUS ITC 2026',
+    editionTag: 'EDITION 2026 // NATIONAL TECHFEST',
+    editionType: 'HYBRID FESTIVAL',
+    tagline: 'Empowering Minds, Securing Innovations',
+    eventDates: '15 - 18 November 2026',
+    eventVenue: 'Universitas Wilayah Ciayumajakuning & Online Platform',
+    contactEmail: 'contact@nexusitc2026.id',
+    contactPhone: '+62 812-3456-7890',
+    address: 'Jl. Pemuda No. 45, Cirebon, Jawa Barat 45132',
+    instagramUrl: 'https://instagram.com/nexusitc_official',
+    linkedinUrl: 'https://linkedin.com/company/nexus-itc',
+    youtubeUrl: 'https://youtube.com/@nexusitc',
+  },
+
+  // B. Hero Section
+  hero: {
+    badgeText: 'EDITION 2026 // NATIONAL TECHFEST',
+    headlineLine1: 'SHAPE THE',
+    headlineLine2: 'FUTURE OF',
+    headlineAccent: 'INNOVATION.',
+    description: 'Kompetisi teknologi informasi dan festival inovasi digital bergengsi se-Indonesia. Kembangkan solusi digital berdampak tinggi, raih prize pool puluhan juta rupiah, dan perluas jejaring profesional.',
+    primaryCtaText: 'Daftar Sekarang',
+    primaryCtaLink: '/register',
+    secondaryCtaText: 'Jelajahi Lomba',
+    secondaryCtaLink: '/competitions',
+    highlightStats: [
+      { label: 'TOTAL PRIZE POOL', value: 'Rp 45JT+' },
+      { label: 'TARGET PESERTA', value: '1.500+' },
+      { label: 'DEWAN JURI PAKAR', value: '12 Juri' },
+    ],
+  },
+
+  // C. About Section
+  about: {
+    badge: 'TENTANG ACARA // THE GENESIS',
+    title: 'Membangun Ekosistem Inovator Muda Berdaya Saing Global',
+    story: 'HIMATIF IT Competition & Technology Festival (NEXUS ITC 2026) merupakan perhelatan akbar tahunan yang diselenggarakan oleh Himpunan Mahasiswa Teknik Informatika se-wilayah Ciayumajakuning. Bertujuan mengasah kecakapan digital generasi penerus bangsa melalui kompetisi terukur dan etis.',
+    stats: [
+      { label: 'Kompetisi Terbuka', value: '6+' },
+      { label: 'Institusi Partisipan', value: '80+' },
+      { label: 'Total Hadiah & Dana Hibah', value: 'Rp 45JT' },
+      { label: 'Tahun Penyelenggaraan', value: 'Ke-7' },
+    ],
+  },
+
+  // D. Section Visibility & Ordering
+  sections: [
+    { id: 'hero', key: 'hero', name: 'Hero Banner', enabled: true, order: 1 },
+    { id: 'about', key: 'about', name: 'Tentang Acara (About)', enabled: true, order: 2 },
+    { id: 'benefits', key: 'benefits', name: 'Benefit Partisipasi', enabled: true, order: 3 },
+    { id: 'competitions', key: 'competitions', name: 'Cabang Kompetisi', enabled: true, order: 4 },
+    { id: 'timeline', key: 'timeline', name: 'Lini Masa & Jadwal', enabled: true, order: 5 },
+    { id: 'prizePool', key: 'prizePool', name: 'Total Hadiah (Prize Pool)', enabled: true, order: 6 },
+    { id: 'faq', key: 'faq', name: 'Tanya Jawab (FAQ)', enabled: true, order: 7 },
+    { id: 'sponsors', key: 'sponsors', name: 'Sponsor & Mitra Acara', enabled: true, order: 8 },
+    { id: 'finalCta', key: 'finalCta', name: 'Ajakan Bergabung (Final CTA)', enabled: true, order: 9 },
+  ],
+
+  // E. Theme & Visuals
+  theme: {
+    preset: 'futuristic-orange', // 'futuristic-orange' | 'cyber-amber' | 'neon-solar' | 'hyper-violet' | 'electric-cyan'
+    primaryColor: '#FF6A00',
+    highlightColor: '#FF7A1A',
+    accentColor: '#FFB36B',
+    surfaceDark: '#100B08',
+    surfaceElevated: '#17110D',
+    gridPatternOpacity: 0.6,
+    ambientGlowIntensity: 1.0,
+    enableReducedMotion: false,
+  },
+
+  // F. Sponsors List
+  sponsors: [
+    { id: 'sp-1', name: 'Bank Mandiri Digital', tier: 'platinum', logoText: 'MANDIRI DIGITAL', websiteUrl: 'https://bankmandiri.co.id', status: 'published', order: 1 },
+    { id: 'sp-2', name: 'Telkomsel Enterprise', tier: 'platinum', logoText: 'TELKOMSEL', websiteUrl: 'https://telkomsel.com', status: 'published', order: 2 },
+    { id: 'sp-3', name: 'Google Developer Group', tier: 'gold', logoText: 'GDG INDONESIA', websiteUrl: 'https://developers.google.com', status: 'published', order: 3 },
+    { id: 'sp-4', name: 'Dicoding Academy', tier: 'gold', logoText: 'DICODING', websiteUrl: 'https://dicoding.com', status: 'published', order: 4 },
+    { id: 'sp-5', name: 'AWS Cloud Community', tier: 'silver', logoText: 'AWS USER GROUP', websiteUrl: 'https://aws.amazon.com', status: 'published', order: 5 },
+    { id: 'sp-6', name: 'Media Indonesia Tech', tier: 'partner', logoText: 'TECH MEDIA ID', websiteUrl: 'https://mediaindonesia.com', status: 'published', order: 6 },
+  ],
+
+  // G. FAQs List
+  faqs: [
+    {
+      id: 'faq-1',
+      category: 'umum',
+      question: 'Siapa saja yang berhak mengikuti perlombaan di NEXUS ITC 2026?',
+      answer: 'Kompetisi terbuka bagi mahasiswa aktif (D3/D4/S1) dan pelajar SMA/SMK sederajat di seluruh Indonesia, sesuai dengan syarat eligibility masing-masing cabang lomba.',
+      order: 1,
+    },
+    {
+      id: 'faq-2',
+      category: 'pendaftaran',
+      question: 'Bagaimana alur pendaftaran dan pembayaran biaya registrasi?',
+      answer: 'Pendaftaran dilakukan secara online melalui akun peserta di portal ini. Setelah mengisi data tim, verifikasi pembayaran dapat dipantau langsung di menu Pendaftaran Saya.',
+      order: 2,
+    },
+    {
+      id: 'faq-3',
+      category: 'karya',
+      question: 'Format pengumpulan karya apa saja yang diperbolehkan?',
+      answer: 'Pengumpulan proposal atau karya dapat berupa tautan GitHub repository, Google Drive terbuka publik, atau tautan prototype interaktif (Figma).',
+      order: 3,
+    },
+    {
+      id: 'faq-4',
+      category: 'penjurian',
+      question: 'Kapan pengumuman finalis dan dewan juri penilai?',
+      answer: 'Tahap kurasi dilakukan oleh dewan juri pakar sesuai rubrik penilaian terstandar. Daftar finalis akan diumumkan pada tanggal yang tercantum di lini masa acara.',
+      order: 4,
+    },
+  ],
+
+  // H. Footer Info
+  footer: {
+    bioText: 'NEXUS IT Competition (ITC 2026) adalah festival teknologi terintegrasi yang mewadahi inovasi digital mahasiswa dan pelajar nusantara.',
+    copyrightText: '© 2026 HIMATIF IT Competition. Seluruh hak cipta dilindungi undang-undang.',
+  },
+};
