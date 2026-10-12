@@ -13,11 +13,13 @@ class Score extends Model
     use HasFactory;
 
     protected $fillable = [
+        'judging_session_id',
         'submission_id',
         'judge_id',
         'judging_criteria_id',
         'score',
         'feedback',
+        'comment',
     ];
 
     protected function casts(): array
@@ -25,6 +27,11 @@ class Score extends Model
         return [
             'score' => 'float',
         ];
+    }
+
+    public function judgingSession(): BelongsTo
+    {
+        return $this->belongsTo(JudgingSession::class);
     }
 
     public function submission(): BelongsTo

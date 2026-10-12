@@ -63,6 +63,11 @@ class User extends Authenticatable
         return $this->hasMany(Score::class, 'judge_id');
     }
 
+    public function judgeProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Judge::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;

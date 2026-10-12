@@ -21,6 +21,8 @@ class JudgingCriteria extends Model
         'description',
         'weight',
         'max_score',
+        'sort_order',
+        'is_active',
     ];
 
     protected function casts(): array
@@ -28,6 +30,8 @@ class JudgingCriteria extends Model
         return [
             'weight' => 'float',
             'max_score' => 'integer',
+            'sort_order' => 'integer',
+            'is_active' => 'boolean',
         ];
     }
 

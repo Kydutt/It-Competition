@@ -217,4 +217,14 @@ class Competition extends Model
     {
         return $this->hasMany(Faq::class);
     }
+
+    public function results(): HasMany
+    {
+        return $this->hasMany(CompetitionResult::class);
+    }
+
+    public function judgeAssignments(): HasMany
+    {
+        return $this->hasMany(JudgeAssignment::class);
+    }
 }

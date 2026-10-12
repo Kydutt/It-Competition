@@ -143,4 +143,14 @@ class Registration extends Model
     {
         return $this->hasOne(Submission::class);
     }
+
+    public function judgeAssignments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(JudgeAssignment::class);
+    }
+
+    public function result(): HasOne
+    {
+        return $this->hasOne(CompetitionResult::class);
+    }
 }

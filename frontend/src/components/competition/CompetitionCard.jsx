@@ -1,29 +1,33 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Trophy, Users, Calendar, ArrowUpRight } from 'lucide-react';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
 
 export const CompetitionCard = ({ competition }) => {
   const {
-    name,
+    name = competition.title,
+    title = name,
     slug,
-    category_label,
-    target_level_label,
+    category_label = competition.category,
+    target_level_label = competition.target_level_label || 'Mahasiswa & SMA',
     theme,
-    description,
+    description = competition.shortDescription,
     registration_fee = 0,
+    registration_fee_formatted,
     quota = 50,
     min_team_member = 1,
     max_team_member = 3,
     registration_start,
     registration_end,
-    status = 'draft',
-    status_label,
+    status = 'registration_open',
+    status_label = 'Pendaftaran Dibuka',
+    prizePool = 'Rp 10.000.000',
   } = competition;
 
   const formattedFee = registration_fee > 0
     ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(registration_fee)
-    : 'Gratis';
+    : registration_fee_formatted || 'Gratis';
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '-';
@@ -33,78 +37,63 @@ export const CompetitionCard = ({ competition }) => {
     });
   };
 
-  const statusVariant = {
-    registration_open: 'success',
-    registration_closed: 'warning',
-    submission_open: 'primary',
-    judging: 'info',
-    finished: 'default',
-    draft: 'default',
-    archived: 'default',
-  }[status] || 'default';
-
   return (
-    <div className="bg-white rounded-2xl border border-gray-200/90 shadow-xs hover:shadow-md hover:border-brand-300 transition-all duration-200 flex flex-col justify-between overflow-hidden group">
+    <div className="bg-[#1C1410] rounded-3xl border border-[rgba(255,179,107,0.18)] hover:border-[#FF7A1A] transition-all duration-300 shadow-lg hover:shadow-orange-glow flex flex-col justify-between overflow-hidden group">
       {/* Top Card Header */}
-      <div className="p-6">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <Badge variant="primary" className="text-xs font-semibold">
-              {category_label || competition.category}
-            </Badge>
-            <Badge variant="info" className="text-xs font-semibold">
-              {target_level_label || (competition.target_level === 'university' ? 'Mahasiswa' : 'Siswa SMA/SMK')}
-            </Badge>
-          </div>
-          <Badge variant={statusVariant} className="text-xs font-medium">
-            {status_label || status}
+      <div className="p-6 sm:p-7 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="font-mono text-[11px] font-semibold text-[#FFB36B] tracking-wide uppercase bg-[#211811] px-2.5 py-1 rounded-lg border border-[rgba(255,179,107,0.15)]">
+            {category_label}
+          </span>
+          <Badge variant="fest" className="text-[11px]">
+            {target_level_label}
           </Badge>
         </div>
 
-        <h3 className="text-xl font-bold text-gray-950 group-hover:text-brand-600 transition-colors mb-1">
-          {name}
-        </h3>
+        <div>
+          <h3 className="text-xl font-bold font-display text-[#FFF7F0] group-hover:text-[#FFB36B] transition-colors leading-snug">
+            {title}
+          </h3>
+          {theme && (
+            <p className="text-xs font-mono text-[#FF7A1A] mt-1 line-clamp-1">
+              Tema: {theme}
+            </p>
+          )}
+        </div>
 
-        {theme && (
-          <p className="text-xs font-medium text-brand-700 bg-brand-50 rounded-lg px-2.5 py-1 mb-3 inline-block">
-            Tema: {theme}
-          </p>
-        )}
-
-        <p className="text-sm text-gray-600 line-clamp-3 mb-5 leading-relaxed">
+        <p className="text-sm text-[#C4B3A7] line-clamp-3 leading-relaxed font-sans">
           {description}
         </p>
 
         {/* Specs Grid */}
-        <div className="grid grid-cols-3 gap-2 py-3 border-y border-gray-100 text-xs">
+        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[rgba(255,179,107,0.12)] text-xs font-mono">
           <div>
-            <span className="text-gray-400 block mb-0.5">Biaya</span>
-            <span className="font-bold text-gray-900">{formattedFee}</span>
+            <span className="text-[#948277] block text-[10px] uppercase">Biaya</span>
+            <span className="font-bold text-[#FFF7F0]">{formattedFee}</span>
           </div>
           <div>
-            <span className="text-gray-400 block mb-0.5">Format Tim</span>
-            <span className="font-bold text-gray-900">
-              {min_team_member === max_team_member ? `${min_team_member} Orang` : `${min_team_member}-${max_team_member} Orang`}
+            <span className="text-[#948277] block text-[10px] uppercase">Tim</span>
+            <span className="font-bold text-[#FFF7F0]">
+              {min_team_member === max_team_member ? `${min_team_member} Org` : `${min_team_member}-${max_team_member} Org`}
             </span>
           </div>
           <div>
-            <span className="text-gray-400 block mb-0.5">Pendaftaran</span>
-            <span className="font-bold text-gray-900">
-              {formatDate(registration_start)} - {formatDate(registration_end)}
-            </span>
+            <span className="text-[#948277] block text-[10px] uppercase">Hadiah</span>
+            <span className="font-bold text-[#FF6A00]">{prizePool}</span>
           </div>
         </div>
       </div>
 
       {/* Card Action footer */}
-      <div className="px-6 py-4 bg-gray-50/70 border-t border-gray-100 flex items-center justify-between gap-3">
+      <div className="px-6 py-4 bg-[#211811] border-t border-[rgba(255,179,107,0.12)] flex items-center justify-between gap-3">
         <Link to={`/competitions/${slug}`} className="flex-1">
-          <Button variant="secondary" size="sm" className="w-full font-semibold">
-            Lihat Detail
+          <Button variant="secondary" size="sm" className="w-full font-semibold text-xs gap-1">
+            <span>Rincian Lomba</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
           </Button>
         </Link>
-        <Link to="/registrations" className="flex-1">
-          <Button variant="primary" size="sm" className="w-full font-semibold shadow-xs">
+        <Link to={`/register?competition=${slug}`} className="flex-1">
+          <Button variant="glow" size="sm" className="w-full font-semibold text-xs">
             Daftar Sekarang
           </Button>
         </Link>

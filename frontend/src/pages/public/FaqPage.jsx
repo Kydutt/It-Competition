@@ -1,71 +1,138 @@
-import React, { useState, useEffect } from 'react';
-import competitionService from '../../services/competitionService';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, MessageSquare, FileText } from 'lucide-react';
+import SectionHeading from '../../components/ui/SectionHeading';
+import Button from '../../components/ui/Button';
+import { FAQ_DATA, FESTIVAL_INFO } from '../../data/festivalData';
 
 export const FaqPage = () => {
-  const [faqs, setFaqs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [openIndex, setOpenIndex] = useState(0);
 
-  useEffect(() => {
-    const fetchFaqs = async () => {
-      try {
-        const res = await competitionService.getFaqs();
-        if (res.success && res.data) {
-          setFaqs(res.data);
-        }
-      } catch (err) {
-        console.error('Failed to load FAQs:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFaqs();
-  }, []);
+  const currentQuestions = FAQ_DATA[activeCategory]?.questions || [];
+
+  const toggleQuestion = (index) => {
+    setOpenIndex(openIndex === index ? -1 : index);
+  };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
-      <div className="text-center max-w-xl mx-auto space-y-3">
-        <h1 className="text-4xl font-black text-gray-950 tracking-tight">Tanya Jawab (FAQ)</h1>
-        <p className="text-sm sm:text-base text-gray-600">
-          Pertanyaan yang sering diajukan seputar pendaftaran, ketentuan tim, dan mekanisme lomba.
-        </p>
-      </div>
+    <div className="relative py-28 sm:py-32 bg-[#100B08] overflow-hidden min-h-screen">
+      {/* Background Lighting */}
+      <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(circle,rgba(255,106,0,0.1)_0%,transparent_70%)] pointer-events-none blur-3xl -z-10" />
 
-      {loading ? (
-        <div className="text-center py-16">
-          <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm text-gray-500">Memuat FAQ...</p>
-        </div>
-      ) : faqs.length === 0 ? (
-        <div className="space-y-4">
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs space-y-2">
-            <h3 className="text-base font-bold text-gray-900">Siapa saja yang boleh mengikuti kompetisi ini?</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Mahasiswa aktif perguruan tinggi serta siswa aktif SMA/SMK/Sederajat yang berdomisili atau bersekolah di wilayah Ciayumajakuning (Cirebon, Indramayu, Majalengka, Kuningan).
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs space-y-2">
-            <h3 className="text-base font-bold text-gray-900">Apakah anggota tim boleh berasal dari instansi yang berbeda?</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Untuk kategori Mahasiswa dan Siswa, seluruh anggota dalam satu tim wajib berasal dari perguruan tinggi atau sekolah yang sama.
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs space-y-2">
-            <h3 className="text-base font-bold text-gray-900">Bagaimana proses verifikasi pembayaran pendaftaran?</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Setelah ketua tim mentransfer biaya pendaftaran dan mengunggah bukti transfer, panitia admin akan memverifikasi maksimal 1x24 jam kerja.
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {faqs.map((faq) => (
-            <div key={faq.id} className="bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs space-y-2">
-              <h3 className="text-base font-bold text-gray-900">{faq.question}</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">{faq.answer}</p>
-            </div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
+        
+        {/* Header */}
+        <SectionHeading
+          badge="// HELP DESK // FAQ"
+          title="Tanya Jawab &"
+          highlight="Pusat Informasi"
+          description="Pertanyaan yang sering diajukan seputar persyaratan pendaftaran, pembentukan tim, dan mekanisme teknis perlombaan."
+        />
+
+        {/* Category Selector Tabs */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {FAQ_DATA.map((cat, idx) => (
+            <button
+              key={cat.category}
+              onClick={() => {
+                setActiveCategory(idx);
+                setOpenIndex(0);
+              }}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                activeCategory === idx
+                  ? 'bg-[#FF6A00] text-white shadow-orange-glow'
+                  : 'bg-[#1C1410] text-[#C4B3A7] hover:text-[#FFF7F0] border border-[rgba(255,179,107,0.18)] hover:border-[#FF7A1A]'
+              }`}
+            >
+              {cat.category}
+            </button>
           ))}
         </div>
-      )}
+
+        {/* Accordion Container */}
+        <div className="space-y-4">
+          {currentQuestions.map((item, idx) => {
+            const isOpen = openIndex === idx;
+
+            return (
+              <div
+                key={idx}
+                className={`bg-[#1C1410] border rounded-2xl transition-colors duration-200 overflow-hidden ${
+                  isOpen
+                    ? 'border-[#FF7A1A] shadow-amber-subtle'
+                    : 'border-[rgba(255,179,107,0.16)] hover:border-[rgba(255,179,107,0.3)]'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleQuestion(idx)}
+                  className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-[#FFC58A] focus:ring-inset"
+                  aria-expanded={isOpen}
+                >
+                  <span className={`text-base sm:text-lg font-bold font-display transition-colors ${
+                    isOpen ? 'text-[#FFB36B]' : 'text-[#FFF7F0]'
+                  }`}>
+                    {item.q}
+                  </span>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-[#211811] text-[#FFB36B] border border-[rgba(255,179,107,0.15)] flex-shrink-0 ml-4 transition-transform duration-200 ${
+                    isOpen ? 'rotate-180 bg-[#FF6A00] text-white' : ''
+                  }`}>
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-6 pt-1 text-sm sm:text-base text-[#C4B3A7] leading-relaxed font-sans border-t border-[rgba(255,179,107,0.08)]">
+                        {item.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Support Card */}
+        <div className="bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+          <div className="space-y-1">
+            <h4 className="text-lg font-bold font-display text-[#FFF7F0]">
+              Butuh Penjelasan Teknis Lainnya?
+            </h4>
+            <p className="text-xs sm:text-sm text-[#948277]">
+              Hubungi tim helpdesk panitia via WhatsApp atau unduh panduan teknis lengkap.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <a 
+              href={`https://wa.me/${FESTIVAL_INFO.contactWhatsapp.replace(/[^0-9]/g, '')}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <Button variant="secondary" size="sm" className="gap-2">
+                <MessageSquare className="w-4 h-4 text-[#FF7A1A]" />
+                <span>Chat Panitia</span>
+              </Button>
+            </a>
+            <a href={FESTIVAL_INFO.guidebookUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm" className="gap-2">
+                <FileText className="w-4 h-4" />
+                <span>Guidebook PDF</span>
+              </Button>
+            </a>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
