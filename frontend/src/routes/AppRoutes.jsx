@@ -21,6 +21,7 @@ import AnnouncementDetailPage from '../pages/public/AnnouncementDetailPage';
 import WinnersPage from '../pages/public/WinnersPage';
 import FaqPage from '../pages/public/FaqPage';
 import ContactPage from '../pages/public/ContactPage';
+import NotFoundPage from '../pages/public/NotFoundPage';
 
 // Auth Pages
 import LoginPage from '../pages/auth/LoginPage';
@@ -29,33 +30,27 @@ import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 
 // Participant Pages
 import ParticipantDashboard from '../pages/participant/DashboardPage';
-import ParticipantProfile from '../pages/participant/ProfilePage';
-import ParticipantCompetitions from '../pages/participant/MyCompetitionsPage';
-import ParticipantTeam from '../pages/participant/MyTeamPage';
+import ParticipantCompetitions from '../pages/participant/CompetitionsPage';
 import ParticipantRegistrations from '../pages/participant/RegistrationsPage';
-import ParticipantSubmissions from '../pages/participant/SubmissionsPage';
-import ParticipantPayments from '../pages/participant/PaymentsPage';
+import ParticipantSchedule from '../pages/participant/SchedulePage';
 import ParticipantAnnouncements from '../pages/participant/AnnouncementsPage';
-import RegistrationPaymentPage from '../pages/participant/RegistrationPaymentPage';
-import RegistrationSubmissionPage from '../pages/participant/RegistrationSubmissionPage';
+import ParticipantProfile from '../pages/participant/ProfilePage';
 
 // Admin Pages
 import AdminDashboard from '../pages/admin/DashboardPage';
-import AdminCompetitions from '../pages/admin/CompetitionsPage';
 import AdminParticipants from '../pages/admin/ParticipantsPage';
-import AdminRegistrations from '../pages/admin/RegistrationsPage';
-import AdminPayments from '../pages/admin/PaymentsPage';
-import AdminSubmissions from '../pages/admin/SubmissionsPage';
+import AdminCompetitions from '../pages/admin/CompetitionsPage';
+import AdminJudges from '../pages/admin/JudgesPage';
+import AdminSchedule from '../pages/admin/SchedulePage';
 import AdminAnnouncements from '../pages/admin/AnnouncementsPage';
-import AdminFaqs from '../pages/admin/FaqsPage';
-import AdminSponsors from '../pages/admin/SponsorsPage';
-import AdminWinners from '../pages/admin/WinnersPage';
+import AdminReports from '../pages/admin/ReportsPage';
 
 // Judge Pages
 import JudgeDashboard from '../pages/judge/DashboardPage';
-import JudgeSubmissions from '../pages/judge/SubmissionsPage';
-import JudgeSubmissionDetail from '../pages/judge/SubmissionDetailPage';
-import JudgeScores from '../pages/judge/ScoresPage';
+import JudgeCompetitions from '../pages/judge/CompetitionsPage';
+import JudgeEvaluations from '../pages/judge/EvaluationsPage';
+import JudgeResults from '../pages/judge/ResultsPage';
+import JudgeProfile from '../pages/judge/ProfilePage';
 
 export const AppRoutes = () => {
   return (
@@ -72,6 +67,7 @@ export const AppRoutes = () => {
         <Route path="/winners" element={<WinnersPage />} />
         <Route path="/faq" element={<FaqPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/404" element={<NotFoundPage />} />
       </Route>
 
       {/* 2. AUTHENTICATION ROUTES */}
@@ -81,23 +77,27 @@ export const AppRoutes = () => {
 
       {/* 3. PARTICIPANT PROTECTED ROUTES */}
       <Route
+        path="/participant"
         element={
           <ProtectedRoute allowedRoles={['participant', 'admin']}>
             <ParticipantLayout />
           </ProtectedRoute>
         }
       >
-        <Route path="/dashboard" element={<ParticipantDashboard />} />
-        <Route path="/profile" element={<ParticipantProfile />} />
-        <Route path="/my-competitions" element={<ParticipantCompetitions />} />
-        <Route path="/my-team" element={<ParticipantTeam />} />
-        <Route path="/registrations" element={<ParticipantRegistrations />} />
-        <Route path="/submissions" element={<ParticipantSubmissions />} />
-        <Route path="/payments" element={<ParticipantPayments />} />
-        <Route path="/registrations/:id/payment" element={<RegistrationPaymentPage />} />
-        <Route path="/registrations/:id/submission" element={<RegistrationSubmissionPage />} />
-        <Route path="/my-announcements" element={<ParticipantAnnouncements />} />
+        <Route index element={<Navigate to="/participant/dashboard" replace />} />
+        <Route path="dashboard" element={<ParticipantDashboard />} />
+        <Route path="competitions" element={<ParticipantCompetitions />} />
+        <Route path="registrations" element={<ParticipantRegistrations />} />
+        <Route path="schedule" element={<ParticipantSchedule />} />
+        <Route path="announcements" element={<ParticipantAnnouncements />} />
+        <Route path="profile" element={<ParticipantProfile />} />
       </Route>
+
+      {/* Backward-compatible participant aliases */}
+      <Route path="/dashboard" element={<Navigate to="/participant/dashboard" replace />} />
+      <Route path="/my-competitions" element={<Navigate to="/participant/competitions" replace />} />
+      <Route path="/registrations" element={<Navigate to="/participant/registrations" replace />} />
+      <Route path="/profile" element={<Navigate to="/participant/profile" replace />} />
 
       {/* 4. ADMIN PROTECTED ROUTES */}
       <Route
@@ -108,16 +108,14 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route index element={<AdminDashboard />} />
-        <Route path="competitions" element={<AdminCompetitions />} />
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="participants" element={<AdminParticipants />} />
-        <Route path="registrations" element={<AdminRegistrations />} />
-        <Route path="payments" element={<AdminPayments />} />
-        <Route path="submissions" element={<AdminSubmissions />} />
+        <Route path="competitions" element={<AdminCompetitions />} />
+        <Route path="judges" element={<AdminJudges />} />
+        <Route path="schedule" element={<AdminSchedule />} />
         <Route path="announcements" element={<AdminAnnouncements />} />
-        <Route path="faqs" element={<AdminFaqs />} />
-        <Route path="sponsors" element={<AdminSponsors />} />
-        <Route path="winners" element={<AdminWinners />} />
+        <Route path="reports" element={<AdminReports />} />
       </Route>
 
       {/* 5. JUDGE PROTECTED ROUTES */}
@@ -129,14 +127,18 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route index element={<JudgeDashboard />} />
-        <Route path="submissions" element={<JudgeSubmissions />} />
-        <Route path="submissions/:id" element={<JudgeSubmissionDetail />} />
-        <Route path="scores" element={<JudgeScores />} />
+        <Route index element={<Navigate to="/judge/dashboard" replace />} />
+        <Route path="dashboard" element={<JudgeDashboard />} />
+        <Route path="competitions" element={<JudgeCompetitions />} />
+        <Route path="evaluations" element={<JudgeEvaluations />} />
+        <Route path="results" element={<JudgeResults />} />
+        <Route path="profile" element={<JudgeProfile />} />
       </Route>
 
       {/* 6. FALLBACK ROUTE */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route element={<PublicLayout />}>
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   );
 };

@@ -1,114 +1,160 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../../services/api';
-import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { 
+  Users, 
+  Trophy, 
+  Scale, 
+  Clock, 
+  CheckCircle2, 
+  ArrowRight, 
+  Calendar, 
+  Activity,
+  Plus
+} from 'lucide-react';
+import mockService from '../../services/mockService';
+import PageHeader from '../../components/dashboard/PageHeader';
+import StatCard from '../../components/dashboard/StatCard';
+import StatusBadge from '../../components/dashboard/StatusBadge';
 import Button from '../../components/ui/Button';
 
 export const AdminDashboardPage = () => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const res = await api.get('/admin/dashboard');
-        if (res.data?.success) {
-          setStats(res.data.data);
-        }
-      } catch (err) {
-        console.error('Failed to load admin stats:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboard();
+    setData(mockService.getAdminOverview());
   }, []);
+
+  if (!data) return null;
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-black text-gray-950 tracking-tight">Overview Dashboard Panitia</h1>
-        <p className="text-sm text-gray-500">Statistik real-time peserta, pendaftaran, dan verifikasi HIMATIF IT Competition</p>
+      {/* Page Header */}
+      <PageHeader
+        badge="// ADMINISTRATOR OVERVIEW"
+        title="Pusat Kendali Festival & Kompetisi"
+        description="Ringkasan metrik partisipasi, status pendaftaran peserta, dan aktivitas sistem kompetisi secara real-time."
+        actions={
+          <div className="flex items-center gap-2.5">
+            <Link to="/admin/competitions">
+              <Button variant="secondary" size="sm" className="text-xs">
+                Kelola Lomba
+              </Button>
+            </Link>
+            <Link to="/admin/participants">
+              <Button variant="primary" size="sm" className="text-xs gap-1.5">
+                <span>Verifikasi Pendaftaran</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            </Link>
+          </div>
+        }
+      />
+
+      {/* 4 Overview Statistics Cards (Calculated Dynamically from Data) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <StatCard
+          title="Total Peserta Terdaftar"
+          value={data.totalParticipants}
+          description="Peserta akun aktif di sistem"
+          icon={Users}
+          variant="default"
+        />
+        <StatCard
+          title="Cabang Kompetisi"
+          value={data.totalCompetitions}
+          description="Kategori lomba aktif 2026"
+          icon={Trophy}
+          variant="orange"
+        />
+        <StatCard
+          title="Dewan Juri Ditugaskan"
+          value={data.totalJudges}
+          description="Pakar industri & akademisi"
+          icon={Scale}
+          variant="amber"
+        />
+        <StatCard
+          title="Pendaftaran Menunggu"
+          value={data.pendingRegistrations}
+          description="Perlu verifikasi dokumen"
+          icon={Clock}
+          variant="emerald"
+        />
       </div>
 
-      {/* Metrics Row */}
-      {loading ? (
-        <div className="text-center py-16">
-          <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm text-gray-500">Memuat statistik admin...</p>
+      {/* Two Column Grid: Recent Activity & Upcoming Milestones */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Left Column: Recent Activities (7 cols) */}
+        <div className="lg:col-span-7 bg-[#1C1410] border border-[rgba(255,179,107,0.18)] rounded-3xl p-6 sm:p-7 shadow-xl space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-[#FF6A00]" />
+              <h3 className="text-lg font-bold font-display text-[#FFF7F0]">
+                Aktivitas Sistem Terkini
+              </h3>
+            </div>
+            <span className="font-mono text-xs text-[#948277]">
+              LIVE TELEMETRY
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {data.recentActivities.map((act) => (
+              <div
+                key={act.id}
+                className="p-4 rounded-2xl bg-[#211811] border border-[rgba(255,179,107,0.1)] flex items-start justify-between gap-4"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-[#FF6A00] mt-1.5 shrink-0 animate-pulse" />
+                  <p className="text-xs sm:text-sm text-[#C4B3A7] leading-relaxed">
+                    {act.description}
+                  </p>
+                </div>
+                <span className="font-mono text-[10px] text-[#948277] whitespace-nowrap shrink-0">
+                  {act.timestamp}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          <Card>
-            <CardContent className="p-0">
-              <span className="text-xs text-gray-500 uppercase font-semibold">Total Kompetisi</span>
-              <p className="text-3xl font-black text-gray-950 mt-1">{stats?.total_competitions ?? 4}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-0">
-              <span className="text-xs text-gray-500 uppercase font-semibold">Total Pendaftar</span>
-              <p className="text-3xl font-black text-brand-600 mt-1">{stats?.total_registrations ?? 0}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-0">
-              <span className="text-xs text-gray-500 uppercase font-semibold">Pending Verifikasi</span>
-              <p className="text-3xl font-black text-amber-500 mt-1">{stats?.pending_verification ?? 0}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-0">
-              <span className="text-xs text-gray-500 uppercase font-semibold">Total Submissions</span>
-              <p className="text-3xl font-black text-emerald-600 mt-1">{stats?.total_submissions ?? 0}</p>
-            </CardContent>
-          </Card>
+
+        {/* Right Column: Upcoming Schedule Milestones (5 cols) */}
+        <div className="lg:col-span-5 bg-[#1C1410] border border-[rgba(255,179,107,0.18)] rounded-3xl p-6 sm:p-7 shadow-xl space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#FF7A1A]" />
+              <h3 className="text-lg font-bold font-display text-[#FFF7F0]">
+                Milestone Mendatang
+              </h3>
+            </div>
+            <Link to="/admin/schedule" className="text-xs font-mono text-[#FFB36B] hover:underline">
+              Kelola Jadwal &rarr;
+            </Link>
+          </div>
+
+          <div className="space-y-3.5">
+            {data.upcomingMilestones.map((milestone) => (
+              <div
+                key={milestone.id}
+                className="p-4 rounded-2xl bg-[#211811] border border-[rgba(255,179,107,0.1)] space-y-1"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-bold text-xs sm:text-sm text-[#FFF7F0] font-display">
+                    {milestone.title}
+                  </span>
+                  <span className="font-mono text-[10px] text-[#FFB36B] bg-[#17110D] px-2 py-0.5 rounded border border-[rgba(255,179,107,0.15)]">
+                    {milestone.date}
+                  </span>
+                </div>
+                <p className="text-xs text-[#948277] line-clamp-1">
+                  {milestone.description}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
 
-      {/* Quick Action Hub */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card hover>
-          <CardHeader>
-            <CardTitle>Kelola Cabang Lomba</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-xs text-gray-600">Tambah, edit kuota, atau ubah status publikasi cabang kompetisi.</p>
-            <Link to="/admin/competitions" className="block">
-              <Button variant="secondary" size="sm" className="w-full">
-                Buka Manajemen Lomba &rarr;
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card hover>
-          <CardHeader>
-            <CardTitle>Verifikasi Pendaftaran</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-xs text-gray-600">Tinjau kelayakan berkas persyaratan administrasi peserta.</p>
-            <Link to="/admin/registrations" className="block">
-              <Button variant="secondary" size="sm" className="w-full">
-                Tinjau Pendaftaran &rarr;
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card hover>
-          <CardHeader>
-            <CardTitle>Verifikasi Pembayaran</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-xs text-gray-600">Cek mutasi dan konfirmasi status pembayaran biaya registrasi.</p>
-            <Link to="/admin/payments" className="block">
-              <Button variant="primary" size="sm" className="w-full font-bold">
-                Tinjau Pembayaran &rarr;
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

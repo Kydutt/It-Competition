@@ -1,53 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import competitionService from '../../services/competitionService';
-import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import React, { useState, useMemo } from 'react';
+import { 
+  Megaphone, 
+  Pin, 
+  Clock, 
+  ArrowRight,
+  Sparkles,
+  Info
+} from 'lucide-react';
+import mockService from '../../services/mockService';
+import PageHeader from '../../components/dashboard/PageHeader';
+import Button from '../../components/ui/Button';
 
 export const ParticipantAnnouncementsPage = () => {
-  const [announcements, setAnnouncements] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [announcements] = useState(() => mockService.announcements);
+  const [selectedAnc, setSelectedAnc] = useState(null);
 
-  useEffect(() => {
-    competitionService.getAnnouncements().then(res => {
-      if (res.success && res.data) setAnnouncements(res.data);
-      setLoading(false);
-    });
-  }, []);
+  const participantAnnouncements = useMemo(() => {
+    return announcements.filter(
+      (a) => a.status === 'published' && (a.audience === 'all' || a.audience === 'participants')
+    );
+  }, [announcements]);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-black text-gray-950 tracking-tight">Pengumuman Khusus Peserta</h2>
-        <p className="text-sm text-gray-500">Pemberitahuan resmi dan instruksi teknis kompetisi</p>
-      </div>
+      <PageHeader
+        title="Pengumuman Panitia"
+        description="Warta terkini, pembaruan panduan teknis, dan informasi krusial pelaksanaan kompetisi dari panitia penyelenggara."
+        breadcrumbs={[
+          { label: 'Peserta', to: '/participant/dashboard' },
+          { label: 'Pengumuman', to: '/participant/announcements' },
+        ]}
+      />
 
-      {loading ? (
-        <div className="text-center py-16">
-          <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm text-gray-500">Memuat pengumuman...</p>
-        </div>
-      ) : announcements.length === 0 ? (
-        <Card>
-          <div className="text-center py-12 text-gray-500">
-            Belum ada pengumuman terbaru untuk peserta saat ini.
-          </div>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {announcements.map(item => (
-            <Card key={item.id}>
-              <CardHeader>
-                <span className="text-xs text-brand-600 font-semibold">
-                  {new Date(item.published_at || item.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}
+      <div className="space-y-4">
+        {participantAnnouncements.map((anc) => (
+          <div
+            key={anc.id}
+            className={`p-6 bg-[#17110D] border rounded-3xl space-y-3 transition-colors ${
+              anc.isPinned
+                ? 'border-[#FF6A00]/50 shadow-orange-glow/10'
+                : 'border-[rgba(255,179,107,0.16)]'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                {anc.isPinned && (
+                  <span className="flex items-center space-x-1 text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#FF6A00]/20 text-[#FF6A00] border border-[#FF6A00]/40 font-bold">
+                    <Pin className="w-3 h-3 rotate-45" />
+                    <span>PINNED</span>
+                  </span>
+                )}
+                <span className="text-[10px] font-mono text-[#948277]">
+                  {new Date(anc.createdAt || Date.now()).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
                 </span>
-                <CardTitle className="mt-1">{item.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
-                {item.content}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-base md:text-lg font-bold font-display text-[#FFF7F0]">
+                {anc.title}
+              </h3>
+              <p className="text-xs md:text-sm text-[#C4B3A7] leading-relaxed pt-1">
+                {anc.body}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

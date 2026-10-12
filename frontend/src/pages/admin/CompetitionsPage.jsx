@@ -1,727 +1,791 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import competitionService from '../../services/competitionService';
-import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
+import React, { useState, useMemo, useEffect } from 'react';
+import { 
+  Trophy, 
+  Plus, 
+  Edit3, 
+  Eye, 
+  Trash2, 
+  Search, 
+  Filter, 
+  RotateCcw, 
+  CheckCircle2, 
+  AlertCircle, 
+  FileText,
+  Users,
+  Coins,
+  Sparkles,
+  ExternalLink,
+  Layers,
+  Calendar
+} from 'lucide-react';
+import mockService from '../../services/mockService';
+import PageHeader from '../../components/dashboard/PageHeader';
+import DataTable from '../../components/dashboard/DataTable';
+import SearchInput from '../../components/dashboard/SearchInput';
+import StatusBadge from '../../components/dashboard/StatusBadge';
+import ConfirmDialog from '../../components/dashboard/ConfirmDialog';
 import Button from '../../components/ui/Button';
 
+// Category normalization helper
+const normalizeCategory = (cat) => {
+  if (!cat) return '';
+  const s = String(cat).toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (s.includes('ui') && s.includes('ux')) return 'ui_ux';
+  if (s.includes('web')) return 'web_dev';
+  if (s.includes('mobile')) return 'mobile_dev';
+  if (s.includes('comp') || s.includes('prog') || s.includes('algo') || s.includes('cpc')) return 'competitive_prog';
+  if (s.includes('data') || s.includes('ai') || s.includes('analytic')) return 'data_science';
+  if (s.includes('cyber') || s.includes('security') || s.includes('ctf') || s.includes('siber')) return 'cyber_security';
+  return s;
+};
+
+// Status normalization helper
+const normalizeStatus = (st) => {
+  if (!st) return '';
+  const s = String(st).toLowerCase().trim();
+  if (s === 'draft') return 'draft';
+  if (s === 'registration_open' || s === 'open' || s.includes('dibuka')) return 'registration_open';
+  if (s === 'registration_closed' || s === 'closed' || s.includes('ditutup')) return 'registration_closed';
+  if (s === 'judging' || s.includes('penjurian')) return 'judging';
+  if (s === 'finished' || s === 'completed' || s.includes('selesai')) return 'finished';
+  return s;
+};
+
 export const AdminCompetitionsPage = () => {
-  const [competitions, setCompetitions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [successMsg, setSuccessMsg] = useState('');
+  // Sync state with mockService.competitions
+  const [competitions, setCompetitions] = useState(() => {
+    // Ensure mock service competitions are loaded and normalized
+    if (!mockService.competitions || mockService.competitions.length === 0) {
+      mockService.normalizeCompetitions();
+    }
+    return [...mockService.competitions];
+  });
 
-  // Filters & Search
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const [searchInput, setSearchInput] = useState('');
-  const [category, setCategory] = useState('');
-  const [targetLevel, setTargetLevel] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [publishedFilter, setPublishedFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  
+  // Feedback alerts
+  const [alertMessage, setAlertMessage] = useState(null);
 
-  // Pagination
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  // Modals
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [editingComp, setEditingComp] = useState(null);
+  const [selectedComp, setSelectedComp] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, compId: null, compName: '' });
 
-  // Modal States
-  const [showFormModal, setShowFormModal] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentCompetition, setCurrentCompetition] = useState(null);
-  const [formSubmitting, setFormSubmitting] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
-
-  // Status Modal
-  const [showStatusModal, setShowStatusModal] = useState(false);
-  const [statusTargetComp, setStatusTargetComp] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState('');
-
-  // Form Initial Data
-  const defaultFormData = {
+  // Form state
+  const defaultForm = {
     name: '',
-    slug: '',
     category: 'ui_ux',
-    target_level: 'university',
+    category_label: 'UI/UX Design',
+    target_level: 'all',
+    target_level_label: 'Umum / Mahasiswa & Pelajar',
     theme: '',
     description: '',
-    registration_fee: 0,
-    quota: 50,
+    prizePool: 'Rp 5.000.000',
     min_team_member: 1,
     max_team_member: 3,
-    registration_start: '',
-    registration_end: '',
-    submission_start: '',
-    submission_deadline: '',
-    status: 'draft',
-    is_published: false,
-    guidebook_url: '',
-    poster_url: '',
+    registration_fee: 50000,
+    quota: 50,
+    status: 'registration_open',
+    guidebook_url: '/guidebook-itc-2026.pdf'
   };
-  const [formData, setFormData] = useState(defaultFormData);
+  const [formData, setFormData] = useState(defaultForm);
+  const [formErrors, setFormErrors] = useState({});
 
-  // Allowed transitions map according to backend business rules
-  const allowedTransitions = {
-    draft: ['registration_open', 'archived'],
-    registration_open: ['registration_closed', 'draft', 'archived'],
-    registration_closed: ['submission_open', 'registration_open', 'archived'],
-    submission_open: ['judging', 'registration_closed', 'archived'],
-    judging: ['finished', 'submission_open', 'archived'],
-    finished: ['archived'],
-    archived: ['draft'],
-  };
+  // Canonical Category definitions
+  const categoryDefinitions = [
+    { value: 'all', label: 'Semua Kategori' },
+    { value: 'ui_ux', label: 'UI/UX Design' },
+    { value: 'web_dev', label: 'Web Development' },
+    { value: 'mobile_dev', label: 'Mobile App' },
+    { value: 'competitive_prog', label: 'Competitive Programming' },
+    { value: 'data_science', label: 'Data Science' },
+    { value: 'cyber_security', label: 'Cyber Security' },
+  ];
 
-  const statusLabels = {
-    draft: 'Draft',
-    registration_open: 'Pendaftaran Dibuka',
-    registration_closed: 'Pendaftaran Ditutup',
-    submission_open: 'Pengumpulan Karya Dibuka',
-    judging: 'Tahap Penjurian',
-    finished: 'Selesai',
-    archived: 'Diarsipkan',
-  };
+  // Canonical Status definitions
+  const statusDefinitions = [
+    { value: 'all', label: 'Semua Status' },
+    { value: 'draft', label: 'Draft' },
+    { value: 'registration_open', label: 'Pendaftaran Dibuka' },
+    { value: 'registration_closed', label: 'Pendaftaran Ditutup' },
+    { value: 'judging', label: 'Tahap Penjurian' },
+    { value: 'finished', label: 'Selesai' },
+  ];
 
-  const fetchCompetitions = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = {
-        page,
-        per_page: 10,
-      };
-      if (search.trim()) params.search = search.trim();
-      if (category) params.category = category;
-      if (targetLevel) params.target_level = targetLevel;
-      if (statusFilter) params.status = statusFilter;
-      if (publishedFilter !== '') params.is_published = publishedFilter;
-
-      const res = await competitionService.getAdminCompetitions(params);
-      if (res.success && res.data) {
-        const items = res.data.data || res.data;
-        setCompetitions(items);
-        if (res.data.meta) {
-          setTotalPages(res.data.meta.last_page || 1);
-          setTotalCount(res.data.meta.total || items.length);
-        } else {
-          setTotalPages(1);
-          setTotalCount(items.length);
-        }
+  // Category counts based on available competitions
+  const categoryCounts = useMemo(() => {
+    const counts = { all: competitions.length };
+    categoryDefinitions.forEach((cat) => {
+      if (cat.value !== 'all') {
+        counts[cat.value] = competitions.filter((comp) => {
+          const c = normalizeCategory(comp.category) || normalizeCategory(comp.category_label);
+          return c === cat.value;
+        }).length;
       }
-    } catch (err) {
-      console.error('Failed to fetch competitions:', err);
-      setError('Gagal memuat data kompetisi.');
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search, category, targetLevel, statusFilter, publishedFilter]);
+    });
+    return counts;
+  }, [competitions]);
 
-  useEffect(() => {
-    fetchCompetitions();
-  }, [fetchCompetitions]);
+  // Status counts based on available competitions
+  const statusCounts = useMemo(() => {
+    const counts = { all: competitions.length };
+    statusDefinitions.forEach((st) => {
+      if (st.value !== 'all') {
+        counts[st.value] = competitions.filter((comp) => {
+          const s = normalizeStatus(comp.status);
+          return s === st.value;
+        }).length;
+      }
+    });
+    return counts;
+  }, [competitions]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setPage(1);
-    setSearch(searchInput);
+  // Combined Filtering: search AND category AND status
+  const filteredCompetitions = useMemo(() => {
+    const query = search.toLowerCase().trim();
+
+    return competitions.filter((comp) => {
+      // 1. Search Query Condition
+      const nameMatch = comp.name?.toLowerCase().includes(query) ?? false;
+      const themeMatch = comp.theme?.toLowerCase().includes(query) ?? false;
+      const categoryLabelMatch = comp.category_label?.toLowerCase().includes(query) ?? false;
+      const descriptionMatch = comp.description?.toLowerCase().includes(query) ?? false;
+      const matchSearch = query === '' || nameMatch || themeMatch || categoryLabelMatch || descriptionMatch;
+
+      // 2. Category Condition
+      const normalizedCat = normalizeCategory(comp.category) || normalizeCategory(comp.category_label);
+      const matchCategory =
+        categoryFilter === 'all' ||
+        normalizedCat === categoryFilter ||
+        comp.category === categoryFilter;
+
+      // 3. Status Condition
+      const normalizedSt = normalizeStatus(comp.status);
+      const matchStatus =
+        statusFilter === 'all' ||
+        normalizedSt === statusFilter ||
+        comp.status === statusFilter;
+
+      // Combined AND Logic
+      return matchSearch && matchCategory && matchStatus;
+    });
+  }, [competitions, search, categoryFilter, statusFilter]);
+
+  // Check if any filter is currently active
+  const isFilterActive = search.trim() !== '' || categoryFilter !== 'all' || statusFilter !== 'all';
+
+  // Reset all filters to default
+  const handleResetFilters = () => {
+    setSearch('');
+    setCategoryFilter('all');
+    setStatusFilter('all');
   };
 
-  const openCreateModal = () => {
-    setIsEditing(false);
-    setCurrentCompetition(null);
-    setFormData(defaultFormData);
+  // Open Add modal
+  const handleOpenAdd = () => {
+    setEditingComp(null);
+    setFormData(defaultForm);
     setFormErrors({});
-    setShowFormModal(true);
+    setIsModalOpen(true);
   };
 
-  const openEditModal = (comp) => {
-    setIsEditing(true);
-    setCurrentCompetition(comp);
+  // Open Edit modal
+  const handleOpenEdit = (comp) => {
+    setEditingComp(comp);
     setFormData({
+      id: comp.id,
       name: comp.name || '',
-      slug: comp.slug || '',
-      category: comp.category || 'ui_ux',
-      target_level: comp.target_level || 'university',
+      category: normalizeCategory(comp.category) || 'ui_ux',
+      category_label: comp.category_label || comp.category,
+      target_level: comp.target_level || 'all',
+      target_level_label: comp.target_level_label || 'Mahasiswa & Pelajar',
       theme: comp.theme || '',
       description: comp.description || '',
-      registration_fee: comp.registration_fee ?? 0,
-      quota: comp.quota ?? 50,
-      min_team_member: comp.min_team_member ?? 1,
-      max_team_member: comp.max_team_member ?? 3,
-      registration_start: comp.registration_start ? comp.registration_start.slice(0, 16) : '',
-      registration_end: comp.registration_end ? comp.registration_end.slice(0, 16) : '',
-      submission_start: comp.submission_start ? comp.submission_start.slice(0, 16) : '',
-      submission_deadline: comp.submission_deadline ? comp.submission_deadline.slice(0, 16) : '',
-      status: comp.status || 'draft',
-      is_published: !!comp.is_published,
-      guidebook_url: comp.guidebook_url || '',
-      poster_url: comp.poster_url || '',
+      prizePool: comp.prizePool || 'Rp 5.000.000',
+      min_team_member: comp.min_team_member || 1,
+      max_team_member: comp.max_team_member || 3,
+      registration_fee: comp.registration_fee || 0,
+      quota: comp.quota || 50,
+      status: normalizeStatus(comp.status) || 'registration_open',
+      guidebook_url: comp.guidebook_url || '/guidebook-itc-2026.pdf'
     });
     setFormErrors({});
-    setShowFormModal(true);
+    setIsModalOpen(true);
   };
 
-  const handleFormSubmit = async (e) => {
+  // Form Validation
+  const validateForm = () => {
+    const errs = {};
+    if (!formData.name.trim()) errs.name = 'Nama kompetisi wajib diisi';
+    if (!formData.theme.trim()) errs.theme = 'Tema kompetisi wajib diisi';
+    if (!formData.description.trim()) errs.description = 'Deskripsi kompetisi wajib diisi';
+    if (Number(formData.min_team_member) < 1) errs.min_team_member = 'Minimal 1 anggota';
+    if (Number(formData.max_team_member) < Number(formData.min_team_member)) {
+      errs.max_team_member = 'Maksimal anggota tidak boleh kurang dari minimal';
+    }
+    if (Number(formData.quota) < 1) errs.quota = 'Kuota minimal 1 tim';
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  // Save (Create or Update)
+  const handleSave = (e) => {
     e.preventDefault();
-    setFormSubmitting(true);
-    setFormErrors({});
+    if (!validateForm()) return;
 
-    try {
-      const payload = {
-        ...formData,
-        registration_fee: parseInt(formData.registration_fee, 10) || 0,
-        quota: parseInt(formData.quota, 10) || 50,
-        min_team_member: parseInt(formData.min_team_member, 10) || 1,
-        max_team_member: parseInt(formData.max_team_member, 10) || 3,
-        registration_start: formData.registration_start || null,
-        registration_end: formData.registration_end || null,
-        submission_start: formData.submission_start || null,
-        submission_deadline: formData.submission_deadline || null,
-      };
+    const catObj = categoryDefinitions.find((c) => c.value === formData.category);
+    const catLabel = catObj ? catObj.label : formData.category;
 
-      if (isEditing && currentCompetition) {
-        await competitionService.updateCompetition(currentCompetition.id, payload);
-        setSuccessMsg('Kompetisi berhasil diperbarui.');
-      } else {
-        await competitionService.createCompetition(payload);
-        setSuccessMsg('Kompetisi baru berhasil dibuat.');
-      }
+    const payload = {
+      ...formData,
+      category_label: catLabel,
+      min_team_member: Number(formData.min_team_member),
+      max_team_member: Number(formData.max_team_member),
+      registration_fee: Number(formData.registration_fee),
+      quota: Number(formData.quota),
+    };
 
-      setShowFormModal(false);
-      fetchCompetitions();
-      setTimeout(() => setSuccessMsg(''), 4000);
-    } catch (err) {
-      console.error('Error saving competition:', err);
-      if (err.response?.data?.errors) {
-        setFormErrors(err.response.data.errors);
-      } else {
-        setError(err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.');
-      }
-    } finally {
-      setFormSubmitting(false);
+    const saved = mockService.createOrUpdateCompetition(payload);
+    setCompetitions([...mockService.competitions]);
+    setIsModalOpen(false);
+
+    setAlertMessage({
+      type: 'success',
+      text: editingComp 
+        ? `Cabang kompetisi "${saved.name}" berhasil diperbarui!` 
+        : `Cabang kompetisi baru "${saved.name}" berhasil ditambahkan dan siap menerima pendaftaran!`
+    });
+    setTimeout(() => setAlertMessage(null), 5000);
+  };
+
+  // Delete Action
+  const handleDelete = () => {
+    if (!confirmDelete.compId) return;
+    const idx = mockService.competitions.findIndex((c) => c.id === confirmDelete.compId);
+    if (idx !== -1) {
+      const deletedName = mockService.competitions[idx].name;
+      mockService.competitions.splice(idx, 1);
+      mockService.saveState();
+      setCompetitions([...mockService.competitions]);
+      
+      setAlertMessage({
+        type: 'info',
+        text: `Cabang kompetisi "${deletedName}" telah dihapus dari data lokal.`
+      });
+      setTimeout(() => setAlertMessage(null), 5000);
     }
+    setConfirmDelete({ isOpen: false, compId: null, compName: '' });
   };
 
-  const handleTogglePublish = async (comp) => {
-    try {
-      if (comp.is_published) {
-        await competitionService.unpublishCompetition(comp.id);
-        setSuccessMsg(`Kompetisi "${comp.name}" berhasil di-unpublish.`);
-      } else {
-        await competitionService.publishCompetition(comp.id);
-        setSuccessMsg(`Kompetisi "${comp.name}" berhasil dipublikasikan.`);
-      }
-      fetchCompetitions();
-      setTimeout(() => setSuccessMsg(''), 4000);
-    } catch (err) {
-      console.error('Failed to toggle publish:', err);
-      setError('Gagal mengubah status publikasi kompetisi.');
-    }
-  };
-
-  const openStatusModal = (comp) => {
-    setStatusTargetComp(comp);
-    setSelectedStatus('');
-    setShowStatusModal(true);
-  };
-
-  const handleStatusChangeSubmit = async () => {
-    if (!statusTargetComp || !selectedStatus) return;
-    try {
-      await competitionService.changeCompetitionStatus(statusTargetComp.id, selectedStatus);
-      setSuccessMsg(`Status kompetisi "${statusTargetComp.name}" berhasil diubah.`);
-      setShowStatusModal(false);
-      fetchCompetitions();
-      setTimeout(() => setSuccessMsg(''), 4000);
-    } catch (err) {
-      console.error('Failed to change status:', err);
-      setError(err.response?.data?.message || 'Gagal mengubah status kompetisi.');
-    }
-  };
-
-  const handleDelete = async (comp) => {
-    const confirmDelete = window.confirm(
-      `Apakah Anda yakin ingin menghapus kompetisi "${comp.name}"? Jika kompetisi sudah memiliki data tim atau transaksi, silakan gunakan opsi Arsipkan.`
-    );
-    if (!confirmDelete) return;
-
-    try {
-      await competitionService.deleteCompetition(comp.id);
-      setSuccessMsg(`Kompetisi "${comp.name}" berhasil dihapus.`);
-      fetchCompetitions();
-      setTimeout(() => setSuccessMsg(''), 4000);
-    } catch (err) {
-      console.error('Failed to delete competition:', err);
-      alert(err.response?.data?.message || err.response?.data?.errors?.competition?.[0] || 'Gagal menghapus kompetisi.');
-    }
-  };
-
-  const handleArchive = async (comp) => {
-    const confirmArchive = window.confirm(`Arsipkan kompetisi "${comp.name}"? Kompetisi ini tidak akan tampil secara publik.`);
-    if (!confirmArchive) return;
-
-    try {
-      await competitionService.changeCompetitionStatus(comp.id, 'archived');
-      setSuccessMsg(`Kompetisi "${comp.name}" berhasil diarsipkan.`);
-      fetchCompetitions();
-      setTimeout(() => setSuccessMsg(''), 4000);
-    } catch (err) {
-      console.error('Failed to archive competition:', err);
-      setError('Gagal mengarsipkan kompetisi.');
-    }
-  };
-
-  const statusVariant = {
-    registration_open: 'success',
-    registration_closed: 'warning',
-    submission_open: 'primary',
-    judging: 'info',
-    finished: 'default',
-    draft: 'default',
-    archived: 'default',
-  };
+  // Table columns definition
+  const columns = [
+    {
+      header: 'Cabang Lomba & Tema',
+      accessor: 'name',
+      render: (row) => (
+        <div className="space-y-1">
+          <div className="flex items-center space-x-2">
+            <span className="font-bold font-display text-[#FFF7F0] text-sm hover:text-[#FF6A00] transition-colors">
+              {row.name}
+            </span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#2A1D15] text-[#FFB36B] border border-[rgba(255,179,107,0.18)] font-semibold">
+              {row.category_label || row.category}
+            </span>
+          </div>
+          <p className="text-xs text-[#948277] line-clamp-1 max-w-md">{row.theme || row.description}</p>
+        </div>
+      ),
+    },
+    {
+      header: 'Format Tim',
+      accessor: 'team',
+      render: (row) => (
+        <div className="flex items-center space-x-1.5 text-xs font-mono text-[#C4B3A7]">
+          <Users className="w-3.5 h-3.5 text-[#FFB36B]" />
+          <span>
+            {row.min_team_member === row.max_team_member
+              ? `${row.min_team_member} Orang`
+              : `${row.min_team_member} - ${row.max_team_member} Orang`}
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: 'Biaya & Hadiah',
+      accessor: 'fees',
+      render: (row) => (
+        <div>
+          <p className="text-xs font-bold text-[#FF6A00] font-mono">
+            {row.registration_fee > 0 ? `Rp ${row.registration_fee.toLocaleString('id-ID')}` : 'Gratis'}
+          </p>
+          <p className="text-[11px] text-[#FFB36B] font-mono">{row.prizePool}</p>
+        </div>
+      ),
+    },
+    {
+      header: 'Kuota',
+      accessor: 'quota',
+      render: (row) => (
+        <span className="text-xs font-mono text-[#C4B3A7] px-2 py-1 rounded-lg bg-[#211811] border border-[rgba(255,179,107,0.12)]">
+          {row.quota} Tim
+        </span>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (row) => <StatusBadge status={row.status} label={row.status_label} />,
+    },
+    {
+      header: 'Aksi',
+      accessor: 'id',
+      align: 'right',
+      render: (row) => (
+        <div className="flex items-center justify-end space-x-1.5">
+          <button
+            onClick={() => {
+              setSelectedComp(row);
+              setIsDetailOpen(true);
+            }}
+            title="Lihat Detail Spesifikasi"
+            className="p-1.5 rounded-lg text-[#C4B3A7] hover:text-[#FFF7F0] hover:bg-[#2A1D15] transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleOpenEdit(row)}
+            title="Edit Kompetisi"
+            className="p-1.5 rounded-lg text-[#FFB36B] hover:text-[#FF6A00] hover:bg-[#2A1D15] transition-colors"
+          >
+            <Edit3 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() =>
+              setConfirmDelete({
+                isOpen: true,
+                compId: row.id,
+                compName: row.name,
+              })
+            }
+            title="Hapus Kompetisi"
+            className="p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-950/30 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Page Title & Add Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-black text-gray-950 tracking-tight">Kelola Cabang Kompetisi</h2>
-          <p className="text-sm text-gray-500">Manajemen cabang lomba, status lifecycle, dan publikasi sistem</p>
-        </div>
-        <Button variant="primary" onClick={openCreateModal} className="font-semibold shadow-xs">
-          + Tambah Kompetisi Baru
-        </Button>
-      </div>
+      <PageHeader
+        title="Manajemen Cabang Kompetisi"
+        description="Kelola seluruh cabang lomba IT, syarat eligibility, kuota peserta, rubrik penilaian, dan status pendaftaran."
+        breadcrumbs={[
+          { label: 'Admin', to: '/admin/dashboard' },
+          { label: 'Kompetisi', to: '/admin/competitions' },
+        ]}
+        actions={
+          <Button
+            onClick={handleOpenAdd}
+            variant="primary"
+            className="flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Kompetisi</span>
+          </Button>
+        }
+      />
 
-      {/* Notifications */}
-      {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-4 py-3 rounded-xl flex items-center justify-between">
-          <span>{successMsg}</span>
-          <button onClick={() => setSuccessMsg('')} className="text-emerald-600 font-bold">&times;</button>
-        </div>
-      )}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 text-sm px-4 py-3 rounded-xl flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-600 font-bold">&times;</button>
-        </div>
-      )}
-
-      {/* Filters Bar */}
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            {/* Search */}
-            <form onSubmit={handleSearchSubmit} className="sm:col-span-2 flex gap-2">
-              <input
-                type="text"
-                placeholder="Cari nama atau slug..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
-              />
-              <Button type="submit" size="sm" variant="secondary">Cari</Button>
-            </form>
-
-            {/* Category Filter */}
-            <select
-              value={category}
-              onChange={(e) => { setCategory(e.target.value); setPage(1); }}
-              className="text-xs sm:text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
-            >
-              <option value="">Semua Kategori</option>
-              <option value="ui_ux">UI/UX</option>
-              <option value="web_development">Web Development</option>
-              <option value="lkti">LKTI</option>
-              <option value="poster">Poster</option>
-            </select>
-
-            {/* Target Level */}
-            <select
-              value={targetLevel}
-              onChange={(e) => { setTargetLevel(e.target.value); setPage(1); }}
-              className="text-xs sm:text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
-            >
-              <option value="">Semua Jenjang</option>
-              <option value="university">Mahasiswa</option>
-              <option value="high_school">SMA/SMK</option>
-            </select>
-
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="text-xs sm:text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
-            >
-              <option value="">Semua Status</option>
-              <option value="draft">Draft</option>
-              <option value="registration_open">Pendaftaran Dibuka</option>
-              <option value="registration_closed">Pendaftaran Ditutup</option>
-              <option value="submission_open">Pengumpulan Karya</option>
-              <option value="judging">Tahap Penjurian</option>
-              <option value="finished">Selesai</option>
-              <option value="archived">Diarsipkan</option>
-            </select>
+      {/* Alert Notification */}
+      {alertMessage && (
+        <div
+          className={`p-4 rounded-2xl border flex items-center justify-between text-xs transition-all ${
+            alertMessage.type === 'success'
+              ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
+              : 'bg-amber-950/40 border-amber-500/40 text-amber-300'
+          }`}
+        >
+          <div className="flex items-center space-x-2.5">
+            {alertMessage.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+            )}
+            <span>{alertMessage.text}</span>
           </div>
-        </CardContent>
-      </Card>
+          <button
+            onClick={() => setAlertMessage(null)}
+            className="text-[#948277] hover:text-[#FFF7F0] p-1 font-mono"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
-      {/* Table Content */}
-      <Card>
-        <CardContent className="p-0 overflow-x-auto">
-          {loading ? (
-            <div className="text-center py-16">
-              <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
-              <p className="text-sm text-gray-500">Memuat data kompetisi...</p>
-            </div>
-          ) : competitions.length === 0 ? (
-            <div className="text-center py-16 p-4">
-              <p className="text-gray-500 font-medium">Tidak ada data kompetisi yang sesuai filter.</p>
-            </div>
-          ) : (
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider text-[11px]">
-                <tr>
-                  <th className="px-4 py-3.5">Kompetisi</th>
-                  <th className="px-4 py-3.5">Kategori & Jenjang</th>
-                  <th className="px-4 py-3.5">Biaya & Format</th>
-                  <th className="px-4 py-3.5">Status</th>
-                  <th className="px-4 py-3.5">Publikasi</th>
-                  <th className="px-4 py-3.5 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {competitions.map((c) => (
-                  <tr key={c.id} className="hover:bg-gray-50/60 transition-colors">
-                    {/* Name & Theme */}
-                    <td className="px-4 py-3.5">
-                      <div className="font-bold text-gray-900">{c.name}</div>
-                      <div className="text-xs text-gray-400 font-mono">/{c.slug}</div>
-                      {c.theme && <div className="text-xs text-brand-600 italic truncate max-w-xs">{c.theme}</div>}
-                    </td>
+      {/* FILTER PANEL SECTION */}
+      <div className="bg-[#17110D] border border-[rgba(255,179,107,0.16)] rounded-3xl p-5 space-y-4">
+        {/* Row 1: Search Bar & Status Dropdown + Reset Button */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div className="md:col-span-7">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Cari berdasarkan nama lomba, tema, atau deskripsi..."
+            />
+          </div>
 
-                    {/* Category & Level */}
-                    <td className="px-4 py-3.5">
-                      <div className="font-medium text-gray-800">{c.category_label || c.category}</div>
-                      <div className="text-xs text-gray-500">{c.target_level_label || c.target_level}</div>
-                    </td>
-
-                    {/* Fee & Team */}
-                    <td className="px-4 py-3.5 text-xs text-gray-600">
-                      <div>Rp {c.registration_fee?.toLocaleString('id-ID')}</div>
-                      <div>Tim: {c.min_team_member} - {c.max_team_member} org (Max: {c.quota})</div>
-                    </td>
-
-                    {/* Status */}
-                    <td className="px-4 py-3.5">
-                      <button
-                        onClick={() => openStatusModal(c)}
-                        title="Klik untuk mengubah status"
-                        className="cursor-pointer hover:opacity-80 transition-opacity"
-                      >
-                        <Badge variant={statusVariant[c.status] || 'default'} className="font-semibold text-xs">
-                          {c.status_label || c.status} &#x25BE;
-                        </Badge>
-                      </button>
-                    </td>
-
-                    {/* Published Toggle */}
-                    <td className="px-4 py-3.5">
-                      <button
-                        onClick={() => handleTogglePublish(c)}
-                        className={`text-xs px-2.5 py-1 rounded-full font-bold transition-colors ${
-                          c.is_published
-                            ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        {c.is_published ? '✓ Published' : 'Draft / Off'}
-                      </button>
-                    </td>
-
-                    {/* Action buttons */}
-                    <td className="px-4 py-3.5 text-right space-x-1 whitespace-nowrap">
-                      <Button variant="secondary" size="sm" onClick={() => openEditModal(c)}>
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleArchive(c)} title="Arsipkan">
-                        Arsip
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(c)}
-                        className="text-red-600 hover:bg-red-50 hover:border-red-200"
-                        title="Hapus"
-                      >
-                        Hapus
-                      </Button>
-                    </td>
-                  </tr>
+          <div className="md:col-span-3">
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-xs font-mono text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00] appearance-none cursor-pointer"
+              >
+                {statusDefinitions.map((st) => (
+                  <option key={st.value} value={st.value} className="bg-[#1C1410] text-[#FFF7F0]">
+                    {st.label} {st.value !== 'all' ? `(${statusCounts[st.value] || 0})` : `(${statusCounts.all})`}
+                  </option>
                 ))}
-              </tbody>
-            </table>
-          )}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="p-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">
-              <span>Total {totalCount} data</span>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  Sebelumnya
-                </Button>
-                <span className="px-2 py-1 font-semibold">
-                  {page} / {totalPages}
-                </span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  Selanjutnya
-                </Button>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#FFB36B]">
+                <Filter className="w-3.5 h-3.5" />
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
 
-      {/* Modal: Create & Edit Competition Form */}
-      {showFormModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-3xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-xl">
-            <div className="flex items-center justify-between border-b pb-3">
-              <h3 className="text-lg font-bold text-gray-900">
-                {isEditing ? 'Edit Cabang Kompetisi' : 'Tambah Cabang Kompetisi Baru'}
-              </h3>
-              <button onClick={() => setShowFormModal(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold">
-                &times;
+          <div className="md:col-span-2 flex items-center justify-end">
+            {isFilterActive ? (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="w-full py-2.5 px-3 rounded-xl bg-[#211811] hover:bg-[#FF6A00]/20 text-[#FFB36B] border border-[rgba(255,179,107,0.25)] text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors"
+                title="Kembalikan semua filter ke kondisi awal"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#FF6A00]" />
+                <span>Reset Filter</span>
+              </button>
+            ) : (
+              <span className="text-[11px] font-mono text-[#948277] w-full text-right pr-2">
+                Total: <strong className="text-[#FFB36B]">{competitions.length}</strong> Cabang
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Row 2: Category Filter Pills with Counter Badges */}
+        <div className="pt-2 border-t border-[rgba(255,179,107,0.1)]">
+          <div className="flex items-center space-x-2 mb-2">
+            <Layers className="w-3.5 h-3.5 text-[#FF6A00]" />
+            <span className="text-[11px] font-mono text-[#948277] uppercase tracking-wider">
+              Filter Kategori:
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {categoryDefinitions.map((cat) => {
+              const isSelected = categoryFilter === cat.value;
+              const count = categoryCounts[cat.value] || 0;
+
+              return (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setCategoryFilter(cat.value)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 flex items-center space-x-1.5 border ${
+                    isSelected
+                      ? 'bg-[#FF6A00] text-white border-[#FF6A00] shadow-orange-glow'
+                      : 'bg-[#1C1410] text-[#C4B3A7] hover:text-[#FFF7F0] border-[rgba(255,179,107,0.14)] hover:border-[#FF6A00]/40'
+                  }`}
+                >
+                  <span>{cat.label}</span>
+                  <span
+                    className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                      isSelected
+                        ? 'bg-black/30 text-white font-bold'
+                        : 'bg-[#2A1D15] text-[#FFB36B]'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* DATA DISPLAY SECTION */}
+      {competitions.length === 0 ? (
+        // Condition: Empty Source Data
+        <div className="p-12 bg-[#17110D] border border-[rgba(255,179,107,0.18)] rounded-3xl text-center space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-[#2A1D15] border border-[rgba(255,179,107,0.25)] flex items-center justify-center text-[#FFB36B] mx-auto shadow-orange-glow">
+            <Trophy className="w-8 h-8" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold font-display text-[#FFF7F0]">
+              Belum Ada Cabang Kompetisi
+            </h3>
+            <p className="text-xs text-[#948277] max-w-md mx-auto">
+              Database kompetisi belum memiliki data. Buat cabang lomba perdana Anda untuk memulai festival.
+            </p>
+          </div>
+          <Button onClick={handleOpenAdd} variant="primary" className="text-xs">
+            + Tambah Kompetisi Pertama
+          </Button>
+        </div>
+      ) : filteredCompetitions.length === 0 ? (
+        // Condition: Filter Result Empty
+        <div className="p-12 bg-[#17110D] border border-[rgba(255,179,107,0.18)] rounded-3xl text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-[#2A1D15] border border-[rgba(255,179,107,0.25)] flex items-center justify-center text-[#FF6A00] mx-auto">
+            <Search className="w-7 h-7" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-bold font-display text-[#FFF7F0]">
+              Tidak ada kompetisi yang sesuai dengan filter
+            </h3>
+            <p className="text-xs text-[#948277] max-w-md mx-auto">
+              Tidak ditemukan cabang lomba yang memenuhi kriteria pencarian dan filter yang aktif saat ini.
+            </p>
+          </div>
+          <div className="pt-2">
+            <Button onClick={handleResetFilters} variant="primary" className="text-xs inline-flex items-center space-x-1.5">
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Semua Filter</span>
+            </Button>
+          </div>
+        </div>
+      ) : (
+        // Condition: Data Available
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-1 text-xs font-mono text-[#948277]">
+            <span>
+              Menampilkan <strong className="text-[#FFF7F0]">{filteredCompetitions.length}</strong> dari{' '}
+              <strong className="text-[#FFB36B]">{competitions.length}</strong> kompetisi
+            </span>
+            {isFilterActive && (
+              <span className="text-[#FF6A00]">Filter aktif diterapkan</span>
+            )}
+          </div>
+
+          <DataTable
+            columns={columns}
+            data={filteredCompetitions}
+            keyField="id"
+            pageSize={10}
+            emptyTitle="Tidak ada kompetisi"
+            emptyDescription="Tidak ada data yang dapat ditampilkan."
+          />
+        </div>
+      )}
+
+      {/* CREATE / EDIT MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-[#17110D] border border-[rgba(255,179,107,0.2)] rounded-3xl max-w-2xl w-full p-6 md:p-8 space-y-6 my-8 shadow-2xl">
+            <div className="border-b border-[rgba(255,179,107,0.14)] pb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold font-display text-[#FFF7F0]">
+                  {editingComp ? 'Edit Cabang Kompetisi' : 'Tambah Cabang Kompetisi Baru'}
+                </h3>
+                <p className="text-xs text-[#948277]">
+                  Konfigurasikan spesifikasi lomba, eligibility, kuota peserta, dan status pendaftaran.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-[#948277] hover:text-[#FFF7F0] p-1 text-lg"
+              >
+                ✕
               </button>
             </div>
 
-            <form onSubmit={handleFormSubmit} className="space-y-4 text-xs sm:text-sm">
+            <form onSubmit={handleSave} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Nama Kompetisi *</label>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Nama Kompetisi *
+                  </label>
                   <input
                     type="text"
-                    required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
-                    placeholder="Contoh: UI/UX Competition"
+                    placeholder="Contoh: UI/UX Design Competition"
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
                   />
-                  {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name[0]}</p>}
+                  {formErrors.name && (
+                    <p className="text-xs text-red-400 mt-1">{formErrors.name}</p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Slug (Opsional)</label>
-                  <input
-                    type="text"
-                    value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200 font-mono text-xs"
-                    placeholder="Auto generate dari nama jika kosong"
-                  />
-                  {formErrors.slug && <p className="text-red-500 text-xs mt-1">{formErrors.slug[0]}</p>}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Kategori *</label>
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Kategori Lomba *
+                  </label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
                   >
-                    <option value="ui_ux">UI/UX Competition</option>
-                    <option value="web_development">Web Development</option>
-                    <option value="lkti">LKTI (Karya Tulis Ilmiah)</option>
-                    <option value="poster">Poster Competition</option>
+                    <option value="ui_ux">UI/UX Design</option>
+                    <option value="web_dev">Web Development</option>
+                    <option value="mobile_dev">Mobile App</option>
+                    <option value="competitive_prog">Competitive Programming</option>
+                    <option value="data_science">Data Science</option>
+                    <option value="cyber_security">Cyber Security</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Jenjang Sasaran *</label>
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Tingkat Sasaran (Eligibility)
+                  </label>
                   <select
                     value={formData.target_level}
                     onChange={(e) => setFormData({ ...formData, target_level: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
                   >
-                    <option value="university">Mahasiswa (Perguruan Tinggi)</option>
-                    <option value="high_school">Siswa (SMA/SMK/Sederajat)</option>
+                    <option value="all">Semua (Mahasiswa & SMA/SMK)</option>
+                    <option value="mahasiswa">Mahasiswa (D3/D4/S1)</option>
+                    <option value="siswa">Pelajar SMA/SMK Sederajat</option>
                   </select>
                 </div>
-              </div>
 
-              <div>
-                <label className="block font-semibold text-gray-700 mb-1">Tema Kompetisi</label>
-                <input
-                  type="text"
-                  value={formData.theme}
-                  onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200"
-                  placeholder="Contoh: Akselerasi Transformasi Digital UMKM"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-gray-700 mb-1">Deskripsi Lengkap *</label>
-                <textarea
-                  required
-                  rows="3"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200"
-                  placeholder="Rincian deskripsi mengenai cabang perlombaan ini..."
-                ></textarea>
-                {formErrors.description && <p className="text-red-500 text-xs mt-1">{formErrors.description[0]}</p>}
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Biaya (Rp) *</label>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Tema Lomba *
+                  </label>
                   <input
-                    type="number"
-                    min="0"
-                    required
-                    value={formData.registration_fee}
-                    onChange={(e) => setFormData({ ...formData, registration_fee: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                    type="text"
+                    value={formData.theme}
+                    onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
+                    placeholder="Contoh: Digital Inclusion for Sustainable Future"
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
                   />
-                  {formErrors.registration_fee && <p className="text-red-500 text-xs mt-1">{formErrors.registration_fee[0]}</p>}
+                  {formErrors.theme && (
+                    <p className="text-xs text-red-400 mt-1">{formErrors.theme}</p>
+                  )}
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Deskripsi Ringkas *
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Jelaskan gambaran umum dan output yang diharapkan dari kompetisi..."
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
+                  />
+                  {formErrors.description && (
+                    <p className="text-xs text-red-400 mt-1">{formErrors.description}</p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Kuota Tim *</label>
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Min Anggota Tim
+                  </label>
                   <input
                     type="number"
-                    min="1"
-                    required
-                    value={formData.quota}
-                    onChange={(e) => setFormData({ ...formData, quota: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
-                  />
-                  {formErrors.quota && <p className="text-red-500 text-xs mt-1">{formErrors.quota[0]}</p>}
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Min Anggota *</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
+                    min={1}
                     value={formData.min_team_member}
                     onChange={(e) => setFormData({ ...formData, min_team_member: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
                   />
-                  {formErrors.min_team_member && <p className="text-red-500 text-xs mt-1">{formErrors.min_team_member[0]}</p>}
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Max Anggota *</label>
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Maks Anggota Tim
+                  </label>
                   <input
                     type="number"
-                    min="1"
-                    required
+                    min={1}
                     value={formData.max_team_member}
                     onChange={(e) => setFormData({ ...formData, max_team_member: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
                   />
-                  {formErrors.max_team_member && <p className="text-red-500 text-xs mt-1">{formErrors.max_team_member[0]}</p>}
+                  {formErrors.max_team_member && (
+                    <p className="text-xs text-red-400 mt-1">{formErrors.max_team_member}</p>
+                  )}
                 </div>
-              </div>
 
-              {/* Dates */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Mulai Pendaftaran</label>
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Biaya Registrasi (Rp)
+                  </label>
                   <input
-                    type="datetime-local"
-                    value={formData.registration_start}
-                    onChange={(e) => setFormData({ ...formData, registration_start: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                    type="number"
+                    min={0}
+                    step={5000}
+                    value={formData.registration_fee}
+                    onChange={(e) => setFormData({ ...formData, registration_fee: e.target.value })}
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Akhir Pendaftaran</label>
-                  <input
-                    type="datetime-local"
-                    value={formData.registration_end}
-                    onChange={(e) => setFormData({ ...formData, registration_end: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
-                  />
-                  {formErrors.registration_end && <p className="text-red-500 text-xs mt-1">{formErrors.registration_end[0]}</p>}
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Mulai Pengumpulan Karya</label>
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Kuota Tim
+                  </label>
                   <input
-                    type="datetime-local"
-                    value={formData.submission_start}
-                    onChange={(e) => setFormData({ ...formData, submission_start: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                    type="number"
+                    min={1}
+                    value={formData.quota}
+                    onChange={(e) => setFormData({ ...formData, quota: e.target.value })}
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Deadline Pengumpulan Karya</label>
-                  <input
-                    type="datetime-local"
-                    value={formData.submission_deadline}
-                    onChange={(e) => setFormData({ ...formData, submission_deadline: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
-                  />
-                  {formErrors.submission_deadline && <p className="text-red-500 text-xs mt-1">{formErrors.submission_deadline[0]}</p>}
-                </div>
-              </div>
 
-              {/* Status & Publication */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t">
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Status Awal</label>
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Status Kompetisi *
+                  </label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
                   >
                     <option value="draft">Draft</option>
                     <option value="registration_open">Pendaftaran Dibuka</option>
                     <option value="registration_closed">Pendaftaran Ditutup</option>
-                    <option value="submission_open">Pengumpulan Karya Dibuka</option>
                     <option value="judging">Tahap Penjurian</option>
                     <option value="finished">Selesai</option>
-                    <option value="archived">Diarsipkan</option>
                   </select>
                 </div>
 
-                <div className="flex items-center gap-2 pt-6">
-                  <input
-                    type="checkbox"
-                    id="is_published"
-                    checked={formData.is_published}
-                    onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-                    className="rounded text-brand-600 w-4 h-4"
-                  />
-                  <label htmlFor="is_published" className="font-semibold text-gray-800">
-                    Publikasikan ke Website Umum (is_published)
+                <div>
+                  <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                    Guidebook URL / Berkas
                   </label>
+                  <input
+                    type="text"
+                    value={formData.guidebook_url}
+                    onChange={(e) => setFormData({ ...formData, guidebook_url: e.target.value })}
+                    placeholder="/guidebook-lomba.pdf"
+                    className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
+                  />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={() => setShowFormModal(false)}>
+              <div className="pt-4 border-t border-[rgba(255,179,107,0.14)] flex items-center justify-end space-x-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   Batal
                 </Button>
-                <Button type="submit" variant="primary" disabled={formSubmitting}>
-                  {formSubmitting ? 'Menyimpan...' : isEditing ? 'Simpan Perubahan' : 'Buat Kompetisi'}
+                <Button type="submit" variant="primary">
+                  {editingComp ? 'Simpan Perubahan' : 'Buat Kompetisi'}
                 </Button>
               </div>
             </form>
@@ -729,46 +793,89 @@ export const AdminCompetitionsPage = () => {
         </div>
       )}
 
-      {/* Modal: Change Status */}
-      {showStatusModal && statusTargetComp && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-lg font-bold text-gray-900">Ubah Status Kompetisi</h3>
-            <p className="text-xs text-gray-600">
-              Kompetisi: <strong>{statusTargetComp.name}</strong><br />
-              Status saat ini: <Badge variant="primary" className="ml-1">{statusTargetComp.status_label || statusTargetComp.status}</Badge>
-            </p>
-
-            <div className="space-y-2 pt-2">
-              <label className="block text-xs font-semibold text-gray-700">Pilih Status Baru (Sesuai Aturan Alur):</label>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-gray-200"
+      {/* DETAIL VIEW MODAL */}
+      {isDetailOpen && selectedComp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#17110D] border border-[rgba(255,179,107,0.2)] rounded-3xl max-w-xl w-full p-6 space-y-6 shadow-2xl">
+            <div className="border-b border-[rgba(255,179,107,0.14)] pb-4 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-mono text-[#FFB36B] uppercase">DETAIL SPESIFIKASI</span>
+                <h3 className="text-xl font-bold font-display text-[#FFF7F0]">{selectedComp.name}</h3>
+              </div>
+              <button
+                onClick={() => setIsDetailOpen(false)}
+                className="text-[#948277] hover:text-[#FFF7F0] p-1 text-lg"
               >
-                <option value="">-- Pilih Transisi Status --</option>
-                {(allowedTransitions[statusTargetComp.status] || []).map((st) => (
-                  <option key={st} value={st}>
-                    {statusLabels[st] || st}
-                  </option>
-                ))}
-              </select>
-              <p className="text-[11px] text-gray-400">
-                Hanya transisi status yang valid menurut alur lifecycle kompetisi yang dapat dipilih.
-              </p>
+                ✕
+              </button>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t">
-              <Button size="sm" variant="outline" onClick={() => setShowStatusModal(false)}>
-                Batal
-              </Button>
-              <Button size="sm" variant="primary" disabled={!selectedStatus} onClick={handleStatusChangeSubmit}>
-                Terapkan Status
+            <div className="space-y-4 text-sm">
+              <div className="p-4 bg-[#1C1410] rounded-2xl border border-[rgba(255,179,107,0.14)] space-y-2">
+                <p className="text-xs font-mono text-[#FFB36B] uppercase">Tema Resmi</p>
+                <p className="font-semibold text-[#FFF7F0]">{selectedComp.theme}</p>
+                <p className="text-xs text-[#C4B3A7] leading-relaxed">{selectedComp.description}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+                <div className="p-3 bg-[#1C1410] rounded-xl border border-[rgba(255,179,107,0.1)]">
+                  <span className="text-[#948277] block text-[10px]">KATEGORI</span>
+                  <span className="text-[#FFF7F0] font-bold">{selectedComp.category_label || selectedComp.category}</span>
+                </div>
+                <div className="p-3 bg-[#1C1410] rounded-xl border border-[rgba(255,179,107,0.1)]">
+                  <span className="text-[#948277] block text-[10px]">TOTAL PRIZE POOL</span>
+                  <span className="text-[#FF6A00] font-bold">{selectedComp.prizePool}</span>
+                </div>
+                <div className="p-3 bg-[#1C1410] rounded-xl border border-[rgba(255,179,107,0.1)]">
+                  <span className="text-[#948277] block text-[10px]">BIAYA PENDAFTARAN</span>
+                  <span className="text-[#FFF7F0] font-bold">
+                    {selectedComp.registration_fee > 0 ? `Rp ${selectedComp.registration_fee.toLocaleString('id-ID')}` : 'Gratis'}
+                  </span>
+                </div>
+                <div className="p-3 bg-[#1C1410] rounded-xl border border-[rgba(255,179,107,0.1)]">
+                  <span className="text-[#948277] block text-[10px]">KUOTA TIM</span>
+                  <span className="text-[#FFF7F0] font-bold">{selectedComp.quota} Tim</span>
+                </div>
+              </div>
+
+              <div className="p-4 bg-[#1C1410] rounded-2xl border border-[rgba(255,179,107,0.14)] space-y-2">
+                <p className="text-xs font-mono text-[#FFB36B] uppercase">Rubrik Penilaian Terkonfigurasi</p>
+                <div className="space-y-1.5">
+                  {(selectedComp.rubric || [
+                    { id: 'crit-1', name: 'Kualitas Teknis', weight: 40 },
+                    { id: 'crit-2', name: 'Inovasi', weight: 30 },
+                    { id: 'crit-3', name: 'Presentasi', weight: 20 },
+                    { id: 'crit-4', name: 'Dokumentasi', weight: 10 },
+                  ]).map((rub) => (
+                    <div key={rub.id} className="flex justify-between items-center text-xs">
+                      <span className="text-[#C4B3A7]">{rub.name}</span>
+                      <span className="font-mono text-[#FFB36B] font-bold">{rub.weight}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <Button variant="outline" onClick={() => setIsDetailOpen(false)}>
+                Tutup
               </Button>
             </div>
           </div>
         </div>
       )}
+
+      {/* CONFIRM DELETE DIALOG */}
+      <ConfirmDialog
+        isOpen={confirmDelete.isOpen}
+        title="Hapus Cabang Kompetisi?"
+        message={`Apakah Anda yakin ingin menghapus "${confirmDelete.compName}"? Tindakan ini akan menghapus data pendaftaran terkait dalam prototipe ini.`}
+        confirmLabel="Ya, Hapus"
+        cancelLabel="Batal"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete({ isOpen: false, compId: null, compName: '' })}
+      />
     </div>
   );
 };

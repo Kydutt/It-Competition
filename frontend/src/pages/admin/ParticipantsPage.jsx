@@ -1,212 +1,283 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import api from '../../services/api';
-import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
+import React, { useState, useMemo } from 'react';
+import { Check, X, Eye, Users, Search, Filter } from 'lucide-react';
+import mockService from '../../services/mockService';
+import PageHeader from '../../components/dashboard/PageHeader';
+import DataTable from '../../components/dashboard/DataTable';
+import SearchInput from '../../components/dashboard/SearchInput';
+import FilterControl from '../../components/dashboard/FilterControl';
+import StatusBadge from '../../components/dashboard/StatusBadge';
+import ConfirmDialog from '../../components/dashboard/ConfirmDialog';
 import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Alert from '../../components/ui/Alert';
 
 export const AdminParticipantsPage = () => {
-  const [participants, setParticipants] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [registrations, setRegistrations] = useState(() => mockService.registrations);
   const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0 });
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedReg, setSelectedReg] = useState(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, regId: null, action: null });
 
-  const fetchParticipants = useCallback(async (targetPage = page, searchTerm = search) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const params = {
-        page: targetPage,
-        per_page: 15,
-      };
-      if (searchTerm.trim()) {
-        params.search = searchTerm.trim();
-      }
+  // Filtered registrations
+  const filteredData = useMemo(() => {
+    return registrations.filter((reg) => {
+      const matchSearch =
+        search === '' ||
+        reg.participantName.toLowerCase().includes(search.toLowerCase()) ||
+        reg.participantEmail.toLowerCase().includes(search.toLowerCase()) ||
+        reg.teamName.toLowerCase().includes(search.toLowerCase()) ||
+        reg.competitionName.toLowerCase().includes(search.toLowerCase());
 
-      const res = await api.get('/admin/participants', { params });
-      if (res.data?.success) {
-        const rawData = res.data.data;
-        const items = Array.isArray(rawData?.data)
-          ? rawData.data
-          : Array.isArray(rawData)
-          ? rawData
-          : [];
-        setParticipants(items);
+      const matchStatus = statusFilter === 'all' || reg.status === statusFilter;
 
-        if (rawData?.meta) {
-          setPagination({
-            current_page: rawData.meta.current_page || 1,
-            last_page: rawData.meta.last_page || 1,
-            total: rawData.meta.total || items.length,
-          });
-        }
-      }
-    } catch (err) {
-      console.error('Failed to load participants:', err);
-      setError(err.response?.data?.message || 'Gagal memuat data peserta.');
-      setParticipants([]);
-    } finally {
-      setLoading(false);
+      return matchSearch && matchStatus;
+    });
+  }, [registrations, search, statusFilter]);
+
+  const handleActionConfirm = () => {
+    const { regId, action } = confirmDialog;
+    if (!regId || !action) return;
+
+    const updated = mockService.updateRegistrationStatus(regId, action);
+    setRegistrations([...mockService.registrations]);
+    setConfirmDialog({ isOpen: false, regId: null, action: null });
+
+    if (selectedReg && selectedReg.id === regId) {
+      setSelectedReg({ ...updated });
     }
-  }, [page, search]);
-
-  useEffect(() => {
-    fetchParticipants(page, search);
-  }, [page]);
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setPage(1);
-    fetchParticipants(1, search);
   };
 
-  const participantList = Array.isArray(participants) ? participants : [];
+  const columns = [
+    {
+      header: 'Tim & Ketua',
+      accessor: 'teamName',
+      render: (row) => (
+        <div>
+          <p className="font-bold font-display text-[#FFF7F0] text-sm">{row.teamName}</p>
+          <p className="text-xs text-[#948277]">{row.participantName} • {row.participantInstitution}</p>
+        </div>
+      ),
+    },
+    {
+      header: 'Cabang Lomba',
+      accessor: 'competitionName',
+      render: (row) => (
+        <span className="font-medium text-[#FFB36B] text-xs sm:text-sm">
+          {row.competitionName}
+        </span>
+      ),
+    },
+    {
+      header: 'Anggota',
+      accessor: 'teamMembers',
+      render: (row) => (
+        <span className="font-mono text-xs text-[#C4B3A7]">
+          {row.teamMembers?.length || 1} Peserta
+        </span>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (row) => <StatusBadge status={row.status} />,
+    },
+    {
+      header: 'Aksi Tindakan',
+      align: 'right',
+      render: (row) => (
+        <div className="flex items-center justify-end gap-1.5">
+          <button
+            onClick={() => {
+              setSelectedReg(row);
+              setDetailModalOpen(true);
+            }}
+            className="p-1.5 rounded-lg bg-[#211811] hover:bg-[#FF6A00]/20 text-[#FFB36B] border border-[rgba(255,179,107,0.2)] text-xs font-semibold transition-colors"
+            title="Lihat Detail"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          {row.status === 'pending' && (
+            <>
+              <button
+                onClick={() =>
+                  setConfirmDialog({
+                    isOpen: true,
+                    regId: row.id,
+                    action: 'approved',
+                    title: `Setujui Pendaftaran ${row.teamName}`,
+                    message: `Apakah Anda yakin ingin menyetujui pendaftaran tim "${row.teamName}" untuk cabang "${row.competitionName}"?`,
+                  })
+                }
+                className="p-1.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-400 border border-emerald-800/60 transition-colors"
+                title="Setujui"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() =>
+                  setConfirmDialog({
+                    isOpen: true,
+                    regId: row.id,
+                    action: 'rejected',
+                    title: `Tolak Pendaftaran ${row.teamName}`,
+                    message: `Apakah Anda yakin ingin menolak berkas pendaftaran tim "${row.teamName}"?`,
+                  })
+                }
+                className="p-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900/80 text-rose-400 border border-rose-800/60 transition-colors"
+                title="Tolak"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-black text-gray-950 tracking-tight">Daftar Peserta & Akun</h2>
-          <p className="text-sm text-gray-500">Kelola akun ketua tim dan peserta terdaftar dalam kompetisi</p>
-        </div>
-        <div className="text-xs text-gray-500 font-semibold bg-white px-3 py-2 rounded-lg border border-gray-200">
-          Total Terdaftar: <span className="text-brand-600 font-bold">{pagination.total} Peserta</span>
-        </div>
+      <PageHeader
+        badge="// ADMIN // PARTICIPANTS"
+        title="Manajemen Peserta & Pendaftaran"
+        description="Verifikasi dokumen administrasi peserta, persetujuan cabang lomba, dan pengawasan status keikutsertaan tim."
+      />
+
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <FilterControl
+          label="Status"
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={[
+            { label: 'Semua Status', value: 'all' },
+            { label: 'Menunggu', value: 'pending' },
+            { label: 'Disetujui', value: 'approved' },
+            { label: 'Ditolak', value: 'rejected' },
+          ]}
+        />
+
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Cari nama, email, tim, lomba..."
+          className="w-full md:w-80"
+        />
       </div>
 
-      {error && (
-        <Alert variant="danger" onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
+      {/* Main Table */}
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        keyField="id"
+        emptyTitle="Tidak Ada Pendaftaran Ditemukan"
+        emptyDescription="Tidak ada data pendaftaran yang cocok dengan filter atau kata kunci pencarian Anda."
+      />
 
-      {/* SEARCH BAR */}
-      <Card>
-        <CardContent className="p-4">
-          <form onSubmit={handleSearchSubmit} className="flex gap-2">
-            <div className="flex-1">
-              <Input
-                placeholder="Cari berdasarkan nama, email, atau asal institusi/sekolah..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+      {/* Detail Modal */}
+      {detailModalOpen && selectedReg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1C1410] border border-[rgba(255,179,107,0.25)] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 relative">
+            <button
+              onClick={() => setDetailModalOpen(false)}
+              className="absolute top-5 right-5 text-[#948277] hover:text-[#FFF7F0]"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono text-[#FFB36B] uppercase">DETAIL PENDAFTARAN</span>
+              <h3 className="text-xl font-bold font-display text-[#FFF7F0]">
+                {selectedReg.teamName}
+              </h3>
+              <p className="text-xs text-[#948277] font-mono">{selectedReg.competitionName}</p>
             </div>
-            <Button type="submit" variant="primary" size="md">
-              Cari Peserta
-            </Button>
-            {search && (
-              <Button
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={() => {
-                  setSearch('');
-                  setPage(1);
-                  fetchParticipants(1, '');
-                }}
-              >
-                Reset
-              </Button>
-            )}
-          </form>
-        </CardContent>
-      </Card>
 
-      {/* TABLE / LIST */}
-      {loading ? (
-        <div className="text-center py-16">
-          <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm text-gray-500">Memuat data peserta...</p>
-        </div>
-      ) : participantList.length === 0 ? (
-        <Card>
-          <div className="text-center py-14 space-y-2">
-            <div className="text-3xl">👥</div>
-            <h3 className="text-base font-bold text-gray-900">Tidak Ada Peserta Ditemukan</h3>
-            <p className="text-xs text-gray-500">
-              {search ? 'Tidak ada peserta yang cocok dengan kata kunci pencarian.' : 'Belum ada akun peserta yang terdaftar.'}
-            </p>
-          </div>
-        </Card>
-      ) : (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-2xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50/80 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <tr>
-                  <th className="p-4">Nama Lengkap</th>
-                  <th className="p-4">Email & Kontak</th>
-                  <th className="p-4">Institusi / Sekolah</th>
-                  <th className="p-4">Jenjang</th>
-                  <th className="p-4">Peran</th>
-                  <th className="p-4">Tanggal Daftar</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {participantList.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50/70 transition-colors">
-                    <td className="p-4">
-                      <div className="font-bold text-gray-900">{p.name}</div>
-                      <div className="text-xs text-gray-400">ID #{p.id}</div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-gray-900 font-medium">{p.email}</div>
-                      <div className="text-xs text-gray-500">{p.phone || '-'}</div>
-                    </td>
-                    <td className="p-4 text-gray-700 font-medium">
-                      {p.institution || '-'}
-                    </td>
-                    <td className="p-4">
-                      <Badge variant="default" className="capitalize text-xs">
-                        {p.education_level || '-'}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <Badge variant="primary" className="uppercase text-[10px] font-bold">
-                        {p.role}
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-xs text-gray-500">
-                      {p.created_at ? new Date(p.created_at).toLocaleDateString('id-ID', { dateStyle: 'medium' }) : '-'}
-                    </td>
-                  </tr>
+            <div className="space-y-3 bg-[#211811] p-4 rounded-2xl border border-[rgba(255,179,107,0.12)] text-xs">
+              <div className="flex justify-between py-1 border-b border-[rgba(255,179,107,0.08)]">
+                <span className="text-[#948277]">Ketua Tim:</span>
+                <span className="font-semibold text-[#FFF7F0]">{selectedReg.participantName}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[rgba(255,179,107,0.08)]">
+                <span className="text-[#948277]">Email Ketua:</span>
+                <span className="font-mono text-[#FFB36B]">{selectedReg.participantEmail}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[rgba(255,179,107,0.08)]">
+                <span className="text-[#948277]">Institusi / Kampus:</span>
+                <span className="text-[#FFF7F0]">{selectedReg.participantInstitution}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[rgba(255,179,107,0.08)]">
+                <span className="text-[#948277]">Status Verifikasi:</span>
+                <StatusBadge status={selectedReg.status} />
+              </div>
+            </div>
+
+            {/* Team Members List */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-mono font-bold uppercase text-[#FFB36B]">Anggota Tim:</h4>
+              <div className="space-y-1.5">
+                {selectedReg.teamMembers?.map((m, i) => (
+                  <div key={i} className="p-2.5 rounded-xl bg-[#211811] border border-[rgba(255,179,107,0.1)] flex items-center justify-between text-xs">
+                    <span className="font-medium text-[#FFF7F0]">{m.name}</span>
+                    <span className="font-mono text-[11px] text-[#948277]">{m.role} • {m.studentId}</span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* PAGINATION */}
-          {pagination.last_page > 1 && (
-            <div className="p-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 bg-gray-50/50">
-              <div>
-                Halaman <span className="font-bold text-gray-900">{pagination.current_page}</span> dari{' '}
-                <span className="font-bold text-gray-900">{pagination.last_page}</span> ({pagination.total} peserta)
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={pagination.current_page <= 1}
-                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                >
-                  &larr; Sebelumnya
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={pagination.current_page >= pagination.last_page}
-                  onClick={() => setPage((prev) => Math.min(prev + 1, pagination.last_page))}
-                >
-                  Berikutnya &rarr;
-                </Button>
               </div>
             </div>
-          )}
+
+            {/* Actions in Modal */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[rgba(255,179,107,0.1)]">
+              {selectedReg.status === 'pending' && (
+                <>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => {
+                      setDetailModalOpen(false);
+                      setConfirmDialog({
+                        isOpen: true,
+                        regId: selectedReg.id,
+                        action: 'rejected',
+                        title: `Tolak Pendaftaran ${selectedReg.teamName}`,
+                        message: 'Tolak pendaftaran berkas tim ini?',
+                      });
+                    }}
+                  >
+                    Tolak Pendaftaran
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      setDetailModalOpen(false);
+                      setConfirmDialog({
+                        isOpen: true,
+                        regId: selectedReg.id,
+                        action: 'approved',
+                        title: `Setujui Pendaftaran ${selectedReg.teamName}`,
+                        message: 'Setujui pendaftaran berkas tim ini?',
+                      });
+                    }}
+                  >
+                    Setujui Pendaftaran
+                  </Button>
+                </>
+              )}
+              <Button variant="secondary" size="sm" onClick={() => setDetailModalOpen(false)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={handleActionConfirm}
+        onCancel={() => setConfirmDialog({ isOpen: false, regId: null, action: null })}
+      />
     </div>
   );
 };

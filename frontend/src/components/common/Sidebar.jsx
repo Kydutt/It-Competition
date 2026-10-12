@@ -1,110 +1,160 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { 
+  LayoutDashboard, 
+  Users, 
+  Trophy, 
+  Scale, 
+  Calendar, 
+  Megaphone, 
+  BarChart3, 
+  FolderCheck, 
+  UserCheck, 
+  CheckSquare, 
+  LogOut,
+  X,
+  FileText
+} from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
-import Badge from '../ui/Badge';
 
-export const Sidebar = ({ role = 'participant' }) => {
+export const Sidebar = ({ role = 'participant', isOpen = false, onClose = () => {} }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   const getLinks = () => {
     switch (role) {
       case 'admin':
         return [
-          { label: 'Overview Dashboard', to: '/admin', exact: true },
-          { label: 'Kelola Kompetisi', to: '/admin/competitions' },
-          { label: 'Peserta & Akun', to: '/admin/participants' },
-          { label: 'Verifikasi Pendaftaran', to: '/admin/registrations' },
-          { label: 'Verifikasi Pembayaran', to: '/admin/payments' },
-          { label: 'Kelola Submissions', to: '/admin/submissions' },
-          { label: 'Pengumuman', to: '/admin/announcements' },
-          { label: 'FAQ', to: '/admin/faqs' },
-          { label: 'Sponsor', to: '/admin/sponsors' },
-          { label: 'Pemenang', to: '/admin/winners' },
+          { label: 'Overview', to: '/admin/dashboard', icon: LayoutDashboard },
+          { label: 'Peserta & Akun', to: '/admin/participants', icon: Users },
+          { label: 'Kelola Kompetisi', to: '/admin/competitions', icon: Trophy },
+          { label: 'Dewan Juri', to: '/admin/judges', icon: Scale },
+          { label: 'Jadwal & Milestone', to: '/admin/schedule', icon: Calendar },
+          { label: 'Pengumuman', to: '/admin/announcements', icon: Megaphone },
+          { label: 'Laporan & Rekap', to: '/admin/reports', icon: BarChart3 },
         ];
       case 'judge':
         return [
-          { label: 'Overview Dashboard', to: '/judge', exact: true },
-          { label: 'Daftar Karya (Submission)', to: '/judge/submissions' },
-          { label: 'Rekap Nilai Juri', to: '/judge/scores' },
+          { label: 'Overview Penilaian', to: '/judge/dashboard', icon: LayoutDashboard },
+          { label: 'Lomba Ditugaskan', to: '/judge/competitions', icon: Trophy },
+          { label: 'Evaluasi Karya', to: '/judge/evaluations', icon: CheckSquare },
+          { label: 'Rekap Nilai', to: '/judge/results', icon: BarChart3 },
         ];
       case 'participant':
       default:
         return [
-          { label: 'Dashboard Peserta', to: '/dashboard', exact: true },
-          { label: 'Profil Saya', to: '/profile' },
-          { label: 'Kompetisi Saya', to: '/my-competitions' },
-          { label: 'Tim Saya', to: '/my-team' },
-          { label: 'Status Pendaftaran', to: '/registrations' },
-          { label: 'Pengumpulan Karya', to: '/submissions' },
-          { label: 'Riwayat Pembayaran', to: '/payments' },
-          { label: 'Pengumuman Peserta', to: '/announcements' },
+          { label: 'Overview', to: '/participant/dashboard', icon: LayoutDashboard },
+          { label: 'Eksplorasi Lomba', to: '/participant/competitions', icon: Trophy },
+          { label: 'Pendaftaran Saya', to: '/participant/registrations', icon: FolderCheck },
+          { label: 'Jadwal & Agenda', to: '/participant/schedule', icon: Calendar },
+          { label: 'Pengumuman', to: '/participant/announcements', icon: Megaphone },
+          { label: 'Profil Saya', to: '/participant/profile', icon: UserCheck },
         ];
     }
   };
 
   const links = getLinks();
 
-  const getRoleVariant = () => {
-    if (role === 'admin') return 'danger';
-    if (role === 'judge') return 'warning';
-    return 'primary';
-  };
-
-  return (
-    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col flex-shrink-0">
-      {/* Sidebar Header */}
-      <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-amber-400 flex items-center justify-center text-white font-bold text-base shadow">
-            H
+  const content = (
+    <div className="flex flex-col h-full bg-[#17110D] border-r border-[rgba(255,179,107,0.16)] w-64 select-none">
+      {/* Brand Header */}
+      <div className="p-5 border-b border-[rgba(255,179,107,0.14)] flex items-center justify-between">
+        <Link to="/" className="flex items-center space-x-3 group">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FF6A00] to-[#FFB36B] flex items-center justify-center text-white font-black text-lg shadow-orange-glow group-hover:scale-105 transition-transform">
+            N
           </div>
           <div>
-            <span className="font-bold text-gray-900 leading-tight block text-sm">HIMATIF ITC</span>
-            <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Ciayumajakuning</span>
+            <span className="font-black font-display text-sm tracking-tight text-[#FFF7F0] block leading-tight">
+              NEXUS <span className="text-[#FF6A00]">ITC</span>
+            </span>
+            <span className="text-[10px] font-mono text-[#FFB36B] uppercase tracking-wider block">
+              PORTAL // 2026
+            </span>
           </div>
         </Link>
-        <Badge variant={getRoleVariant()} className="uppercase text-[10px]">
-          {role}
-        </Badge>
-      </div>
-
-      {/* User Info Capsule */}
-      <div className="p-4 bg-gray-50/70 border-b border-gray-100">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Login sebagai</p>
-        <p className="text-sm font-bold text-gray-900 truncate mt-0.5">{user?.name || 'Pengguna'}</p>
-        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-      </div>
-
-      {/* Navigation list */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {links.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.exact}
-            className={({ isActive }) =>
-              `flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                isActive
-                  ? 'bg-brand-50 text-brand-700 font-semibold shadow-xs'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/70'
-              }`
-            }
-          >
-            {link.label}
-          </NavLink>
-        ))}
-      </nav>
-
-      {/* Sidebar Footer */}
-      <div className="p-3 border-t border-gray-100">
         <button
-          onClick={logout}
-          className="w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          onClick={onClose}
+          className="lg:hidden text-[#948277] hover:text-[#FFF7F0] p-1"
         >
-          Keluar (Logout)
+          <X className="w-5 h-5" />
         </button>
       </div>
-    </aside>
+
+      {/* User Information Badge */}
+      <div className="p-4 mx-3 my-3 bg-[#1C1410] rounded-2xl border border-[rgba(255,179,107,0.14)] space-y-1">
+        <span className="text-[10px] font-mono text-[#948277] uppercase block">
+          MASUK SEBAGAI:
+        </span>
+        <p className="text-sm font-bold font-display text-[#FFF7F0] truncate">
+          {user?.name || 'Pengguna'}
+        </p>
+        <p className="text-xs text-[#FFB36B] font-mono capitalize">
+          {user?.role || role}
+        </p>
+      </div>
+
+      {/* Navigation List */}
+      <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+        {links.map((link) => {
+          const Icon = link.icon;
+          return (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 ${
+                  isActive
+                    ? 'bg-[#FF6A00] text-white shadow-orange-glow font-bold'
+                    : 'text-[#C4B3A7] hover:text-[#FFF7F0] hover:bg-white/5'
+                }`
+              }
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span>{link.label}</span>
+            </NavLink>
+          );
+        })}
+      </nav>
+
+      {/* Logout Action */}
+      <div className="p-3 border-t border-[rgba(255,179,107,0.12)]">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 border border-rose-900/30 transition-colors"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Keluar (Logout)</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden lg:flex min-h-screen shrink-0 sticky top-0 h-screen">
+        {content}
+      </aside>
+
+      {/* Mobile Drawer Backdrop & Sidebar */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          <div className="relative z-10 w-64 h-full shadow-2xl">
+            {content}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

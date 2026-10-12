@@ -1,520 +1,325 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { 
+  FolderCheck, 
+  Upload, 
+  Eye, 
+  CheckCircle2, 
+  Clock, 
+  AlertCircle, 
+  Users, 
+  ExternalLink,
+  FileCode,
+  Link as LinkIcon
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import api from '../../services/api';
-import registrationService from '../../services/registrationService';
-import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
+import mockService from '../../services/mockService';
+import PageHeader from '../../components/dashboard/PageHeader';
+import DataTable from '../../components/dashboard/DataTable';
+import StatusBadge from '../../components/dashboard/StatusBadge';
+import EmptyState from '../../components/dashboard/EmptyState';
 import Button from '../../components/ui/Button';
-import Alert from '../../components/ui/Alert';
 
-export const RegistrationsPage = () => {
+export const ParticipantRegistrationsPage = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const [registrations, setRegistrations] = useState([]);
-  const [competitions, setCompetitions] = useState([]);
-  const [teams, setTeams] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [alert, setAlert] = useState(null);
-  const [submittingId, setSubmittingId] = useState(null);
+  const [registrations, setRegistrations] = useState(() => mockService.registrations);
+  const [selectedReg, setSelectedReg] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
-  // New registration modal state
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newRegForm, setNewRegForm] = useState({ competition_id: '', team_id: '' });
-  const [createSubmitting, setCreateSubmitting] = useState(false);
+  // Submission Form State
+  const [submissionTitle, setSubmissionTitle] = useState('');
+  const [submissionUrl, setSubmissionUrl] = useState('');
+  const [submissionSuccess, setSubmissionSuccess] = useState('');
+  const [submissionError, setSubmissionError] = useState('');
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '-';
-    try {
-      const d = new Date(dateStr);
-      return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('id-ID', { dateStyle: 'medium' });
-    } catch {
-      return '-';
-    }
+  const myRegistrations = useMemo(() => {
+    return registrations.filter(
+      (r) => r.participantId === user?.id || r.participantEmail === user?.email
+    );
+  }, [registrations, user?.id, user?.email]);
+
+  const handleOpenSubmission = (reg) => {
+    setSelectedReg(reg);
+    setSubmissionTitle(reg.submissionTitle || '');
+    setSubmissionUrl(reg.submissionUrl || '');
+    setSubmissionError('');
+    setIsSubmitModalOpen(true);
   };
 
-  const loadAllData = async () => {
-    try {
-      setLoading(true);
-      const [regResult, compResult, teamResult] = await Promise.allSettled([
-        registrationService.getRegistrations(),
-        api.get('/competitions'),
-        registrationService.getTeams(),
-      ]);
-
-      if (regResult.status === 'fulfilled' && regResult.value?.data) {
-        const raw = regResult.value.data;
-        const regItems = Array.isArray(raw?.data)
-          ? raw.data
-          : Array.isArray(raw)
-          ? raw
-          : [];
-        setRegistrations(regItems);
-      } else if (regResult.status === 'rejected') {
-        console.warn('Could not load registrations:', regResult.reason);
-      }
-
-      if (compResult.status === 'fulfilled' && compResult.value?.data?.success) {
-        const raw = compResult.value.data.data;
-        const compItems = Array.isArray(raw?.data)
-          ? raw.data
-          : Array.isArray(raw)
-          ? raw
-          : [];
-        setCompetitions(compItems);
-      } else if (compResult.status === 'rejected') {
-        console.warn('Could not load competitions:', compResult.reason);
-      }
-
-      if (teamResult.status === 'fulfilled' && teamResult.value?.data) {
-        const raw = teamResult.value.data;
-        const teamItems = Array.isArray(raw?.data)
-          ? raw.data
-          : Array.isArray(raw)
-          ? raw
-          : [];
-        setTeams(teamItems);
-      } else if (teamResult.status === 'rejected') {
-        console.warn('Could not load teams:', teamResult.reason);
-      }
-    } catch (err) {
-      console.error('Failed to load registration data:', err);
-      setAlert({
-        type: 'danger',
-        message: 'Gagal memuat sebagian data. Silakan muat ulang halaman.',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadAllData();
-  }, []);
-
-  const handleCreateRegistration = async (e) => {
+  const handleSaveSubmission = (e) => {
     e.preventDefault();
-    try {
-      setCreateSubmitting(true);
-      setAlert(null);
-      const payload = {
-        competition_id: parseInt(newRegForm.competition_id, 10),
+    if (!submissionTitle.trim()) {
+      setSubmissionError('Judul karya inovasi wajib diisi.');
+      return;
+    }
+    if (!submissionUrl.trim()) {
+      setSubmissionError('Tautan repositori atau berkas Google Drive wajib diisi.');
+      return;
+    }
+
+    const idx = mockService.registrations.findIndex((r) => r.id === selectedReg.id);
+    if (idx !== -1) {
+      mockService.registrations[idx] = {
+        ...mockService.registrations[idx],
+        submissionTitle: submissionTitle.trim(),
+        submissionUrl: submissionUrl.trim(),
+        submissionStatus: 'submitted',
       };
-      if (newRegForm.team_id) {
-        payload.team_id = parseInt(newRegForm.team_id, 10);
-      }
-
-      const res = await registrationService.createRegistration(payload);
-      if (res?.success) {
-        setAlert({
-          type: 'success',
-          message: 'Pendaftaran berhasil dibuat sebagai draf. Silakan tinjau dan klik "Submit Pendaftaran" saat berkas siap.',
-        });
-        setShowCreateModal(false);
-        setNewRegForm({ competition_id: '', team_id: '' });
-        await loadAllData();
-      }
-    } catch (err) {
-      const msg = err.response?.data?.message || err.response?.data?.errors?.competition_id?.[0] || 'Gagal membuat pendaftaran.';
-      setAlert({ type: 'danger', message: msg });
-    } finally {
-      setCreateSubmitting(false);
+      mockService.activities.unshift({
+        id: `act-${Date.now()}`,
+        type: 'submission',
+        description: `Tim ${selectedReg.teamName} mengumpulkan karya: "${submissionTitle.trim()}"`,
+        timestamp: 'Baru saja',
+      });
+      mockService.saveState();
+      setRegistrations([...mockService.registrations]);
+      setIsSubmitModalOpen(false);
+      setSubmissionSuccess('Karya Anda berhasil dikirimkan dan siap untuk proses kurasi penjurian!');
+      setTimeout(() => setSubmissionSuccess(''), 6000);
     }
   };
 
-  const handleSubmitRegistration = async (reg) => {
-    if (!window.confirm(`Submit pendaftaran ${reg.registration_number} untuk ditinjau oleh panitia?`)) return;
-
-    try {
-      setSubmittingId(reg.id);
-      setAlert(null);
-      const res = await registrationService.submitRegistration(reg.id);
-      if (res?.success) {
-        setAlert({
-          type: 'success',
-          message: `Pendaftaran ${reg.registration_number} berhasil disubmit! Panitia akan segera meninjau berkas Anda.`,
-        });
-        await loadAllData();
-      }
-    } catch (err) {
-      const msg = err.response?.data?.message || err.response?.data?.errors?.team?.[0] || 'Gagal mengirim pendaftaran.';
-      setAlert({ type: 'danger', message: msg });
-    } finally {
-      setSubmittingId(null);
-    }
-  };
-
-  const handleCancelRegistration = async (reg) => {
-    if (!window.confirm(`Apakah Anda yakin ingin membatalkan pendaftaran ${reg.registration_number}?`)) return;
-
-    try {
-      setSubmittingId(reg.id);
-      setAlert(null);
-      const res = await registrationService.cancelRegistration(reg.id);
-      if (res?.success) {
-        setAlert({
-          type: 'info',
-          message: `Pendaftaran ${reg.registration_number} telah dibatalkan.`,
-        });
-        await loadAllData();
-      }
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Gagal membatalkan pendaftaran.';
-      setAlert({ type: 'danger', message: msg });
-    } finally {
-      setSubmittingId(null);
-    }
-  };
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'approved':
-        return <Badge variant="success">Disetujui (Approved)</Badge>;
-      case 'rejected':
-        return <Badge variant="danger">Ditolak (Rejected)</Badge>;
-      case 'revision_required':
-        return <Badge variant="warning">Perlu Revisi (Revision)</Badge>;
-      case 'under_review':
-        return <Badge variant="warning">Sedang Ditinjau</Badge>;
-      case 'submitted':
-        return <Badge variant="info">Diajukan (Submitted)</Badge>;
-      case 'cancelled':
-        return <Badge variant="default">Dibatalkan</Badge>;
-      case 'draft':
-      default:
-        return <Badge variant="default">Draf (Belum Dikirim)</Badge>;
-    }
-  };
-
-  const compList = Array.isArray(competitions) ? competitions : [];
-  const teamList = Array.isArray(teams) ? teams : [];
-  const regList = Array.isArray(registrations) ? registrations : [];
-
-  const selectedCompetition = compList.find((c) => c.id === parseInt(newRegForm.competition_id, 10));
-  const isSelectedTeamBased = selectedCompetition?.competition_type === 'team';
-  const eligibleTeams = teamList.filter((t) => t.competition_id === selectedCompetition?.id && t.leader_id === user?.id);
+  const columns = [
+    {
+      header: 'Cabang & Tim',
+      accessor: 'competitionName',
+      render: (row) => (
+        <div>
+          <span className="font-bold font-display text-[#FFF7F0] text-sm block">
+            {row.competitionName}
+          </span>
+          <span className="text-xs text-[#FFB36B] font-mono">
+            {row.teamName} ({row.teamMembers?.length || 1} Anggota)
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: 'Status Berkas',
+      accessor: 'status',
+      render: (row) => <StatusBadge status={row.status} />,
+    },
+    {
+      header: 'Karya / Submission',
+      accessor: 'submissionStatus',
+      render: (row) => {
+        if (row.submissionTitle) {
+          return (
+            <div>
+              <span className="text-xs text-[#FFF7F0] font-medium block truncate max-w-xs">
+                {row.submissionTitle}
+              </span>
+              <a
+                href={row.submissionUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] font-mono text-[#FF6A00] hover:underline flex items-center space-x-1"
+              >
+                <span>Tautan Karya</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          );
+        }
+        return (
+          <span className="text-xs font-mono text-[#948277] italic">
+            Belum Dikirim
+          </span>
+        );
+      },
+    },
+    {
+      header: 'Aksi',
+      accessor: 'id',
+      align: 'right',
+      render: (row) => (
+        <div className="flex items-center justify-end space-x-2">
+          <button
+            onClick={() => {
+              setSelectedReg(row);
+              setIsDetailOpen(true);
+            }}
+            title="Lihat Detail Tim"
+            className="p-1.5 rounded-lg text-[#C4B3A7] hover:text-[#FFF7F0] hover:bg-[#2A1D15] transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          <Button
+            variant="primary"
+            className="text-xs py-1.5 px-3 flex items-center space-x-1.5"
+            onClick={() => handleOpenSubmission(row)}
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>{row.submissionTitle ? 'Ubah Karya' : 'Unggah Karya'}</span>
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-black text-gray-950 tracking-tight">Status Pendaftaran Lomba</h2>
-          <p className="text-sm text-gray-500">Pantau proses pengajuan berkas, revisi administrasi, dan status verifikasi lomba</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="primary" size="sm" onClick={() => setShowCreateModal(true)}>
-            + Daftarkan Kompetisi Baru
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Pendaftaran & Tim Saya"
+        description="Kelola seluruh pendaftaran kompetisi aktif, status verifikasi administrasi, dan pengiriman tautan karya inovasi."
+        breadcrumbs={[
+          { label: 'Peserta', to: '/participant/dashboard' },
+          { label: 'Pendaftaran Saya', to: '/participant/registrations' },
+        ]}
+      />
 
-      {user?.role === 'admin' && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div>
-            <span className="font-bold text-blue-900 block text-sm">Mode Administrator Terdeteksi</span>
-            <span className="text-blue-700">
-              Anda sedang membuka portal peserta. Untuk memverifikasi seluruh pendaftaran cabang lomba, silakan gunakan menu Admin.
-            </span>
-          </div>
-          <Link to="/admin/registrations">
-            <Button variant="primary" size="sm" className="font-bold whitespace-nowrap">
-              Buka Panel Admin &rarr;
-            </Button>
-          </Link>
+      {submissionSuccess && (
+        <div className="p-4 bg-emerald-950/40 border border-emerald-500/40 rounded-2xl flex items-center space-x-3 text-emerald-300 text-xs">
+          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
+          <span>{submissionSuccess}</span>
         </div>
       )}
 
-      {alert && (
-        <Alert variant={alert.type} onClose={() => setAlert(null)}>
-          {alert.message}
-        </Alert>
+      {myRegistrations.length === 0 ? (
+        <EmptyState
+          title="Belum Ada Pendaftaran Kompetisi"
+          message="Anda belum terdaftar pada cabang perlombaan manapun. Jelajahi kompetisi yang tersedia dan daftarkan tim Anda sekarang."
+          actionLabel="Daftar Cabang Lomba"
+          onAction={() => window.location.assign('/participant/competitions')}
+        />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={myRegistrations}
+          keyExtractor={(item) => item.id}
+          emptyMessage="Tidak ada pendaftaran kompetisi."
+        />
       )}
 
-      {/* CREATE REGISTRATION MODAL */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Mulai Pendaftaran Lomba</h3>
-            <p className="text-xs text-gray-600">
-              Pilih cabang lomba yang ingin Anda ikuti. Pendaftaran akan dibuat dalam status draf terlebih dahulu.
-            </p>
-
-            <form onSubmit={handleCreateRegistration} className="space-y-4">
+      {/* TEAM DETAIL MODAL */}
+      {isDetailOpen && selectedReg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#17110D] border border-[rgba(255,179,107,0.2)] rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div className="border-b border-[rgba(255,179,107,0.14)] pb-4 flex items-center justify-between">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Cabang Kompetisi</label>
-                <select
-                  required
-                  value={newRegForm.competition_id}
-                  onChange={(e) => setNewRegForm({ competition_id: e.target.value, team_id: '' })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                >
-                  <option value="">-- Pilih Cabang Kompetisi --</option>
-                  {compList.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name || c.title} ({c.competition_type === 'team' ? 'Tim' : 'Individu'}) - Rp {Number(c.registration_fee || 0).toLocaleString('id-ID')}
-                    </option>
-                  ))}
-                </select>
+                <span className="text-[10px] font-mono text-[#FFB36B] uppercase">DETAIL PENDAFTARAN</span>
+                <h3 className="text-xl font-bold font-display text-[#FFF7F0]">{selectedReg.teamName}</h3>
+              </div>
+              <button
+                onClick={() => setIsDetailOpen(false)}
+                className="text-[#948277] hover:text-[#FFF7F0] p-1 text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="p-3 bg-[#1C1410] rounded-xl border border-[rgba(255,179,107,0.1)]">
+                <span className="text-[#948277] block text-[10px]">CABANG LOMBA</span>
+                <span className="text-[#FFF7F0] font-bold text-sm">{selectedReg.competitionName}</span>
               </div>
 
-              {isSelectedTeamBased && (
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Pilih Tim Anda</label>
-                  {eligibleTeams.length === 0 ? (
-                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 space-y-2">
-                      <p>Anda belum menjadi ketua tim untuk cabang kompetisi ini.</p>
-                      <Link to={`/my-team?competition_id=${selectedCompetition?.id}`}>
-                        <Button type="button" variant="secondary" size="sm">
-                          Bentuk Tim Terlebih Dahulu ➔
-                        </Button>
-                      </Link>
-                    </div>
-                  ) : (
-                    <select
-                      required
-                      value={newRegForm.team_id}
-                      onChange={(e) => setNewRegForm({ ...newRegForm, team_id: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              <div>
+                <span className="text-xs font-mono text-[#FFB36B] uppercase block mb-2">
+                  Daftar Anggota Tim:
+                </span>
+                <div className="space-y-2">
+                  {(selectedReg.teamMembers || []).map((m, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 bg-[#1C1410] rounded-xl border border-[rgba(255,179,107,0.1)] flex items-center justify-between"
                     >
-                      <option value="">-- Pilih Tim Anda --</option>
-                      {eligibleTeams.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.name} (Kode: {t.code}) - {t.members?.length || t.members_count || 1} Anggota
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                      <div>
+                        <span className="text-xs font-bold text-[#FFF7F0] block">{m.name}</span>
+                        <span className="text-[10px] font-mono text-[#948277]">NIM: {m.studentId || '-'}</span>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#2A1D15] text-[#FFB36B] border border-[rgba(255,179,107,0.14)]">
+                        {m.role}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+            <div className="pt-2 flex justify-end">
+              <Button variant="outline" onClick={() => setIsDetailOpen(false)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUBMISSION MODAL */}
+      {isSubmitModalOpen && selectedReg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#17110D] border border-[rgba(255,179,107,0.2)] rounded-3xl max-w-lg w-full p-6 md:p-8 space-y-6 shadow-2xl">
+            <div className="border-b border-[rgba(255,179,107,0.14)] pb-4 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-mono text-[#FFB36B] uppercase">SUBMISSION KARYA INOVASI</span>
+                <h3 className="text-xl font-bold font-display text-[#FFF7F0]">{selectedReg.teamName}</h3>
+                <p className="text-xs text-[#948277]">{selectedReg.competitionName}</p>
+              </div>
+              <button
+                onClick={() => setIsSubmitModalOpen(false)}
+                className="text-[#948277] hover:text-[#FFF7F0] p-1 text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            {submissionError && (
+              <div className="p-3 bg-red-950/40 border border-red-500/40 rounded-xl flex items-center space-x-2 text-red-400 text-xs">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{submissionError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveSubmission} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                  Judul Proyek / Karya Inovasi *
+                </label>
+                <input
+                  type="text"
+                  value={submissionTitle}
+                  onChange={(e) => setSubmissionTitle(e.target.value)}
+                  placeholder="Contoh: MediConnect - Telemedisin Cerdas Berbasis AI"
+                  className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-[#FFB36B] uppercase tracking-wider mb-1">
+                  Tautan Karya (GitHub / Google Drive / Figma) *
+                </label>
+                <input
+                  type="url"
+                  value={submissionUrl}
+                  onChange={(e) => setSubmissionUrl(e.target.value)}
+                  placeholder="https://github.com/... atau https://drive.google.com/..."
+                  className="w-full bg-[#1C1410] border border-[rgba(255,179,107,0.2)] rounded-xl px-4 py-2.5 text-sm text-[#FFF7F0] focus:outline-none focus:border-[#FF6A00]"
+                />
+                <span className="text-[11px] text-[#948277] block mt-1">
+                  Pastikan akses Google Drive telah disetel menjadi "Anyone with the link can view".
+                </span>
+              </div>
+
+              <div className="pt-4 border-t border-[rgba(255,179,107,0.14)] flex items-center justify-end space-x-3">
                 <Button
                   type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setShowCreateModal(false)}
+                  variant="outline"
+                  onClick={() => setIsSubmitModalOpen(false)}
                 >
                   Batal
                 </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="sm"
-                  disabled={createSubmitting || !newRegForm.competition_id || (isSelectedTeamBased && !newRegForm.team_id)}
-                >
-                  {createSubmitting ? 'Memproses...' : 'Buat Draf Pendaftaran'}
+                <Button type="submit" variant="primary">
+                  Simpan & Kirim Karya
                 </Button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      {/* REGISTRATIONS LIST */}
-      {loading ? (
-        <div className="text-center py-16">
-          <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm text-gray-500">Memuat berkas pendaftaran...</p>
-        </div>
-      ) : regList.length === 0 ? (
-        <Card>
-          <div className="text-center py-14 space-y-4">
-            <div className="w-16 h-16 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
-              📝
-            </div>
-            <div className="max-w-md mx-auto">
-              <h3 className="text-base font-bold text-gray-900">Belum Ada Pendaftaran</h3>
-              <p className="text-xs text-gray-500 mt-1">
-                Anda belum mendaftarkan diri atau tim ke cabang lomba manapun. Mulai pendaftaran sekarang!
-              </p>
-            </div>
-            <Button variant="primary" size="sm" onClick={() => setShowCreateModal(true)}>
-              Daftar Kompetisi Sekarang
-            </Button>
-          </div>
-        </Card>
-      ) : (
-        <div className="space-y-6">
-          {regList.map((reg) => {
-            const isOwner = reg.user_id === user?.id;
-            const isDraft = reg.status === 'draft';
-            const isRevision = reg.status === 'revision_required';
-            const isSubmitted = reg.status === 'submitted';
-            const canSubmit = (isDraft || isRevision) && isOwner;
-            const canCancel = (isDraft || isSubmitted) && isOwner;
-
-            return (
-              <Card key={reg.id} className="overflow-hidden border border-gray-200 shadow-sm">
-                <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-3 py-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-xs font-bold text-brand-700 bg-brand-50 border border-brand-200 px-2.5 py-0.5 rounded">
-                        {reg.registration_number}
-                      </span>
-                      {getStatusBadge(reg.status)}
-                      <Badge variant={reg.is_team_based ? 'info' : 'default'}>
-                        {reg.is_team_based ? 'Kompetisi Tim' : 'Kompetisi Individu'}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-lg font-bold text-gray-950 mt-1">
-                      {reg.competition?.title || reg.competition?.name || 'Cabang Kompetisi'}
-                    </CardTitle>
-                  </div>
-
-                  <div className="text-right text-xs text-gray-400">
-                    <div>Dibuat: {formatDate(reg.created_at)}</div>
-                    {reg.submitted_at && (
-                      <div className="text-brand-600 font-semibold">
-                        Disubmit: {formatDate(reg.submitted_at)}
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
-
-                <CardContent className="p-6 space-y-4 text-xs">
-                  {/* REVISION NOTE BANNER */}
-                  {reg.revision_note && (
-                    <div className="p-4 bg-amber-50 border border-amber-300 rounded-lg space-y-1 text-amber-900">
-                      <div className="font-bold flex items-center gap-1.5 text-sm">
-                        <span>⚠️</span> Catatan Panitia (Perlu Revisi):
-                      </div>
-                      <p className="text-xs leading-relaxed">{reg.revision_note}</p>
-                      <p className="text-[11px] text-amber-700 pt-1">
-                        Silakan perbaiki data atau berkas Anda, lalu klik "Ajukan Ulang Pendaftaran" di bawah.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* REJECTION REASON BANNER */}
-                  {reg.rejection_reason && (
-                    <div className="p-4 bg-rose-50 border border-rose-300 rounded-lg space-y-1 text-rose-900">
-                      <div className="font-bold flex items-center gap-1.5 text-sm">
-                        <span>✕</span> Alasan Penolakan:
-                      </div>
-                      <p className="text-xs leading-relaxed">{reg.rejection_reason}</p>
-                    </div>
-                  )}
-
-                  {/* DETAILS GRID */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50/70 rounded-lg border border-gray-100">
-                    <div>
-                      <span className="text-gray-400 block text-[11px]">Penanggung Jawab / Pendaftar:</span>
-                      <span className="font-bold text-gray-900">{reg.user?.name}</span>
-                      <div className="text-gray-500 text-[11px]">{reg.user?.email}</div>
-                    </div>
-
-                    <div>
-                      <span className="text-gray-400 block text-[11px]">Entitas Lomba:</span>
-                      {reg.team ? (
-                        <div>
-                          <span className="font-bold text-gray-900">{reg.team.name}</span>
-                          <div className="text-gray-500 text-[11px]">
-                            Kode: <span className="font-mono font-bold text-blue-700">{reg.team.code}</span> ({Array.isArray(reg.team.members) ? reg.team.members.length : 1} anggota)
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="font-bold text-gray-900">Peserta Perorangan / Individu</span>
-                      )}
-                    </div>
-
-                    <div>
-                      <span className="text-gray-400 block text-[11px]">Biaya Registrasi:</span>
-                      <span className="font-bold text-gray-900 text-sm">
-                        {Number(reg.competition?.registration_fee || 0) > 0
-                          ? `Rp ${Number(reg.competition.registration_fee).toLocaleString('id-ID')}`
-                          : 'Gratis'}
-                      </span>
-                      {reg.reviewed_at && (
-                        <div className="text-[11px] text-emerald-600 font-medium">
-                          Diverifikasi: {formatDate(reg.reviewed_at)}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* TEAM MEMBERS SUMMARY IF TEAM-BASED */}
-                  {Array.isArray(reg.team?.members) && reg.team.members.length > 0 && (
-                    <div className="space-y-1.5 pt-1">
-                      <span className="font-semibold text-gray-700 block">Anggota Tim Terdaftar:</span>
-                      <div className="flex flex-wrap gap-2">
-                        {reg.team.members.map((m) => (
-                          <div key={m.id} className="px-2.5 py-1 bg-white border border-gray-200 rounded-md text-[11px] flex items-center gap-1.5 shadow-2xs">
-                            <span className="font-medium text-gray-900">{m.name}</span>
-                            <span className="text-gray-400 text-[10px]">({m.role === 'leader' ? 'Ketua' : 'Anggota'})</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ACTION BAR */}
-                  <div className="pt-3 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div className="text-xs text-gray-500">
-                      {isDraft && 'Draf pendaftaran belum diserahkan ke panitia.'}
-                      {isSubmitted && 'Menunggu giliran peninjauan oleh tim verifikator panitia.'}
-                      {reg.status === 'approved' && '✅ Berkas terverifikasi sah. Lanjutkan ke proses berikutnya.'}
-                    </div>
-
-                    <div className="flex gap-2 w-full sm:w-auto justify-end">
-                      {reg.status === 'approved' && (
-                        <>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => navigate(`/registrations/${reg.id}/payment`)}
-                          >
-                            {reg.is_payment_cleared ? 'Rincian Pembayaran' : 'Bayar / Konfirmasi Transfer 💳'}
-                          </Button>
-
-                          {reg.is_eligible_for_submission && (
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              onClick={() => navigate(`/registrations/${reg.id}/submission`)}
-                              className="font-bold shadow-xs"
-                            >
-                              Kumpulkan Karya ➔
-                            </Button>
-                          )}
-                        </>
-                      )}
-
-                      {canCancel && (
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => handleCancelRegistration(reg)}
-                          disabled={submittingId === reg.id}
-                        >
-                          Batalkan Pendaftaran
-                        </Button>
-                      )}
-
-                      {canSubmit && (
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => handleSubmitRegistration(reg)}
-                          disabled={submittingId === reg.id}
-                          className="font-bold"
-                        >
-                          {submittingId === reg.id
-                            ? 'Mengirim...'
-                            : isRevision
-                            ? 'Ajukan Ulang Pendaftaran ➔'
-                            : 'Submit Pendaftaran untuk Diverifikasi ➔'}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 };
 
-export default RegistrationsPage;
+export default ParticipantRegistrationsPage;
