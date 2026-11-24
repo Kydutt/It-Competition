@@ -17,7 +17,12 @@ class CategoryController extends Controller
 {
     public function index(): JsonResponse
     {
-        $categories = CompetitionCategory::withCount('competitions')
+        $categories = CompetitionCategory::withCount([
+            'competitions',
+            'competitions as all_competitions_count' => function ($query) {
+                $query->withTrashed();
+            },
+        ])
             ->orderBy('name')
             ->get();
 
@@ -100,8 +105,9 @@ class CategoryController extends Controller
 
     public function destroy(Request $request, CompetitionCategory $category): JsonResponse
     {
-        if ($category->competitions()->exists()) {
-            $competitions = $category->competitions()->pluck('name')->all();
+        $competitionsQuery = $category->competitions()->withTrashed();
+        if ($competitionsQuery->exists()) {
+            $competitions = $competitionsQuery->pluck('name')->all();
             $competitionsCount = count($competitions);
             $displayNames = implode(', ', array_slice($competitions, 0, 3));
             if ($competitionsCount > 3) {
@@ -110,7 +116,7 @@ class CategoryController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => "Kategori tidak dapat dihapus karena masih digunakan oleh cabang kompetisi: {$displayNames}. Harap ubah kategori cabang kompetisi terlebih dahulu.",
+                'message' => "Kategori tidak dapat dihapus karena masih digunakan oleh {$competitionsCount} kompetisi ({$displayNames}). Hapus atau pindahkan relasi kompetisi terlebih dahulu.",
                 'data' => [
                     'competitions' => $competitions,
                     'competitions_count' => $competitionsCount,
@@ -138,6 +144,27 @@ class CategoryController extends Controller
                 'success' => true,
                 'message' => 'Kategori kompetisi berhasil dihapus.',
             ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23000' || (isset($e->errorInfo[1]) && in_array($e->errorInfo[1], [1451, 1217]))) {
+                Log::warning("Foreign key constraint violation when deleting category [{$category->id}]: " . $e->getMessage());
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kategori tidak dapat dihapus karena masih digunakan oleh kompetisi atau data terkait lainnya. Hapus atau pindahkan relasi terkait terlebih dahulu.',
+                    'data' => [
+                        'error_code' => 'FOREIGN_KEY_VIOLATION',
+                    ],
+                ], 409);
+            }
+
+            Log::error("Database error while deleting category [{$category->id}]: " . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan basis data saat menghapus kategori kompetisi.',
+            ], 500);
         } catch (\Throwable $e) {
             Log::error("Failed to delete category [{$category->id}]: " . $e->getMessage(), [
                 'exception' => $e,

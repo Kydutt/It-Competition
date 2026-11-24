@@ -9,6 +9,7 @@ import {
   X,
   AlertTriangle,
   CheckCircle2,
+  ShieldAlert,
 } from 'lucide-react'
 import { adminService } from '../../services/adminService'
 import type { AdminCategory } from '../../types/admin'
@@ -34,7 +35,9 @@ export const CategoriesPage: React.FC = () => {
   const [deletingCategory, setDeletingCategory] = useState<AdminCategory | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<{
+    title: string
     message: string
+    status?: number
     competitions?: string[]
   } | null>(null)
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -103,7 +106,7 @@ export const CategoriesPage: React.FC = () => {
   }
 
   const handleDeleteCategory = async () => {
-    if (!deletingCategory) return
+    if (!deletingCategory || isDeleting) return
     setIsDeleting(true)
     setDeleteError(null)
     try {
@@ -116,12 +119,48 @@ export const CategoriesPage: React.FC = () => {
       await fetchCategories()
     } catch (err: any) {
       console.error('Failed to delete category:', err)
+      const status = err.response?.status
       const errorData = err.response?.data
+      const rawMessage = errorData?.message
+
+      let title = 'Gagal Menghapus Kategori'
+      let message = rawMessage || 'Terjadi kesalahan sistem saat memproses penghapusan kategori.'
+      const competitions = errorData?.data?.competitions
+
+      if (status === 409) {
+        title = 'Kategori Masih Digunakan'
+        message =
+          rawMessage ||
+          'Kategori tidak dapat dihapus karena masih digunakan oleh cabang kompetisi. Hapus atau pindahkan relasi kompetisi terlebih dahulu.'
+      } else if (status === 403) {
+        title = 'Akses Ditolak (403)'
+        message =
+          rawMessage ||
+          'Anda tidak memiliki izin (hak akses administrator) untuk menghapus kategori lomba ini.'
+      } else if (status === 401) {
+        title = 'Sesi Berakhir (401)'
+        message = 'Sesi login Anda telah berakhir. Silakan login kembali untuk melanjutkan.'
+      } else if (status === 404) {
+        title = 'Kategori Tidak Ditemukan (404)'
+        message =
+          rawMessage ||
+          'Kategori yang ingin dihapus tidak ditemukan atau sudah dihapus sebelumnya.'
+        fetchCategories()
+      } else if (status && status >= 500) {
+        title = 'Kesalahan Server (500)'
+        message =
+          rawMessage ||
+          'Terjadi kesalahan internal pada server saat menghapus kategori kompetisi.'
+      } else if (!err.response) {
+        title = 'Koneksi Terputus'
+        message = 'Tidak dapat menghubungi server. Periksa koneksi jaringan Anda dan coba lagi.'
+      }
+
       setDeleteError({
-        message:
-          errorData?.message ||
-          'Gagal menghapus kategori. Terjadi kesalahan pada server.',
-        competitions: errorData?.data?.competitions,
+        title,
+        message,
+        status,
+        competitions,
       })
     } finally {
       setIsDeleting(false)
@@ -209,6 +248,12 @@ export const CategoriesPage: React.FC = () => {
                       <span className="inline-flex items-center gap-1">
                         <Tags className="w-3.5 h-3.5 text-slate-400" />
                         {cat.competitions_count || 0} cabang
+                        {cat.all_competitions_count !== undefined &&
+                          cat.all_competitions_count > (cat.competitions_count || 0) && (
+                            <span className="text-[11px] font-normal text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                              +{cat.all_competitions_count - (cat.competitions_count || 0)} terarsip
+                            </span>
+                          )}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
@@ -330,7 +375,8 @@ export const CategoriesPage: React.FC = () => {
                   if (!isDeleting) setDeletingCategory(null)
                 }}
                 disabled={isDeleting}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 shrink-0 cursor-pointer"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Tutup modal konfirmasi"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -351,44 +397,72 @@ export const CategoriesPage: React.FC = () => {
                     {deletingCategory.description}
                   </p>
                 )}
-                {deletingCategory.competitions_count !== undefined && deletingCategory.competitions_count > 0 && (
-                  <div className="pt-1.5 flex items-start gap-2 text-amber-700 text-xs bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                {/* Pre-warning if category is already known to have competitions */}
+                {((deletingCategory.all_competitions_count ?? deletingCategory.competitions_count ?? 0) > 0) && (
+                  <div className="pt-1.5 flex items-start gap-2 text-amber-800 text-xs bg-amber-50 p-2.5 rounded-lg border border-amber-200">
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <span>
-                      Kategori ini saat ini digunakan oleh <strong>{deletingCategory.competitions_count} cabang lomba</strong>.
-                    </span>
+                    <div>
+                      <span>
+                        Kategori ini terhubung dengan{' '}
+                        <strong>
+                          {deletingCategory.all_competitions_count ?? deletingCategory.competitions_count} cabang lomba
+                        </strong>
+                        {deletingCategory.all_competitions_count !== undefined &&
+                          deletingCategory.competitions_count !== undefined &&
+                          deletingCategory.all_competitions_count > deletingCategory.competitions_count &&
+                          ` (${deletingCategory.competitions_count} aktif, ${deletingCategory.all_competitions_count - deletingCategory.competitions_count} terarsip)`}
+                        .
+                      </span>
+                      <p className="text-[11px] text-amber-700 mt-1">
+                        Peringatan: Kategori yang masih digunakan tidak dapat dihapus sebelum relasi kompetisi dialihkan atau dihapus.
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Delete Error / 409 Conflict Details */}
+              {/* Delete Error / 409 Conflict / 403 / 500 Details */}
               {deleteError && (
-                <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs space-y-2.5">
+                <div
+                  className={`p-3.5 rounded-xl border text-xs space-y-2.5 ${
+                    deleteError.status === 409
+                      ? 'bg-amber-50/80 border-amber-200 text-amber-900'
+                      : deleteError.status === 403
+                        ? 'bg-purple-50 border-purple-200 text-purple-900'
+                        : 'bg-red-50 border-red-200 text-red-800'
+                  }`}
+                >
                   <div className="flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    {deleteError.status === 409 ? (
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    ) : deleteError.status === 403 ? (
+                      <ShieldAlert className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                    )}
                     <div className="space-y-1 leading-relaxed">
-                      <span className="font-bold text-red-800 block">Kategori Tidak Dapat Dihapus</span>
-                      <span>{deleteError.message}</span>
+                      <span className="font-bold block">{deleteError.title}</span>
+                      <span className="text-xs">{deleteError.message}</span>
                     </div>
                   </div>
 
                   {deleteError.competitions && deleteError.competitions.length > 0 && (
                     <div className="pl-6 space-y-1.5">
                       <span className="text-[11px] font-bold text-slate-700 block">
-                        Cabang kompetisi terkait:
+                        Cabang kompetisi terhubung:
                       </span>
                       <div className="flex flex-wrap gap-1.5">
                         {deleteError.competitions.map((compName, idx) => (
                           <span
                             key={idx}
-                            className="px-2 py-0.5 text-xs bg-white rounded-md border border-red-200 text-slate-800 font-medium"
+                            className="px-2 py-0.5 text-xs bg-white rounded-md border border-slate-200 text-slate-800 font-medium shadow-2xs"
                           >
                             {compName}
                           </span>
                         ))}
                       </div>
-                      <p className="text-[11px] text-slate-500 italic pt-1">
-                        Instruksi: Buka menu Cabang Kompetisi, lalu ubah kategori pada cabang kompetisi di atas sebelum menghapus kategori ini.
+                      <p className="text-[11px] text-slate-600 italic pt-1">
+                        Petunjuk Solusi: Buka menu Cabang Kompetisi, lalu ubah kategori pada cabang lomba di atas ke kategori lain sebelum menghapus kategori ini.
                       </p>
                     </div>
                   )}
@@ -421,12 +495,12 @@ export const CategoriesPage: React.FC = () => {
                   </Button>
                   <Button
                     type="button"
-                    variant="primary"
+                    variant="danger"
                     size="sm"
                     onClick={handleDeleteCategory}
                     disabled={isDeleting}
                     isLoading={isDeleting}
-                    className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white border-red-600 font-bold"
+                    className="w-full sm:w-auto font-bold"
                   >
                     {isDeleting ? 'Menghapus...' : 'Hapus Kategori'}
                   </Button>

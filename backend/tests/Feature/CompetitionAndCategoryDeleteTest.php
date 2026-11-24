@@ -220,6 +220,40 @@ class CompetitionAndCategoryDeleteTest extends TestCase
         $this->assertDatabaseHas('competitions', ['id' => $comp2->id]);
     }
 
+    public function test_category_used_by_soft_deleted_competitions_cannot_be_deleted(): void
+    {
+        $category = CompetitionCategory::factory()->create([
+            'name' => 'Legacy Software',
+        ]);
+
+        $comp = Competition::factory()->create([
+            'event_id' => $this->event->id,
+            'category_id' => $category->id,
+            'name' => 'Archived Software Contest',
+        ]);
+
+        // Soft delete the competition
+        $comp->delete();
+        $this->assertSoftDeleted('competitions', ['id' => $comp->id]);
+
+        $response = $this->actingAs($this->admin)
+            ->deleteJson("/api/v1/admin/categories/{$category->id}");
+
+        $response->assertStatus(409)
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('data.competitions_count', 1);
+
+        $message = $response->json('message');
+        $this->assertStringContainsString('tidak dapat dihapus', $message);
+        $this->assertStringContainsString('Archived Software Contest', $message);
+
+        // Category remains in database
+        $this->assertDatabaseHas('competition_categories', ['id' => $category->id]);
+
+        // Soft-deleted competition remains intact
+        $this->assertDatabaseHas('competitions', ['id' => $comp->id]);
+    }
+
     public function test_participant_cannot_delete_category(): void
     {
         $category = CompetitionCategory::factory()->create();
@@ -247,5 +281,36 @@ class CompetitionAndCategoryDeleteTest extends TestCase
             ->deleteJson('/api/v1/admin/categories/999999');
 
         $response->assertStatus(404);
+    }
+
+    public function test_admin_can_list_categories_with_active_and_total_competition_counts(): void
+    {
+        $category = CompetitionCategory::factory()->create([
+            'name' => 'Cybersecurity & Forensics',
+        ]);
+
+        $activeComp = Competition::factory()->create([
+            'event_id' => $this->event->id,
+            'category_id' => $category->id,
+            'name' => 'Capture The Flag',
+        ]);
+
+        $trashedComp = Competition::factory()->create([
+            'event_id' => $this->event->id,
+            'category_id' => $category->id,
+            'name' => 'Legacy CTF 2024',
+        ]);
+        $trashedComp->delete();
+
+        $response = $this->actingAs($this->admin)
+            ->getJson('/api/v1/admin/categories');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $catData = collect($response->json('data'))->firstWhere('id', $category->id);
+        $this->assertNotNull($catData);
+        $this->assertEquals(1, $catData['competitions_count']);
+        $this->assertEquals(2, $catData['all_competitions_count']);
     }
 }

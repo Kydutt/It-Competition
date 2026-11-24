@@ -51,6 +51,7 @@ export interface AdminCategory {
   slug: string
   description?: string | null
   competitions_count?: number
+  all_competitions_count?: number
   created_at?: string
 }
 
