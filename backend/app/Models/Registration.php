@@ -1,13 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use App\Enums\RegistrationStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Registration extends Model
@@ -17,14 +16,14 @@ class Registration extends Model
     protected $fillable = [
         'registration_number',
         'competition_id',
+        'participant_id',
         'team_id',
-        'user_id',
         'status',
+        'notes',
+        'admin_notes',
         'submitted_at',
-        'reviewed_at',
-        'reviewed_by',
-        'revision_note',
-        'rejection_reason',
+        'verified_at',
+        'verified_by',
     ];
 
     protected function casts(): array
@@ -32,72 +31,8 @@ class Registration extends Model
         return [
             'status' => RegistrationStatus::class,
             'submitted_at' => 'datetime',
-            'reviewed_at' => 'datetime',
+            'verified_at' => 'datetime',
         ];
-    }
-
-    protected static function booted(): void
-    {
-        static::creating(function (Registration $registration) {
-            if (empty($registration->registration_number)) {
-                $registration->registration_number = static::generateRegistrationNumber();
-            }
-            if ($registration->status === null) {
-                $registration->status = RegistrationStatus::Draft;
-            }
-        });
-    }
-
-    public static function generateRegistrationNumber(): string
-    {
-        $year = date('Y');
-        $prefix = "ITC-{$year}-";
-
-        $last = static::where('registration_number', 'like', "{$prefix}%")
-            ->orderByDesc('id')
-            ->value('registration_number');
-
-        if ($last && preg_match('/-(\d+)$/', $last, $matches)) {
-            $next = ((int) $matches[1]) + 1;
-        } else {
-            $next = 1;
-        }
-
-        do {
-            $number = sprintf('%s%05d', $prefix, $next);
-            $next++;
-        } while (static::where('registration_number', $number)->exists());
-
-        return $number;
-    }
-
-    public function isDraft(): bool
-    {
-        return $this->status === RegistrationStatus::Draft;
-    }
-
-    public function isSubmitted(): bool
-    {
-        return $this->status === RegistrationStatus::Submitted;
-    }
-
-    public function isApproved(): bool
-    {
-        return $this->status === RegistrationStatus::Approved;
-    }
-
-    public function isTeamBased(): bool
-    {
-        return $this->team_id !== null || ($this->competition && $this->competition->isTeamBased());
-    }
-
-    public function canBeCancelled(): bool
-    {
-        return in_array($this->status, [
-            RegistrationStatus::Draft,
-            RegistrationStatus::Submitted,
-            RegistrationStatus::RevisionRequired,
-        ], true);
     }
 
     public function competition(): BelongsTo
@@ -105,52 +40,48 @@ class Registration extends Model
         return $this->belongsTo(Competition::class);
     }
 
+    public function participant(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'participant_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->participant();
+    }
+
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    public function user(): BelongsTo
+    public function verifier(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
-    public function reviewer(): BelongsTo
+    public function documents(): HasMany
     {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        return $this->hasMany(RegistrationDocument::class);
     }
 
-    public function isPaymentCleared(): bool
+    public function submissions(): HasMany
     {
-        if ($this->competition && (int) $this->competition->registration_fee === 0) {
-            return true;
-        }
-
-        return $this->payment?->isApproved() ?? false;
+        return $this->hasMany(Submission::class);
     }
 
-    public function isEligibleForSubmission(): bool
+    public function latestSubmission(): HasOne
     {
-        return $this->isApproved() && $this->isPaymentCleared();
-    }
-
-    public function payment(): HasOne
-    {
-        return $this->hasOne(Payment::class);
+        return $this->hasOne(Submission::class)->latestOfMany();
     }
 
     public function submission(): HasOne
     {
-        return $this->hasOne(Submission::class);
+        return $this->latestSubmission();
     }
 
-    public function judgeAssignments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function payments(): HasMany
     {
-        return $this->hasMany(JudgeAssignment::class);
-    }
-
-    public function result(): HasOne
-    {
-        return $this->hasOne(CompetitionResult::class);
+        return $this->hasMany(Payment::class);
     }
 }

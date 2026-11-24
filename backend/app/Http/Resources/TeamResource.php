@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
@@ -9,54 +7,43 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TeamResource extends JsonResource
 {
-    /**
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
-            'competition_id' => $this->competition_id,
-            'competition' => $this->whenLoaded('competition', function () {
-                return [
-                    'id' => $this->competition->id,
-                    'title' => $this->competition->title,
-                    'slug' => $this->competition->slug,
-                    'competition_type' => $this->competition->competition_type?->value ?? $this->competition->competition_type,
-                    'target_level' => $this->competition->target_level?->value ?? $this->competition->target_level,
-                    'min_team_member' => $this->competition->min_team_member,
-                    'max_team_member' => $this->competition->max_team_member,
-                    'status' => $this->competition->status?->value ?? $this->competition->status,
-                ];
-            }),
             'name' => $this->name,
-            'code' => $this->code,
-            'institution' => $this->institution,
-            'leader_id' => $this->leader_id,
-            'leader' => $this->whenLoaded('leader', function () {
-                return [
-                    'id' => $this->leader->id,
-                    'name' => $this->leader->name,
-                    'email' => $this->leader->email,
-                    'phone' => $this->leader->phone,
-                    'institution' => $this->leader->institution,
-                    'education_level' => $this->leader->education_level,
-                ];
+            'team_code' => $this->team_code,
+            'leader' => new UserResource($this->whenLoaded('leader')),
+            'members' => $this->whenLoaded('members', function () {
+                return $this->members->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role?->value ?? $user->role,
+                        'member_role' => $user->pivot?->member_role ?? ($user->id === $this->leader_id ? 'leader' : 'member'),
+                        'profile' => $user->relationLoaded('profile') && $user->profile ? [
+                            'institution' => $user->profile->institution,
+                            'phone' => $user->profile->phone,
+                            'phone_number' => $user->profile->phone,
+                            'education_level' => $user->profile->education_level,
+                            'profile_photo_url' => $user->profile->profile_photo_path ? asset('storage/' . $user->profile->profile_photo_path) : null,
+                        ] : null,
+                        'user' => [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'profile' => $user->relationLoaded('profile') && $user->profile ? [
+                                'institution' => $user->profile->institution,
+                                'phone' => $user->profile->phone,
+                                'phone_number' => $user->profile->phone,
+                            ] : null,
+                        ],
+                    ];
+                });
             }),
-            'members_count' => $this->members_count ?? $this->members()->count(),
-            'members' => TeamMemberResource::collection($this->whenLoaded('members')),
-            'is_locked' => $this->isLocked(),
-            'registration' => $this->whenLoaded('registration', function () {
-                return [
-                    'id' => $this->registration->id,
-                    'registration_number' => $this->registration->registration_number,
-                    'status' => $this->registration->status?->value ?? $this->registration->status,
-                    'status_label' => $this->registration->status?->label() ?? (string) $this->registration->status,
-                    'submitted_at' => $this->registration->submitted_at?->toISOString(),
-                ];
-            }),
+            'members_count' => $this->whenCounted('members'),
             'created_at' => $this->created_at?->toISOString(),
-            'updated_at' => $this->updated_at?->toISOString(),
         ];
     }
 }

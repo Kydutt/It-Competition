@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use App\Enums\SubmissionStatus;
@@ -16,13 +14,23 @@ class Submission extends Model
 
     protected $fillable = [
         'registration_id',
-        'competition_id',
-        'team_id',
         'title',
         'description',
+        'file_path',
+        'external_url',
+        'repository_url',
         'status',
         'submitted_at',
+        'reviewed_by',
+        'review_note',
     ];
+
+    protected $appends = ['admin_notes'];
+
+    public function getAdminNotesAttribute(): ?string
+    {
+        return $this->review_note;
+    }
 
     protected function casts(): array
     {
@@ -32,52 +40,18 @@ class Submission extends Model
         ];
     }
 
-    public function isDraft(): bool
-    {
-        return $this->status === SubmissionStatus::Draft;
-    }
-
-    public function isSubmitted(): bool
-    {
-        return $this->status === SubmissionStatus::Submitted;
-    }
-
-    public function isLocked(): bool
-    {
-        if ($this->status === SubmissionStatus::Locked) {
-            return true;
-        }
-
-        // Automatic locking if competition deadline has passed
-        if ($this->competition && $this->competition->submission_deadline && now()->gt($this->competition->submission_deadline)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public function canBeModified(): bool
-    {
-        return ! $this->isLocked();
-    }
-
     public function registration(): BelongsTo
     {
         return $this->belongsTo(Registration::class);
     }
 
-    public function competition(): BelongsTo
+    public function reviewer(): BelongsTo
     {
-        return $this->belongsTo(Competition::class);
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    public function team(): BelongsTo
+    public function revisions(): HasMany
     {
-        return $this->belongsTo(Team::class);
-    }
-
-    public function files(): HasMany
-    {
-        return $this->hasMany(SubmissionFile::class);
+        return $this->hasMany(SubmissionRevision::class);
     }
 }

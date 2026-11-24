@@ -1,136 +1,141 @@
 <?php
 
-declare(strict_types=1);
-
-use App\Http\Controllers\Api\Admin;
-use App\Http\Controllers\Api\Auth;
-use App\Http\Controllers\Api\Judge;
-use App\Http\Controllers\Api\Participant;
-use App\Http\Controllers\Api\Public as PublicApi;
-use App\Http\Resources\UserResource;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Participant\DashboardController;
+use App\Http\Controllers\Api\Participant\NotificationController;
+use App\Http\Controllers\Api\Participant\ProfileController;
+use App\Http\Controllers\Api\Participant\RegistrationController;
+use App\Http\Controllers\Api\Participant\SubmissionController;
+use App\Http\Controllers\Api\Participant\TeamController;
+use App\Http\Controllers\Api\Public\AnnouncementController;
+use App\Http\Controllers\Api\Public\CategoryController;
+use App\Http\Controllers\Api\Public\CompetitionController;
+use App\Http\Controllers\Api\Public\EventController;
+use App\Http\Controllers\Api\Public\FaqController;
+use App\Http\Controllers\Api\Public\ScheduleController;
+use App\Http\Controllers\Api\Public\StatisticsController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('v1')->group(function () {
+/*
+|--------------------------------------------------------------------------
+| API Routes (Prefix: /api/v1)
+|--------------------------------------------------------------------------
+*/
 
-    // -------------------------------------------------------------
-    // Public Authentication Routes
-    // -------------------------------------------------------------
-    Route::prefix('auth')->group(function () {
-        Route::post('register', Auth\RegisterController::class);
-        Route::post('login', Auth\LoginController::class);
+// Health & Connectivity Check
+Route::get('/ping', [AuthController::class, 'ping']);
 
-        Route::middleware('auth:sanctum')->group(function () {
-            Route::post('logout', Auth\LogoutController::class);
-            Route::get('me', function (Request $request) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'User profile retrieved',
-                    'data' => new UserResource($request->user()),
-                ]);
-            });
-        });
+// Public Data Routes (Read-only, no auth required)
+Route::get('/events', [EventController::class, 'index']);
+Route::get('/events/{slug}', [EventController::class, 'show']);
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/competitions', [CompetitionController::class, 'index']);
+Route::get('/competitions/{slug}', [CompetitionController::class, 'show']);
+Route::get('/schedules', [ScheduleController::class, 'index']);
+Route::get('/announcements', [AnnouncementController::class, 'index']);
+Route::get('/announcements/{slug}', [AnnouncementController::class, 'show']);
+Route::get('/faqs', [FaqController::class, 'index']);
+Route::get('/public/statistics', [StatisticsController::class, 'index']);
+
+// Authentication Routes
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/me', [AuthController::class, 'me']);
     });
+});
 
-    // -------------------------------------------------------------
-    // Public Information Endpoints
-    // -------------------------------------------------------------
-    Route::get('competitions', [PublicApi\CompetitionController::class, 'index']);
-    Route::get('competitions/{slug}', [PublicApi\CompetitionController::class, 'show']);
+// Participant Portal Routes (Authenticated + Role: Participant)
+Route::prefix('participant')->middleware(['auth:sanctum', 'participant'])->group(function () {
+    // Dashboard Summary
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    Route::prefix('public')->group(function () {
-        Route::get('competitions', [PublicApi\CompetitionController::class, 'index']);
-        Route::get('competitions/{slug}', [PublicApi\CompetitionController::class, 'show']);
-    });
+    // Profile Management
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar']);
 
-    Route::get('announcements', [PublicApi\AnnouncementController::class, 'index']);
-    Route::get('announcements/{slug}', [PublicApi\AnnouncementController::class, 'show']);
+    // Team Management
+    Route::get('/teams', [TeamController::class, 'index']);
+    Route::post('/teams', [TeamController::class, 'store']);
+    Route::get('/teams/{team}', [TeamController::class, 'show']);
+    Route::put('/teams/{team}', [TeamController::class, 'update']);
+    Route::post('/teams/{team}/members', [TeamController::class, 'addMember']);
+    Route::delete('/teams/{team}/members/{member}', [TeamController::class, 'removeMember']);
 
-    Route::get('faqs', [PublicApi\FaqController::class, 'index']);
-    Route::get('sponsors', [PublicApi\SponsorController::class, 'index']);
-    Route::get('winners', [PublicApi\WinnerController::class, 'index']);
+    // Competition Registrations
+    Route::get('/registrations', [RegistrationController::class, 'index']);
+    Route::post('/registrations', [RegistrationController::class, 'store']);
+    Route::get('/registrations/{registration}', [RegistrationController::class, 'show']);
+    Route::put('/registrations/{registration}', [RegistrationController::class, 'update']);
+    Route::post('/registrations/{registration}/documents', [RegistrationController::class, 'uploadDocument']);
+    Route::get('/documents/{document}/download', [RegistrationController::class, 'downloadDocument']);
+    Route::post('/registrations/{registration}/submit', [RegistrationController::class, 'submit']);
 
-    // -------------------------------------------------------------
-    // Participant Protected Routes
-    // -------------------------------------------------------------
-    Route::middleware(['auth:sanctum', 'role:participant'])->prefix('participant')->group(function () {
-        Route::get('profile', [Participant\ProfileController::class, 'show']);
-        Route::put('profile', [Participant\ProfileController::class, 'update']);
+    // Submissions
+    Route::get('/submissions', [SubmissionController::class, 'index']);
+    Route::post('/submissions', [SubmissionController::class, 'store']);
+    Route::get('/submissions/{submission}', [SubmissionController::class, 'show']);
+    Route::post('/submissions/{submission}/revisions', [SubmissionController::class, 'submitRevision']);
 
-        Route::get('teams', [Participant\TeamController::class, 'index']);
-        Route::post('teams', [Participant\TeamController::class, 'store']);
-        Route::post('teams/join', [Participant\TeamController::class, 'join']);
-        Route::get('teams/{team}', [Participant\TeamController::class, 'show']);
-        Route::post('teams/{team}/leave', [Participant\TeamController::class, 'leave']);
-        Route::delete('teams/{team}/members/{user}', [Participant\TeamController::class, 'removeMember']);
-        Route::post('teams/{team}/transfer-leadership', [Participant\TeamController::class, 'transferLeadership']);
-        Route::delete('teams/{team}', [Participant\TeamController::class, 'destroy']);
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+});
 
-        Route::get('registrations', [Participant\RegistrationController::class, 'index']);
-        Route::post('registrations', [Participant\RegistrationController::class, 'store']);
-        Route::get('registrations/{id}', [Participant\RegistrationController::class, 'show']);
-        Route::post('registrations/{registration}/submit', [Participant\RegistrationController::class, 'submit']);
-        Route::post('registrations/{registration}/cancel', [Participant\RegistrationController::class, 'cancel']);
+// Authorized Document Downloads (Owner or Admin)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/documents/registration/{document}/download', [\App\Http\Controllers\Api\DocumentDownloadController::class, 'downloadRegistrationDocument']);
+    Route::get('/documents/submission/{submission}/download', [\App\Http\Controllers\Api\DocumentDownloadController::class, 'downloadSubmission']);
+});
 
-        Route::get('payments', [Participant\PaymentController::class, 'index']);
-        Route::post('payments', [Participant\PaymentController::class, 'store']);
-        Route::get('payments/{payment}', [Participant\PaymentController::class, 'show']);
-        Route::post('payments/{payment}/proof', [Participant\PaymentController::class, 'uploadProof']);
-        Route::get('payments/{payment}/proof', [Participant\PaymentController::class, 'downloadProof']);
-        Route::post('payments/{payment}/submit', [Participant\PaymentController::class, 'submit']);
+// Admin Portal Routes (Authenticated + Role: Admin)
+Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'index']);
 
-        Route::get('submissions', [Participant\SubmissionController::class, 'index']);
-        Route::post('submissions', [Participant\SubmissionController::class, 'store']);
-        Route::get('submissions/{submission}', [Participant\SubmissionController::class, 'show']);
-        Route::post('submissions/{submission}/files', [Participant\SubmissionController::class, 'uploadFile']);
-        Route::delete('submissions/{submission}/files/{fileId}', [Participant\SubmissionController::class, 'removeFile']);
-        Route::get('submissions/{submission}/files/{fileId}', [Participant\SubmissionController::class, 'downloadFile']);
-        Route::post('submissions/{submission}/submit', [Participant\SubmissionController::class, 'submit']);
-    });
+    // Reports / CSV Export
+    Route::get('/reports/registrations', [\App\Http\Controllers\Api\Admin\RegistrationController::class, 'exportCsv']);
+    Route::get('/reports/submissions', [\App\Http\Controllers\Api\Admin\SubmissionController::class, 'exportCsv']);
 
-    // -------------------------------------------------------------
-    // Admin Protected Routes
-    // -------------------------------------------------------------
-    Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
-        Route::get('dashboard', Admin\DashboardController::class);
+    // Events Management
+    Route::apiResource('events', \App\Http\Controllers\Api\Admin\EventController::class);
 
-        Route::patch('competitions/{competition}/publish', [Admin\CompetitionController::class, 'publish']);
-        Route::patch('competitions/{competition}/unpublish', [Admin\CompetitionController::class, 'unpublish']);
-        Route::patch('competitions/{competition}/status', [Admin\CompetitionController::class, 'changeStatus']);
-        Route::apiResource('competitions', Admin\CompetitionController::class);
+    // Categories Management
+    Route::apiResource('categories', \App\Http\Controllers\Api\Admin\CategoryController::class);
 
-        Route::get('participants', [Admin\ParticipantController::class, 'index']);
-        Route::get('participants/{participant}', [Admin\ParticipantController::class, 'show']);
+    // Competitions Management
+    Route::apiResource('competitions', \App\Http\Controllers\Api\Admin\CompetitionController::class);
 
-        Route::get('registrations', [Admin\RegistrationController::class, 'index']);
-        Route::get('registrations/{registration}', [Admin\RegistrationController::class, 'show']);
-        Route::post('registrations/{registration}/approve', [Admin\RegistrationController::class, 'approve']);
-        Route::post('registrations/{registration}/reject', [Admin\RegistrationController::class, 'reject']);
-        Route::post('registrations/{registration}/revision', [Admin\RegistrationController::class, 'revision']);
+    // Registrations Verification & Review
+    Route::get('/registrations', [\App\Http\Controllers\Api\Admin\RegistrationController::class, 'index']);
+    Route::get('/registrations/{registration}', [\App\Http\Controllers\Api\Admin\RegistrationController::class, 'show']);
+    Route::patch('/registrations/{registration}/status', [\App\Http\Controllers\Api\Admin\RegistrationController::class, 'updateStatus']);
+    Route::patch('/documents/{document}/verify', [\App\Http\Controllers\Api\Admin\RegistrationController::class, 'verifyDocument']);
 
-        Route::get('payments', [Admin\PaymentController::class, 'index']);
-        Route::get('payments/{payment}', [Admin\PaymentController::class, 'show']);
-        Route::get('payments/{payment}/proof', [Admin\PaymentController::class, 'downloadProof']);
-        Route::match(['patch', 'post'], 'payments/{payment}/approve', [Admin\PaymentController::class, 'approve']);
-        Route::match(['patch', 'post'], 'payments/{payment}/reject', [Admin\PaymentController::class, 'reject']);
+    // Submissions Review
+    Route::get('/submissions', [\App\Http\Controllers\Api\Admin\SubmissionController::class, 'index']);
+    Route::get('/submissions/{submission}', [\App\Http\Controllers\Api\Admin\SubmissionController::class, 'show']);
+    Route::patch('/submissions/{submission}/review', [\App\Http\Controllers\Api\Admin\SubmissionController::class, 'review']);
+    Route::get('/submissions/{submission}/download', [\App\Http\Controllers\Api\Admin\SubmissionController::class, 'downloadFile']);
 
-        Route::get('submissions', [Admin\SubmissionController::class, 'index']);
-        Route::get('submissions/{submission}', [Admin\SubmissionController::class, 'show']);
-        Route::get('submissions/{submission}/files/{fileId}', [Admin\SubmissionController::class, 'downloadFile']);
+    // Announcements Management
+    Route::apiResource('announcements', \App\Http\Controllers\Api\Admin\AnnouncementController::class);
 
-        Route::apiResource('announcements', Admin\AnnouncementController::class)->only(['index', 'store', 'destroy']);
-        Route::apiResource('faqs', Admin\FaqController::class)->only(['index', 'store', 'destroy']);
-        Route::apiResource('sponsors', Admin\SponsorController::class)->only(['index', 'store', 'destroy']);
-        Route::apiResource('winners', Admin\WinnerController::class)->only(['index', 'store', 'destroy']);
-    });
+    // FAQ Management
+    Route::apiResource('faqs', \App\Http\Controllers\Api\Admin\FaqController::class);
 
-    // -------------------------------------------------------------
-    // Judge Protected Routes
-    // -------------------------------------------------------------
-    Route::middleware(['auth:sanctum', 'role:judge'])->prefix('judge')->group(function () {
-        Route::get('dashboard', Judge\DashboardController::class);
-        Route::get('submissions', [Judge\SubmissionController::class, 'index']);
-        Route::get('submissions/{submission}', [Judge\SubmissionController::class, 'show']);
-        Route::post('scores', [Judge\ScoreController::class, 'store']);
-    });
+    // Schedule Management
+    Route::apiResource('schedules', \App\Http\Controllers\Api\Admin\ScheduleController::class);
+
+    // Audit Activity Logs
+    Route::get('/activity-logs', [\App\Http\Controllers\Api\Admin\ActivityLogController::class, 'index']);
+
+    // System / Event Settings
+    Route::get('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'index']);
+    Route::patch('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'update']);
 });

@@ -1,0 +1,6 @@
+No,"Nomor Pendaftaran","Cabang Kompetisi","Tipe Registrasi","Nama Pendaftar / Ketua",Email,"Telepon / WhatsApp","Institusi / Kampus","Nama Tim","Jumlah Anggota","Status Pendaftaran","Tanggal Submit","Tanggal Verifikasi","Catatan Panitia"
+1,ITC-2026-00001,"Competitive Programming Contest",individual,"Auditor Peserta E2E",auditor_1794770352989@itcomp.test,081234567899,"Universitas Indonesia",'-,1,draft,-,-,'-
+2,ITC-2026-00002,"Competitive Programming Contest",individual,"Auditor Peserta E2E",auditor_1794770494801@itcomp.test,081234567899,"Universitas Indonesia",'-,1,draft,-,-,'-
+3,ITC-2026-00003,"Competitive Programming Contest",individual,"Auditor Peserta E2E",auditor_1794770577772@itcomp.test,081234567899,"Universitas Indonesia",'-,1,submitted,"2026-11-15 19:23:20",-,'-
+4,ITC-2026-REV01,"Web Development Competition",individual,"Peserta Uji Revisi",peserta_revisi@itcomp.test,,,'-,1,approved,"2026-11-12 19:29:27","2026-11-14 19:29:27",'-
+5,ITC-2026-OTHER99,"Web Development Competition",individual,"Pemilik Pendaftaran Lain",other_owner@itcomp.test,,,'-,1,submitted,"2026-11-14 19:29:28",-,'-

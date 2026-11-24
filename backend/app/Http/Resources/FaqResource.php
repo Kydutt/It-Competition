@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
@@ -13,12 +11,10 @@ class FaqResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'competition_id' => $this->competition_id,
             'question' => $this->question,
             'answer' => $this->answer,
             'category' => $this->category,
-            'order' => (int) $this->order,
-            'is_published' => (bool) $this->is_published,
+            'sort_order' => $this->sort_order,
         ];
     }
 }

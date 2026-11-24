@@ -1,51 +1,118 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Http\Controllers\Api\ApiController;
-use App\Http\Resources\FaqResource;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CreateFaqRequest;
+use App\Http\Requests\Admin\UpdateFaqRequest;
 use App\Models\Faq;
+use App\Services\ActivityLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class FaqController extends ApiController
+class FaqController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $faqs = Faq::orderBy('order')->get();
+        $query = Faq::query();
 
-        return $this->successResponse(
-            FaqResource::collection($faqs),
-            'FAQs retrieved successfully'
-        );
-    }
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
+        }
 
-    public function store(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'competition_id' => ['nullable', 'exists:competitions,id'],
-            'question' => ['required', 'string', 'max:255'],
-            'answer' => ['required', 'string'],
-            'category' => ['nullable', 'string', 'max:50'],
-            'order' => ['nullable', 'integer'],
-            'is_published' => ['nullable', 'boolean'],
+        if ($request->has('is_published')) {
+            $query->where('is_published', $request->boolean('is_published'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('question', 'like', "%{$search}%")
+                    ->orWhere('answer', 'like', "%{$search}%");
+            });
+        }
+
+        $faqs = $query->orderBy('sort_order')->orderBy('id')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $faqs,
         ]);
-
-        $faq = Faq::create($validated);
-
-        return $this->successResponse(
-            new FaqResource($faq),
-            'FAQ created successfully',
-            201
-        );
     }
 
-    public function destroy(Faq $faq): JsonResponse
+    public function store(CreateFaqRequest $request): JsonResponse
     {
+        $data = $request->validated();
+        if (! isset($data['sort_order'])) {
+            $data['sort_order'] = (Faq::max('sort_order') ?? 0) + 1;
+        }
+
+        $faq = Faq::create($data);
+
+        ActivityLogService::log(
+            action: 'faq.create',
+            entityType: 'Faq',
+            entityId: $faq->id,
+            oldValues: null,
+            newValues: $faq->toArray(),
+            actor: $request->user()
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'FAQ berhasil dibuat.',
+            'data' => $faq,
+        ], 201);
+    }
+
+    public function show(Faq $faq): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $faq,
+        ]);
+    }
+
+    public function update(UpdateFaqRequest $request, Faq $faq): JsonResponse
+    {
+        $data = $request->validated();
+        $oldValues = $faq->toArray();
+        $faq->update($data);
+
+        ActivityLogService::log(
+            action: 'faq.update',
+            entityType: 'Faq',
+            entityId: $faq->id,
+            oldValues: $oldValues,
+            newValues: $faq->fresh()->toArray(),
+            actor: $request->user()
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'FAQ berhasil diperbarui.',
+            'data' => $faq->fresh(),
+        ]);
+    }
+
+    public function destroy(Request $request, Faq $faq): JsonResponse
+    {
+        $oldValues = $faq->toArray();
+        $faqId = $faq->id;
         $faq->delete();
 
-        return $this->successResponse(null, 'FAQ deleted successfully');
+        ActivityLogService::log(
+            action: 'faq.delete',
+            entityType: 'Faq',
+            entityId: $faqId,
+            oldValues: $oldValues,
+            newValues: null,
+            actor: $request->user()
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'FAQ berhasil dihapus.',
+        ]);
     }
 }

@@ -1,74 +1,38 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Resources;
 
-use App\Enums\SubmissionStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SubmissionResource extends JsonResource
 {
-    /**
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        $status = $this->status instanceof SubmissionStatus ? $this->status : SubmissionStatus::tryFrom((string) $this->status);
-
         return [
             'id' => $this->id,
             'registration_id' => $this->registration_id,
-            'registration' => $this->whenLoaded('registration', function () {
-                return [
-                    'id' => $this->registration->id,
-                    'registration_number' => $this->registration->registration_number,
-                    'status' => $this->registration->status?->value ?? (string) $this->registration->status,
-                    'user' => [
-                        'id' => $this->registration->user?->id,
-                        'name' => $this->registration->user?->name,
-                        'email' => $this->registration->user?->email,
-                    ],
-                ];
-            }),
-            'competition_id' => $this->competition_id,
-            'competition' => $this->whenLoaded('competition', function () {
-                $deadline = $this->competition->submission_deadline;
-                $isPassed = $deadline ? now()->gt($deadline) : false;
-
-                return [
-                    'id' => $this->competition->id,
-                    'title' => $this->competition->title ?? $this->competition->name,
-                    'slug' => $this->competition->slug,
-                    'submission_start' => $this->competition->submission_start?->toISOString(),
-                    'submission_deadline' => $deadline?->toISOString(),
-                    'is_deadline_passed' => $isPassed,
-                ];
-            }),
-            'team_id' => $this->team_id,
-            'team' => $this->whenLoaded('team', function () {
-                return [
-                    'id' => $this->team->id,
-                    'name' => $this->team->name,
-                    'code' => $this->team->code,
-                    'leader' => [
-                        'id' => $this->team->leader?->id,
-                        'name' => $this->team->leader?->name,
-                    ],
-                ];
-            }),
+            'registration_number' => $this->whenLoaded('registration', fn () => $this->registration?->registration_number),
+            'competition_name' => $this->whenLoaded('registration', fn () => $this->registration?->competition?->name),
             'title' => $this->title,
             'description' => $this->description,
-            'status' => $status?->value ?? (string) $this->status,
-            'status_label' => $status?->label() ?? (string) $this->status,
-            'is_locked' => $this->isLocked(),
-            'can_modify' => $this->canBeModified(),
-            'files_count' => $this->files_count ?? $this->files()->count(),
-            'files' => SubmissionFileResource::collection($this->whenLoaded('files')),
+            'file_url' => $this->file_path ? asset('storage/' . $this->file_path) : null,
+            'external_url' => $this->external_url,
+            'repository_url' => $this->repository_url,
+            'status' => $this->status?->value ?? $this->status,
             'submitted_at' => $this->submitted_at?->toISOString(),
+            'review_note' => $this->review_note,
+            'revisions' => $this->whenLoaded('revisions', function () {
+                return $this->revisions->map(fn ($rev) => [
+                    'id' => $rev->id,
+                    'file_url' => $rev->file_path ? asset('storage/' . $rev->file_path) : null,
+                    'external_url' => $rev->external_url,
+                    'revision_note' => $rev->revision_note,
+                    'submitted_at' => $rev->submitted_at?->toISOString(),
+                ]);
+            }),
+            'revisions_count' => $this->whenCounted('revisions'),
             'created_at' => $this->created_at?->toISOString(),
-            'updated_at' => $this->updated_at?->toISOString(),
         ];
     }
 }

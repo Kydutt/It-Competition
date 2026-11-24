@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Requests\Participant;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -13,15 +11,19 @@ class CreateTeamRequest extends FormRequest
         return true;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function rules(): array
     {
         return [
-            'competition_id' => ['required', 'integer', 'exists:competitions,id'],
-            'name' => ['required', 'string', 'min:3', 'max:255'],
-            'institution' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'min:3', 'max:100'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Nama tim wajib diisi.',
+            'name.min' => 'Nama tim minimal terdiri dari 3 karakter.',
+            'name.max' => 'Nama tim maksimal 100 karakter.',
         ];
     }
 }

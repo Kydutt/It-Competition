@@ -1,0 +1,32 @@
+{
+  "scenarioA": {
+    "status": "PASSED",
+    "initialUrl": "http://localhost:5173/admin/dashboard",
+    "reloadedUrl": "http://localhost:5173/admin/dashboard",
+    "activityLogsUrl": "http://localhost:5173/admin/activity-logs"
+  },
+  "scenarioB": {
+    "status": "PASSED",
+    "reloadedUrl": "http://localhost:5173/participant/dashboard",
+    "profileUrl": "http://localhost:5173/participant/profile"
+  },
+  "scenarioC": {
+    "status": "PASSED",
+    "heading": "Akses Dibatasi",
+    "returnedToDashboard": true
+  },
+  "scenarioD": {
+    "status": "PASSED",
+    "destination": "http://localhost:5173/participant/dashboard"
+  },
+  "scenarioE": {
+    "status": "PASSED",
+    "crossRoleResult": "http://localhost:5173/participant/dashboard",
+    "openRedirectResult": "http://localhost:5173/participant/dashboard"
+  },
+  "scenarioF": {
+    "status": "PASSED",
+    "adminRedirect": "http://localhost:5173/login?redirect=%2Fadmin%2Fdashboard",
+    "participantRedirect": "http://localhost:5173/login?redirect=%2Fparticipant%2Fdashboard"
+  }
+}

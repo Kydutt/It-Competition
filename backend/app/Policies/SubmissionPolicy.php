@@ -1,87 +1,81 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Policies;
 
+use App\Enums\RegistrationStatus;
+use App\Enums\SubmissionStatus;
+use App\Models\Registration;
 use App\Models\Submission;
 use App\Models\User;
 
 class SubmissionPolicy
 {
-    /**
-     * Determine whether the user can view the submission.
-     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return null;
+    }
+
     public function view(User $user, Submission $submission): bool
     {
-        if ($user->isAdmin() || $user->isJudge()) {
+        $registration = $submission->registration;
+        if (!$registration) {
+            return false;
+        }
+
+        if ($registration->participant_id === $user->id) {
             return true;
         }
 
-        $reg = $submission->registration;
-        if ($reg && $reg->user_id === $user->id) {
-            return true;
-        }
-
-        $team = $submission->team ?? $reg?->team;
-        if ($team && $team->members()->where('user_id', $user->id)->exists()) {
-            return true;
+        if ($registration->team_id && $registration->team) {
+            return $registration->team->leader_id === $user->id
+                || $registration->team->members()->where('users.id', $user->id)->exists();
         }
 
         return false;
     }
 
-    /**
-     * Determine whether the user can modify files or submit work.
-     */
-    public function update(User $user, Submission $submission): bool
+    public function create(User $user, Registration $registration): bool
     {
-        if ($submission->isLocked()) {
+        // Only approved registrations can submit work
+        if ($registration->status !== RegistrationStatus::APPROVED) {
             return false;
         }
 
-        $reg = $submission->registration;
-        if (! $reg) {
+        // Check ownership
+        $isOwner = ($registration->participant_id === $user->id) 
+            || ($registration->team_id && $registration->team && $registration->team->leader_id === $user->id);
+
+        if (!$isOwner) {
             return false;
         }
 
-        // Must be owner of registration or leader of the team
-        $team = $submission->team ?? $reg->team;
-        if ($team) {
-            return $team->leader_id === $user->id;
+        // Check submission deadline
+        if ($registration->competition->submission_deadline && now()->isAfter($registration->competition->submission_deadline)) {
+            return false;
         }
 
-        return $reg->user_id === $user->id;
+        return true;
     }
 
-    /**
-     * Determine whether the user can upload a file.
-     */
-    public function uploadFile(User $user, Submission $submission): bool
+    public function addRevision(User $user, Submission $submission): bool
     {
-        return $this->update($user, $submission);
+        if ($submission->status !== SubmissionStatus::REVISION_REQUIRED) {
+            return false;
+        }
+
+        return $this->view($user, $submission);
     }
 
-    /**
-     * Determine whether the user can delete a file.
-     */
-    public function deleteFile(User $user, Submission $submission): bool
+    public function review(User $user, Submission $submission): bool
     {
-        return $this->update($user, $submission);
+        return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can finalize submission.
-     */
-    public function submit(User $user, Submission $submission): bool
-    {
-        return $this->update($user, $submission);
-    }
-
-    /**
-     * Determine whether the user can download a submission file.
-     */
-    public function downloadFile(User $user, Submission $submission): bool
+    public function download(User $user, Submission $submission): bool
     {
         return $this->view($user, $submission);
     }

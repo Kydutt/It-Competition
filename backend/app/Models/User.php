@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
-use App\Enums\UserRole;
+use App\Enums\Role;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -17,69 +17,89 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
-        'phone',
-        'education_level',
-        'institution',
-        'city',
-        'avatar_url',
+        'is_active',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'role' => UserRole::class,
+            'role' => Role::class,
+            'is_active' => 'boolean',
         ];
     }
 
-    public function registrations(): HasMany
+    /**
+     * Helper to check if user is admin.
+     */
+    public function isAdmin(): bool
     {
-        return $this->hasMany(Registration::class);
+        return $this->role === Role::ADMIN;
     }
 
-    public function teams(): HasMany
+    /**
+     * Helper to check if user is participant.
+     */
+    public function isParticipant(): bool
+    {
+        return $this->role === Role::PARTICIPANT;
+    }
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(ParticipantProfile::class);
+    }
+
+    public function ledTeams(): HasMany
     {
         return $this->hasMany(Team::class, 'leader_id');
     }
 
-    public function payments(): HasMany
+    public function teams(): BelongsToMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->belongsToMany(Team::class, 'team_members')
+            ->withPivot(['member_role', 'joined_at'])
+            ->withTimestamps();
     }
 
-    public function scores(): HasMany
+    public function registrations(): HasMany
     {
-        return $this->hasMany(Score::class, 'judge_id');
+        return $this->hasMany(Registration::class, 'participant_id');
     }
 
-    public function judgeProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function userNotifications(): HasMany
     {
-        return $this->hasOne(Judge::class);
+        return $this->hasMany(Notification::class);
     }
 
-    public function isAdmin(): bool
+    public function activityLogs(): HasMany
     {
-        return $this->role === UserRole::Admin;
-    }
-
-    public function isJudge(): bool
-    {
-        return $this->role === UserRole::Judge;
-    }
-
-    public function isParticipant(): bool
-    {
-        return $this->role === UserRole::Participant;
+        return $this->hasMany(ActivityLog::class);
     }
 }

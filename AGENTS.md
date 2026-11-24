@@ -1,188 +1,176 @@
-# AGENTS.md --- Instructions for AI Coding Agents
+# AGENT INSTRUCTIONS
 
-## 1. Mission
+This file defines mandatory engineering behavior for every AI coding agent working in this repository.
 
-Build and maintain the Technology Festival & IT Competition frontend.
-Follow `PRD.md` for product behavior and `design.md` for UI/UX. The
-application includes a public event site, login/registration, and Admin,
-Participant, and Judge dashboards.
+## 1. Read before acting
 
-## 2. Read before coding
+Before planning or changing code, read:
+1. `AGENTS.md`
+2. `PRD.md`
+3. `ARCHITECTURE.md`
+4. `DATABASE.md`
+5. `API.md`
+6. `DEVELOPMENT.md`
+7. `OPEN_QUESTIONS.md`, if present
 
-Read `AGENTS.md`, `PRD.md`, `design.md`, `README.md` if present, and
-relevant source files. Inspect the actual repository rather than
-assuming its structure.
+Inspect the actual repository before assuming it is empty. Existing code and configuration may contain important work.
 
-When requirements conflict: 1. Security and data integrity take
-priority. 2. `PRD.md` defines product behavior. 3. `design.md` defines
-visual design. 4. Preserve working architecture unless there is a clear
-reason to change it.
+## 2. Source of truth and conflict handling
 
-## 3. Repository safety
+- `PRD.md` is the product requirements source of truth.
+- `ARCHITECTURE.md` defines technical boundaries.
+- `DATABASE.md` defines the approved logical data model.
+- `API.md` defines the API contract.
+- `DEVELOPMENT.md` defines phase sequencing and verification.
+- This file defines agent behavior.
 
--   Inspect `package.json`, lockfile, entry points, routes, and styling
-    configuration first.
--   Preserve the existing homepage and working features.
--   Do not scaffold over a working app.
--   Do not delete files or rewrite configuration without a concrete
-    need.
--   Avoid unnecessary dependency/version changes.
--   Do not overwrite environment files or remove user changes.
--   Never commit secrets, tokens, credentials, or real participant data.
--   Keep changes scoped to the requested task.
+If documents conflict:
+1. Stop the affected implementation.
+2. Identify the exact conflict and affected files/features.
+3. Explain the impact.
+4. Propose a minimal resolution.
+5. Update the relevant documentation only after approval.
 
-## 4. Coding standards
+Do not silently choose a new product rule.
 
-Preferred stack, subject to the existing project: React, TypeScript,
-Vite, compatible existing Tailwind setup, React Router, Lucide React,
-and Framer Motion only when useful.
+## 3. Non-negotiable stack
 
--   Prefer explicit TypeScript types; avoid `any`.
--   Use functional components and hooks.
--   Keep components focused and reusable.
--   Separate data, presentation, and service logic.
--   Use semantic HTML and stable list keys.
--   Avoid unnecessary effects, duplicated state, and oversized
-    components.
--   Follow existing naming and formatting conventions.
--   Do not add a dependency for trivial functionality.
+- Backend: Laravel / PHP.
+- Frontend: React + TypeScript.
+- Styling: Tailwind CSS.
+- Database: MySQL.
+- API: REST JSON under `/api/v1`.
+- Authentication: Laravel Sanctum SPA cookie/session authentication.
 
-## 5. Design rules
+Do not replace the stack, add another database, introduce a second frontend framework, or move business logic into the browser without explicit approval.
 
-`design.md` is the visual source of truth. Maintain the dark brown-black
-background, orange primary actions, restrained amber highlights, warm
-readable text, strong hierarchy, selective glow, and responsive layouts.
+Use versions compatible with the repository's current runtime. Do not perform major dependency upgrades casually.
 
--   Reuse design tokens and components.
--   Do not introduce conflicting palettes.
--   Do not color every component orange.
--   Avoid repetitive generic SaaS card layouts and excessive glass/neon
-    effects.
--   Do not use emoji as a replacement for professional icons.
--   Never reference nonexistent assets.
--   Use official branding only when supplied.
--   Respect `prefers-reduced-motion`.
+## 4. Scope control
 
-## 6. Roles and routes
+- Implement only requirements in `PRD.md` or explicitly approved changes.
+- Do not invent roles, workflows, statuses, tables, endpoints, integrations, or policies.
+- Do not implement out-of-scope features.
+- Optional payment functionality remains disabled until the product owner confirms its policy.
+- Do not add a judge role or scoring system without approval.
+- Do not fabricate organizer details, prices, dates, contact information, legal copy, or statistics.
 
-Supported roles: `admin`, `participant`, `judge`. Public registration
-must create participants only. Admin/Judge roles cannot be self-selected
-publicly.
+When information is missing, add a precise entry to `OPEN_QUESTIONS.md` and continue only with work that does not depend on the answer.
 
-Expected route groups: - Public: `/`, `/login`, `/register`, competition
-pages. - Admin: `/admin/*`. - Participant: `/participant/*`. - Judge:
-`/judge/*`.
+## 5. Mandatory workflow
 
-Use reusable route guards, predictable redirects, and a not-found page.
-Ensure navigation links point to valid routes. Frontend guards are for
-the prototype only; production authorization must be enforced by the
-backend.
+For each task:
 
-## 7. Authentication and sensitive data
+1. **Inspect** relevant code, tests, configuration, and documentation.
+2. **Plan** the smallest safe implementation.
+3. **Report** intended files and risks before broad or destructive changes.
+4. **Implement** one coherent slice.
+5. **Test** the slice.
+6. **Review** diff for regressions, secrets, duplication, and scope creep.
+7. **Document** changed behavior and decisions.
 
--   Mock authentication is allowed only when clearly documented.
--   Use development-only demo accounts with non-sensitive sample
-    credentials.
--   Never store plaintext passwords in localStorage, sessionStorage, or
-    source-controlled data.
--   Never claim server authentication/account creation without a
-    backend.
--   Keep authentication behind a replaceable service interface.
--   Logout must clear the active prototype session.
--   Browser-exposed environment variables are not secrets.
--   Password recovery, password change, email verification, and real
-    registration require a backend/provider integration.
+Do not implement the entire application in one pass. Follow the phases in `DEVELOPMENT.md`.
 
-## 8. Mock data and state
+## 6. Backend rules
 
--   Keep mock records in dedicated modules and use typed models.
--   Calculate dashboard metrics from available data instead of
-    duplicating hardcoded counts.
--   Make search and filters actually update displayed results.
--   Prevent duplicate registrations for the same participant and
-    competition.
--   Restrict judge mock views to assigned competitions/submissions.
--   Validate score bounds and rubric weights; calculate weighted totals
-    consistently.
--   Mark simulated actions honestly.
--   Do not claim persistence unless implemented.
--   Keep service interfaces replaceable with API implementations.
+- Keep controllers thin.
+- Use Form Requests for request validation.
+- Use API Resources for response serialization.
+- Use Policies and middleware for authorization.
+- Use Services/actions for multi-step business workflows.
+- Use Eloquent relationships and eager loading.
+- Use database transactions for multi-record operations.
+- Use enums/constants for finite statuses.
+- Validate resource ownership on every private resource endpoint.
+- Do not trust IDs, role values, prices, status values, or ownership fields supplied by the client.
+- Do not return raw models if that would expose private fields.
+- Avoid N+1 queries.
+- Do not use mass assignment without carefully defined `$fillable` or guarded behavior.
 
-## 9. Forms and interactions
+## 7. Frontend rules
 
-Every visible interactive element must work or be explicitly marked
-unavailable/pending integration.
+- Use React functional components and TypeScript.
+- Avoid `any`; use explicit types for API payloads and responses.
+- Keep API calls in service modules, not scattered throughout presentation components.
+- Centralize Axios configuration and API base URL.
+- Use reusable UI components where repeated.
+- Keep route guards for navigation UX, but never treat them as backend security.
+- Provide loading, empty, error, and success states.
+- Do not use hardcoded mock records as production data.
+- Do not leave primary buttons or menu items inert.
+- Keep secrets and privileged authorization logic out of frontend code.
 
-Forms should: - Validate required fields and formats. - Show clear
-field-level errors. - Provide loading/success/error states when
-appropriate. - Disable invalid or duplicate submissions. - Confirm
-consequential actions. - Use accessible labels and focus behavior. -
-Avoid false success messages for unpersisted operations.
+## 8. Database rules
 
-Navigation should be keyboard accessible, include a working mobile menu,
-and show accurate active states.
+- Migrations are the schema source of truth.
+- Use foreign keys, unique constraints, indexes, and appropriate nullability.
+- Do not destroy or rewrite existing user data without explicit approval.
+- Avoid cascading deletes on registrations, payments, and audit history.
+- Use transactions for registration and status transitions.
+- Store files as storage paths, not BLOBs.
+- Monetary values use decimal types.
+- Add migrations for schema changes; do not rely on manual database edits.
 
-## 10. Accessibility and responsiveness
+## 9. Security rules
 
--   Use semantic elements and logical heading hierarchy.
--   Provide visible focus indicators and labeled inputs/errors.
--   Use buttons for actions and links for navigation.
--   Maintain adequate contrast; do not rely on color alone for status.
--   Respect reduced-motion settings.
--   Make touch targets usable.
--   Test desktop, tablet, and mobile.
--   Avoid unintended horizontal overflow. Contain horizontal scrolling
-    for wide tables.
+- Never commit `.env`, credentials, tokens, or private keys.
+- Do not log passwords, session cookies, tokens, or unnecessary personal data.
+- Enforce authorization on the backend.
+- Use Sanctum CSRF/session protections.
+- Rate-limit authentication endpoints.
+- Validate file MIME type, extension, and size.
+- Store private documents outside public web root.
+- Serve private files only after authorization.
+- Do not expose participant personal data in public APIs.
+- Do not disable security checks to make tests pass.
+- Do not expose stack traces or SQL errors in production responses.
 
-## 11. Component boundaries
+## 10. UI/UX rules
 
-Adapt to the repository, but consider reusable components for auth
-layouts/forms, dashboard layout/sidebar/topbar, page headers,
-statistics, tables, filters, status badges, empty states, confirmation
-dialogs, competition cards, timeline entries, FAQ accordions, and judge
-scoring criteria.
+Follow the orange/blue design system in `PRD.md`.
+- Orange `#F47B20` is the primary action accent.
+- Blue `#1769AA` is the supporting accent.
+- Use neutral backgrounds and readable text.
+- Keep typography, spacing, border radius, and component states consistent.
+- Avoid excessive gradients, shadows, animation, and decorative clutter.
+- Make layouts mobile-first and keyboard-accessible.
+- Use status text/icons as well as colors.
 
-Keep role-specific pages separate while sharing appropriate layout and
-UI primitives.
+Do not copy assets, text, source code, or logos from the reference website.
 
-## 12. Workflow for every task
+## 11. Testing rules
 
-1.  Understand the request and affected routes.
-2.  Read the relevant documentation and inspect the implementation.
-3.  Plan non-trivial changes briefly.
-4.  Make the smallest coherent change.
-5.  Reuse existing components and tokens.
-6.  Run relevant checks and the production build.
-7.  Inspect errors, warnings, and broken interactions.
-8.  Fix regressions introduced by the change.
-9.  Summarize files changed, checks run, and limitations.
+At minimum, test the affected behavior:
+- Backend validation and authorization.
+- Participant resource ownership.
+- Registration status transitions.
+- Duplicate/concurrent registration handling where relevant.
+- File upload constraints and access control.
+- API response contract.
+- Frontend loading/error/success behavior.
+- TypeScript/build checks.
 
-Do not claim tests passed unless they were actually run. If a command
-fails, inspect the error and attempt a relevant fix.
+Run the repository's actual test commands. Do not claim tests passed if they were not run. Report blocked tests and why.
 
-## 13. Verification checklist
+## 12. Git and file safety
 
-Verify as applicable: - Development server starts. - Production build
-succeeds. - Login and registration validation works. - Each demo role
-reaches the correct dashboard. - Unauthenticated and wrong-role routes
-are handled. - Dashboard navigation works. - Search and filters work. -
-Mock CRUD updates the UI. - Participant registration prevents
-duplicates. - Judge score validation and calculations are correct. - FAQ
-and mobile navigation work. - Responsive layouts are usable. - No
-obvious broken assets, console errors, or React warnings remain.
+- Do not delete files merely because they appear unused.
+- Do not overwrite configuration blindly.
+- Do not reset, force-push, or rewrite Git history.
+- Do not modify unrelated files.
+- Keep changes focused and reviewable.
+- Never stage or commit secrets.
+- Preserve existing user changes.
 
-Report what was actually tested and what remains unverified.
+## 13. Completion report
 
-## 14. Definition of done
+At the end of each phase/task, report:
+- What was implemented.
+- Files created/modified.
+- Migrations or commands run.
+- Tests run and results.
+- Known limitations.
+- Open decisions.
+- Recommended next phase.
 
-A change is complete when it meets `PRD.md`, follows `design.md`,
-preserves unrelated working behavior, has functioning interactions, is
-reasonably responsive/accessibile, has been checked, and documents mock
-behavior/backend dependencies honestly.
-
-## 15. Reporting
-
-Summarize what changed, important files created/modified, commands and
-tests actually run, and backend integrations or decisions still
-required. Be factual and explicit about limitations. Never claim
-completion, persistence, security, or test success without evidence.
+A feature is not done because its UI renders. It is done only when the backend, data, authorization, validation, frontend integration, and relevant tests work together.

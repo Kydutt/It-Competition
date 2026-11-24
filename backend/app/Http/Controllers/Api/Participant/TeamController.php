@@ -1,143 +1,109 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\Participant;
 
-use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Participant\AddTeamMemberRequest;
 use App\Http\Requests\Participant\CreateTeamRequest;
-use App\Http\Requests\Participant\JoinTeamRequest;
-use App\Http\Requests\Participant\TransferLeadershipRequest;
-use App\Http\Resources\TeamMemberResource;
+use App\Http\Requests\Participant\UpdateTeamRequest;
 use App\Http\Resources\TeamResource;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\TeamService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Gate;
 
-class TeamController extends ApiController
+class TeamController extends Controller
 {
     public function __construct(
         protected TeamService $teamService
     ) {}
 
-    /**
-     * List all teams the authenticated user belongs to.
-     */
     public function index(Request $request): JsonResponse
     {
-        $teams = $this->teamService->getUserTeams($request->user());
+        $user = $request->user();
 
-        return $this->successResponse(
-            TeamResource::collection($teams),
-            'Teams retrieved successfully'
-        );
+        $teams = Team::query()
+            ->where(function ($q) use ($user) {
+                $q->where('leader_id', $user->id)
+                  ->orWhereHas('members', fn ($mq) => $mq->where('users.id', $user->id));
+            })
+            ->with(['leader.profile', 'members.profile'])
+            ->withCount('members')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar tim berhasil diambil.',
+            'data' => TeamResource::collection($teams),
+        ]);
     }
 
-    /**
-     * Create a new team.
-     */
     public function store(CreateTeamRequest $request): JsonResponse
     {
-        $team = $this->teamService->createTeam($request->user(), $request->validated());
+        $user = $request->user();
+        $team = $this->teamService->createTeam($user, $request->validated('name'));
 
-        return $this->successResponse(
-            new TeamResource($team),
-            'Team created successfully',
-            201
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Tim baru berhasil dibuat.',
+            'data' => new TeamResource($team->load(['leader.profile', 'members.profile'])),
+        ], 201);
     }
 
-    /**
-     * Get single team detail.
-     */
     public function show(Request $request, Team $team): JsonResponse
     {
-        $user = $request->user();
-        $isMember = $team->members()->where('user_id', $user->id)->exists();
+        Gate::authorize('view', $team);
 
-        if (! $user->isAdmin() && ! $isMember) {
-            throw ValidationException::withMessages([
-                'team' => ['Anda tidak memiliki akses ke data tim ini.'],
-            ]);
-        }
+        $team->load(['leader.profile', 'members.profile', 'registrations.competition']);
 
-        $team->load(['competition', 'leader', 'members.user', 'registration']);
-
-        return $this->successResponse(
-            new TeamResource($team),
-            'Team retrieved successfully'
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail tim berhasil diambil.',
+            'data' => new TeamResource($team),
+        ]);
     }
 
-    /**
-     * Join an existing team using invite code.
-     */
-    public function join(JoinTeamRequest $request): JsonResponse
+    public function update(UpdateTeamRequest $request, Team $team): JsonResponse
     {
-        $member = $this->teamService->joinTeam($request->user(), (string) $request->input('code'));
+        Gate::authorize('update', $team);
 
-        return $this->successResponse(
-            new TeamMemberResource($member),
-            'Berhasil bergabung dengan tim',
-            201
-        );
+        $team->update([
+            'name' => $request->validated('name'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Nama tim berhasil diperbarui.',
+            'data' => new TeamResource($team->fresh(['leader.profile', 'members.profile'])),
+        ]);
     }
 
-    /**
-     * Leave a team.
-     */
-    public function leave(Request $request, Team $team): JsonResponse
+    public function addMember(AddTeamMemberRequest $request, Team $team): JsonResponse
     {
-        $this->teamService->leaveTeam($request->user(), $team);
+        Gate::authorize('addMember', $team);
 
-        return $this->successResponse(
-            null,
-            'Berhasil keluar dari tim'
-        );
+        $this->teamService->addMemberByEmail($team, $request->validated('email'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Anggota tim berhasil ditambahkan.',
+            'data' => new TeamResource($team->fresh(['leader.profile', 'members.profile'])),
+        ]);
     }
 
-    /**
-     * Remove member from team.
-     */
-    public function removeMember(Request $request, Team $team, User $user): JsonResponse
+    public function removeMember(Request $request, Team $team, User $member): JsonResponse
     {
-        $this->teamService->removeMember($request->user(), $team, $user);
+        Gate::authorize('removeMember', [$team, $member]);
 
-        return $this->successResponse(
-            null,
-            'Anggota tim berhasil dikeluarkan'
-        );
-    }
+        $this->teamService->removeMember($team, $member);
 
-    /**
-     * Transfer team leadership.
-     */
-    public function transferLeadership(TransferLeadershipRequest $request, Team $team): JsonResponse
-    {
-        /** @var User $newLeader */
-        $newLeader = User::findOrFail($request->input('user_id'));
-
-        $updatedTeam = $this->teamService->transferLeadership($request->user(), $team, $newLeader);
-
-        return $this->successResponse(
-            new TeamResource($updatedTeam),
-            'Kepemimpinan tim berhasil dialihkan'
-        );
-    }
-
-    /**
-     * Dissolve/delete team.
-     */
-    public function destroy(Request $request, Team $team): JsonResponse
-    {
-        $this->teamService->dissolveTeam($request->user(), $team);
-
-        return $this->successResponse(
-            null,
-            'Tim berhasil dibubarkan'
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Anggota berhasil dikeluarkan dari tim.',
+            'data' => new TeamResource($team->fresh(['leader.profile', 'members.profile'])),
+        ]);
     }
 }

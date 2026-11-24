@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use App\Enums\TeamMemberRole;
@@ -16,26 +14,16 @@ class TeamMember extends Model
     protected $fillable = [
         'team_id',
         'user_id',
-        'role',
+        'member_role',
         'joined_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'role' => TeamMemberRole::class,
+            'member_role' => TeamMemberRole::class,
             'joined_at' => 'datetime',
         ];
-    }
-
-    public function isLeader(): bool
-    {
-        return $this->role === TeamMemberRole::Leader;
-    }
-
-    public function isMember(): bool
-    {
-        return $this->role === TeamMemberRole::Member;
     }
 
     public function team(): BelongsTo

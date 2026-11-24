@@ -1,40 +1,83 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\Participant;
 
-use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Participant\UpdateProfileRequest;
+use App\Http\Requests\Participant\UploadAvatarRequest;
 use App\Http\Resources\UserResource;
+use App\Models\ParticipantProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
-class ProfileController extends ApiController
+class ProfileController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        return $this->successResponse(
-            new UserResource($request->user()),
-            'Profile retrieved successfully'
-        );
+        $user = $request->user()->load('profile');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil peserta berhasil diambil.',
+            'data' => new UserResource($user),
+        ]);
     }
 
-    public function update(Request $request): JsonResponse
+    public function update(UpdateProfileRequest $request): JsonResponse
     {
         $user = $request->user();
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'institution' => ['nullable', 'string', 'max:255'],
-            'avatar_url' => ['nullable', 'string'],
+        DB::transaction(function () use ($user, $validated) {
+            if (! empty($validated['name'])) {
+                $user->update(['name' => $validated['name']]);
+            }
+
+            $profileData = [
+                'phone' => $validated['phone'] ?? null,
+                'institution' => $validated['institution'] ?? null,
+                'education_level' => $validated['education_level'] ?? null,
+                'identity_number' => $validated['identity_number'] ?? null,
+                'address' => $validated['address'] ?? null,
+            ];
+
+            ParticipantProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                $profileData
+            );
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil peserta berhasil diperbarui.',
+            'data' => new UserResource($user->fresh('profile')),
         ]);
+    }
 
-        $user->update($validated);
+    public function uploadAvatar(UploadAvatarRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        $file = $request->file('avatar');
 
-        return $this->successResponse(
-            new UserResource($user),
-            'Profile updated successfully'
-        );
+        $path = $file->store('avatars', 'public');
+
+        $profile = ParticipantProfile::firstOrCreate(['user_id' => $user->id]);
+
+        // Delete old photo if exists
+        if ($profile->profile_photo_path && Storage::disk('public')->exists($profile->profile_photo_path)) {
+            Storage::disk('public')->delete($profile->profile_photo_path);
+        }
+
+        $profile->update(['profile_photo_path' => $path]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil diperbarui.',
+            'data' => [
+                'profile_photo_url' => asset('storage/' . $path),
+            ],
+        ]);
     }
 }

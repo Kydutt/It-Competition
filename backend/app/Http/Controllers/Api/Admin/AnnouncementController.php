@@ -1,55 +1,136 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Http\Controllers\Api\ApiController;
-use App\Http\Resources\AnnouncementResource;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CreateAnnouncementRequest;
+use App\Http\Requests\Admin\UpdateAnnouncementRequest;
 use App\Models\Announcement;
+use App\Services\ActivityLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class AnnouncementController extends ApiController
+class AnnouncementController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $announcements = Announcement::with('competition')
-            ->latest()
-            ->paginate((int) $request->query('per_page', 15));
+        $query = Announcement::with(['event:id,name', 'competition:id,name']);
 
-        return $this->successResponse(
-            AnnouncementResource::collection($announcements)->response()->getData(true),
-            'Announcements retrieved successfully'
-        );
-    }
+        if ($request->filled('audience')) {
+            $query->where('audience', $request->input('audience'));
+        }
 
-    public function store(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'competition_id' => ['nullable', 'exists:competitions,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-            'is_published' => ['nullable', 'boolean'],
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        $announcements = $query->latest('id')->paginate($request->integer('per_page', 15));
+
+        return response()->json([
+            'success' => true,
+            'data' => $announcements,
         ]);
-
-        $validated['slug'] = Str::slug($validated['title']).'-'.Str::random(5);
-        $validated['published_at'] = ($validated['is_published'] ?? true) ? now() : null;
-
-        $announcement = Announcement::create($validated);
-
-        return $this->successResponse(
-            new AnnouncementResource($announcement),
-            'Announcement created successfully',
-            201
-        );
     }
 
-    public function destroy(Announcement $announcement): JsonResponse
+    public function store(CreateAnnouncementRequest $request): JsonResponse
     {
+        $data = $request->validated();
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['title']);
+            $originalSlug = $data['slug'];
+            $count = 1;
+            while (Announcement::where('slug', $data['slug'])->exists()) {
+                $data['slug'] = "{$originalSlug}-{$count}";
+                $count++;
+            }
+        }
+
+        if (empty($data['published_at']) && ($data['status'] ?? null) === 'published') {
+            $data['published_at'] = now();
+        }
+
+        $announcement = Announcement::create($data);
+
+        ActivityLogService::log(
+            action: 'announcement.create',
+            entityType: 'Announcement',
+            entityId: $announcement->id,
+            oldValues: null,
+            newValues: $announcement->toArray(),
+            actor: $request->user()
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengumuman berhasil dibuat.',
+            'data' => $announcement->load(['event', 'competition']),
+        ], 201);
+    }
+
+    public function show(Announcement $announcement): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $announcement->load(['event', 'competition']),
+        ]);
+    }
+
+    public function update(UpdateAnnouncementRequest $request, Announcement $announcement): JsonResponse
+    {
+        $data = $request->validated();
+        if (isset($data['title']) && empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['title']);
+            $originalSlug = $data['slug'];
+            $count = 1;
+            while (Announcement::where('slug', $data['slug'])->where('id', '!=', $announcement->id)->exists()) {
+                $data['slug'] = "{$originalSlug}-{$count}";
+                $count++;
+            }
+        }
+
+        $oldValues = $announcement->toArray();
+        $announcement->update($data);
+
+        ActivityLogService::log(
+            action: 'announcement.update',
+            entityType: 'Announcement',
+            entityId: $announcement->id,
+            oldValues: $oldValues,
+            newValues: $announcement->fresh()->toArray(),
+            actor: $request->user()
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengumuman berhasil diperbarui.',
+            'data' => $announcement->fresh()->load(['event', 'competition']),
+        ]);
+    }
+
+    public function destroy(Request $request, Announcement $announcement): JsonResponse
+    {
+        $oldValues = $announcement->toArray();
+        $announcementId = $announcement->id;
         $announcement->delete();
 
-        return $this->successResponse(null, 'Announcement deleted successfully');
+        ActivityLogService::log(
+            action: 'announcement.delete',
+            entityType: 'Announcement',
+            entityId: $announcementId,
+            oldValues: $oldValues,
+            newValues: null,
+            actor: $request->user()
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengumuman berhasil dihapus.',
+        ]);
     }
 }

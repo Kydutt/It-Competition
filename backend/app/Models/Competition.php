@@ -1,191 +1,63 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
-use App\Enums\CompetitionCategory;
 use App\Enums\CompetitionStatus;
-use App\Enums\CompetitionTargetLevel;
-use App\Enums\CompetitionType;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Enums\RegistrationType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Competition extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'event_id',
+        'category_id',
         'name',
         'slug',
-        'category',
-        'competition_type',
+        'short_description',
         'description',
-        'theme',
-        'target_level',
+        'cover_image_path',
+        'eligibility',
+        'registration_type',
+        'min_members',
+        'max_members',
         'registration_fee',
-        'quota',
-        'min_team_member',
-        'max_team_member',
         'registration_start',
-        'registration_end',
-        'submission_start',
+        'registration_deadline',
         'submission_deadline',
         'status',
-        'is_published',
-        'guidebook_url',
-        'poster_url',
+        'guidebook_path',
+        'contact_information',
     ];
 
     protected function casts(): array
     {
         return [
-            'category' => CompetitionCategory::class,
-            'competition_type' => CompetitionType::class,
-            'target_level' => CompetitionTargetLevel::class,
+            'registration_type' => RegistrationType::class,
             'status' => CompetitionStatus::class,
-            'registration_fee' => 'integer',
-            'quota' => 'integer',
-            'min_team_member' => 'integer',
-            'max_team_member' => 'integer',
+            'min_members' => 'integer',
+            'max_members' => 'integer',
+            'registration_fee' => 'decimal:2',
             'registration_start' => 'datetime',
-            'registration_end' => 'datetime',
-            'submission_start' => 'datetime',
+            'registration_deadline' => 'datetime',
             'submission_deadline' => 'datetime',
-            'is_published' => 'boolean',
+            'contact_information' => 'array',
         ];
     }
 
-    public function isTeamBased(): bool
+    public function event(): BelongsTo
     {
-        return $this->competition_type === CompetitionType::Team;
+        return $this->belongsTo(Event::class);
     }
 
-    public function isIndividual(): bool
+    public function category(): BelongsTo
     {
-        return $this->competition_type === CompetitionType::Individual;
-    }
-
-    protected static function booted(): void
-    {
-        static::creating(function (Competition $competition) {
-            if (empty($competition->slug)) {
-                $competition->slug = static::generateUniqueSlug($competition->name);
-            }
-            if ($competition->status === null) {
-                $competition->status = CompetitionStatus::Draft;
-            }
-        });
-    }
-
-    public static function generateUniqueSlug(string $name, ?int $ignoreId = null): string
-    {
-        $slug = Str::slug($name);
-        $original = $slug;
-        $counter = 1;
-
-        while (static::where('slug', $slug)->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))->exists()) {
-            $slug = "{$original}-{$counter}";
-            $counter++;
-        }
-
-        return $slug;
-    }
-
-    // Scopes
-    public function scopePublished(Builder $query): Builder
-    {
-        return $query->where('is_published', true);
-    }
-
-    public function scopeCategory(Builder $query, CompetitionCategory|string|null $category): Builder
-    {
-        if (! $category) {
-            return $query;
-        }
-
-        $value = $category instanceof CompetitionCategory ? $category->value : $category;
-
-        return $query->where('category', $value);
-    }
-
-    public function scopeTargetLevel(Builder $query, CompetitionTargetLevel|string|null $targetLevel): Builder
-    {
-        if (! $targetLevel) {
-            return $query;
-        }
-
-        $value = $targetLevel instanceof CompetitionTargetLevel ? $targetLevel->value : $targetLevel;
-
-        return $query->where('target_level', $value);
-    }
-
-    public function scopeStatus(Builder $query, CompetitionStatus|string|null $status): Builder
-    {
-        if (! $status) {
-            return $query;
-        }
-
-        $value = $status instanceof CompetitionStatus ? $status->value : $status;
-
-        return $query->where('status', $value);
-    }
-
-    public function scopeSearch(Builder $query, ?string $term): Builder
-    {
-        if (! $term) {
-            return $query;
-        }
-
-        return $query->where(function (Builder $q) use ($term) {
-            $q->where('name', 'like', "%{$term}%")
-                ->orWhere('slug', 'like', "%{$term}%")
-                ->orWhere('theme', 'like', "%{$term}%")
-                ->orWhere('description', 'like', "%{$term}%");
-        });
-    }
-
-    // Backwards-compatible Accessors
-    protected function minTeamMembers(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->min_team_member,
-            set: fn ($value) => ['min_team_member' => $value]
-        );
-    }
-
-    protected function maxTeamMembers(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->max_team_member,
-            set: fn ($value) => ['max_team_member' => $value]
-        );
-    }
-
-    protected function submissionEnd(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->submission_deadline,
-            set: fn ($value) => ['submission_deadline' => $value]
-        );
-    }
-
-    protected function isActive(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->is_published && $this->status !== CompetitionStatus::Archived,
-            set: fn ($value) => ['is_published' => (bool) $value]
-        );
-    }
-
-    // Relationships
-    public function teams(): HasMany
-    {
-        return $this->hasMany(Team::class);
+        return $this->belongsTo(CompetitionCategory::class, 'category_id');
     }
 
     public function registrations(): HasMany
@@ -193,38 +65,8 @@ class Competition extends Model
         return $this->hasMany(Registration::class);
     }
 
-    public function submissions(): HasMany
-    {
-        return $this->hasMany(Submission::class);
-    }
-
-    public function judgingCriteria(): HasMany
-    {
-        return $this->hasMany(JudgingCriteria::class);
-    }
-
     public function announcements(): HasMany
     {
         return $this->hasMany(Announcement::class);
-    }
-
-    public function winners(): HasMany
-    {
-        return $this->hasMany(Winner::class);
-    }
-
-    public function faqs(): HasMany
-    {
-        return $this->hasMany(Faq::class);
-    }
-
-    public function results(): HasMany
-    {
-        return $this->hasMany(CompetitionResult::class);
-    }
-
-    public function judgeAssignments(): HasMany
-    {
-        return $this->hasMany(JudgeAssignment::class);
     }
 }

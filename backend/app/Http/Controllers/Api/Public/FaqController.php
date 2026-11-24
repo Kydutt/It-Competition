@@ -1,25 +1,29 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\Public;
 
-use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\FaqResource;
 use App\Models\Faq;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-class FaqController extends ApiController
+class FaqController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $faqs = Faq::where('is_published', true)
-            ->orderBy('order')
-            ->get();
+        $query = Faq::query()->where('is_published', true);
 
-        return $this->successResponse(
-            FaqResource::collection($faqs),
-            'FAQs retrieved successfully'
-        );
+        if ($category = $request->query('category')) {
+            $query->where('category', $category);
+        }
+
+        $faqs = $query->orderBy('sort_order', 'asc')->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar FAQ berhasil diambil.',
+            'data' => FaqResource::collection($faqs),
+        ]);
     }
 }

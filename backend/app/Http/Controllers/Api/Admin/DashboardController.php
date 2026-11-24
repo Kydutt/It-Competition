@@ -1,33 +1,72 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Enums\PaymentStatus;
 use App\Enums\RegistrationStatus;
-use App\Enums\UserRole;
-use App\Http\Controllers\Api\ApiController;
+use App\Enums\Role;
+use App\Enums\SubmissionStatus;
+use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Competition;
-use App\Models\Payment;
+use App\Models\Event;
 use App\Models\Registration;
 use App\Models\Submission;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
-class DashboardController extends ApiController
+class DashboardController extends Controller
 {
-    public function __invoke(): JsonResponse
+    public function index(): JsonResponse
     {
-        $stats = [
-            'total_participants' => User::where('role', UserRole::Participant)->count(),
-            'total_competitions' => Competition::count(),
-            'total_registrations' => Registration::count(),
-            'pending_registrations' => Registration::where('status', RegistrationStatus::Submitted)->count(),
-            'pending_payments' => Payment::whereIn('status', [PaymentStatus::Submitted, PaymentStatus::UnderReview])->count(),
-            'total_submissions' => Submission::count(),
-        ];
+        $totalParticipants = User::where('role', Role::PARTICIPANT)->count();
+        $totalTeams = Team::count();
+        $totalCompetitions = Competition::count();
+        $totalEvents = Event::count();
+        $totalRegistrations = Registration::count();
 
-        return $this->successResponse($stats, 'Admin dashboard statistics retrieved');
+        // Registrations count grouped by canonical status
+        $regCounts = Registration::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $registrationsByStatus = [];
+        foreach (RegistrationStatus::cases() as $status) {
+            $registrationsByStatus[$status->value] = (int) ($regCounts[$status->value] ?? 0);
+        }
+
+        // Submissions count grouped by canonical status
+        $subCounts = Submission::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $submissionsByStatus = [];
+        foreach (SubmissionStatus::cases() as $status) {
+            $submissionsByStatus[$status->value] = (int) ($subCounts[$status->value] ?? 0);
+        }
+
+        // 10 most recent activity logs
+        $recentLogs = ActivityLog::with('user:id,name,email,role')
+            ->latest('id')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'overview' => [
+                    'total_participants' => $totalParticipants,
+                    'total_teams' => $totalTeams,
+                    'total_competitions' => $totalCompetitions,
+                    'total_events' => $totalEvents,
+                    'total_registrations' => $totalRegistrations,
+                ],
+                'registrations_by_status' => $registrationsByStatus,
+                'submissions_by_status' => $submissionsByStatus,
+                'recent_activity_logs' => $recentLogs,
+            ],
+        ]);
     }
 }

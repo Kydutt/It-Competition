@@ -1,39 +1,54 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\Public;
 
-use App\Http\Controllers\Api\ApiController;
+use App\Enums\AnnouncementAudience;
+use App\Enums\AnnouncementStatus;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\AnnouncementResource;
 use App\Models\Announcement;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-class AnnouncementController extends ApiController
+class AnnouncementController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $announcements = Announcement::where('is_published', true)
-            ->with('competition')
-            ->latest('published_at')
-            ->get();
+        $perPage = min((int) $request->query('per_page', 9), 50);
 
-        return $this->successResponse(
-            AnnouncementResource::collection($announcements),
-            'Announcements retrieved successfully'
-        );
+        $announcements = Announcement::query()
+            ->where('status', AnnouncementStatus::PUBLISHED)
+            ->where('audience', AnnouncementAudience::PUBLIC)
+            ->with(['event', 'competition'])
+            ->orderBy('published_at', 'desc')
+            ->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar pengumuman publik berhasil diambil.',
+            'data' => AnnouncementResource::collection($announcements),
+            'meta' => [
+                'current_page' => $announcements->currentPage(),
+                'last_page' => $announcements->lastPage(),
+                'per_page' => $announcements->perPage(),
+                'total' => $announcements->total(),
+            ],
+        ]);
     }
 
     public function show(string $slug): JsonResponse
     {
-        $announcement = Announcement::where('slug', $slug)
-            ->where('is_published', true)
-            ->with('competition')
+        $announcement = Announcement::query()
+            ->where('slug', $slug)
+            ->where('status', AnnouncementStatus::PUBLISHED)
+            ->where('audience', AnnouncementAudience::PUBLIC)
+            ->with(['event', 'competition'])
             ->firstOrFail();
 
-        return $this->successResponse(
-            new AnnouncementResource($announcement),
-            'Announcement detail retrieved successfully'
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail pengumuman berhasil diambil.',
+            'data' => new AnnouncementResource($announcement),
+        ]);
     }
 }

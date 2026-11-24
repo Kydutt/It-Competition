@@ -1,128 +1,103 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\Participant;
 
-use App\Http\Controllers\Api\ApiController;
-use App\Http\Requests\Participant\StoreSubmissionRequest;
-use App\Http\Requests\Participant\UploadSubmissionFileRequest;
-use App\Http\Resources\SubmissionFileResource;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Participant\SubmitRevisionRequest;
+use App\Http\Requests\Participant\SubmitWorkRequest;
 use App\Http\Resources\SubmissionResource;
+use App\Models\Registration;
 use App\Models\Submission;
 use App\Services\SubmissionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Gate;
 
-class SubmissionController extends ApiController
+class SubmissionController extends Controller
 {
     public function __construct(
         protected SubmissionService $submissionService
     ) {}
 
-    /**
-     * List submissions for current user.
-     */
     public function index(Request $request): JsonResponse
     {
-        $submissions = $this->submissionService->getUserSubmissions($request->user());
+        $user = $request->user();
 
-        return $this->successResponse(
-            SubmissionResource::collection($submissions),
-            'Submissions retrieved successfully'
-        );
+        $submissions = Submission::query()
+            ->whereHas('registration', function ($q) use ($user) {
+                $q->where('participant_id', $user->id)
+                  ->orWhereHas('team.members', fn ($mq) => $mq->where('users.id', $user->id));
+            })
+            ->with(['registration.competition', 'revisions'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar pengumpulan karya berhasil diambil.',
+            'data' => SubmissionResource::collection($submissions),
+        ]);
     }
 
-    /**
-     * Initialize submission work for an eligible registration.
-     */
-    public function store(StoreSubmissionRequest $request): JsonResponse
-    {
-        $submission = $this->submissionService->createSubmission(
-            $request->user(),
-            (int) $request->input('registration_id'),
-            $request->validated()
-        );
-
-        return $this->successResponse(
-            new SubmissionResource($submission),
-            'Pengumpulan karya berhasil dibuat sebagai draf',
-            201
-        );
-    }
-
-    /**
-     * View submission detail.
-     */
-    public function show(Request $request, Submission $submission): JsonResponse
+    public function store(SubmitWorkRequest $request): JsonResponse
     {
         $user = $request->user();
-        $reg = $submission->registration;
-        $isOwner = $reg && $reg->user_id === $user->id;
-        $isTeamMember = $submission->team?->members()->where('user_id', $user->id)->exists() ?? false;
+        $registration = Registration::findOrFail($request->validated('registration_id'));
 
-        if (! $user->isAdmin() && ! $isOwner && ! $isTeamMember) {
-            abort(403, 'Anda tidak memiliki hak akses ke data pengumpulan karya ini.');
+        Gate::authorize('create', [Submission::class, $registration]);
+
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('submissions/' . $registration->id, 'public');
         }
 
-        $submission->load(['competition', 'team.leader', 'files', 'registration.user']);
+        $data = array_merge($request->validated(), [
+            'file_path' => $filePath,
+        ]);
 
-        return $this->successResponse(
-            new SubmissionResource($submission),
-            'Submission retrieved successfully'
-        );
+        $submission = $this->submissionService->submitWork($registration, $data, $user);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Karya kompetisi berhasil dikumpulkan.',
+            'data' => new SubmissionResource($submission->load(['registration.competition', 'revisions'])),
+        ], 201);
     }
 
-    /**
-     * Upload a project file to submission.
-     */
-    public function uploadFile(UploadSubmissionFileRequest $request, Submission $submission): JsonResponse
+    public function show(Request $request, Submission $submission): JsonResponse
     {
-        $file = $this->submissionService->uploadFile(
-            $request->user(),
-            $submission,
-            $request->file('file')
-        );
+        Gate::authorize('view', $submission);
 
-        return $this->successResponse(
-            new SubmissionFileResource($file),
-            'Berkas karya berhasil diunggah',
-            201
-        );
+        $submission->load(['registration.competition', 'revisions']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail pengumpulan karya berhasil diambil.',
+            'data' => new SubmissionResource($submission),
+        ]);
     }
 
-    /**
-     * Delete a project file from submission.
-     */
-    public function removeFile(Request $request, Submission $submission, int $fileId): JsonResponse
+    public function submitRevision(SubmitRevisionRequest $request, Submission $submission): JsonResponse
     {
-        $this->submissionService->removeFile($request->user(), $submission, $fileId);
+        Gate::authorize('addRevision', $submission);
 
-        return $this->successResponse(
-            null,
-            'Berkas berhasil dihapus'
-        );
-    }
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('submissions/' . $submission->registration_id, 'public');
+        }
 
-    /**
-     * Finalize submission work before deadline.
-     */
-    public function submit(Request $request, Submission $submission): JsonResponse
-    {
-        $submitted = $this->submissionService->submitSubmission($request->user(), $submission);
+        $data = [
+            'file_path' => $filePath,
+            'external_url' => $request->validated('external_url'),
+            'revision_note' => $request->validated('notes') ?? $request->validated('revision_note'),
+        ];
 
-        return $this->successResponse(
-            new SubmissionResource($submitted),
-            'Karya kompetisi berhasil dikumpulkan'
-        );
-    }
+        $updated = $this->submissionService->submitRevision($submission, $data, $request->user());
 
-    /**
-     * Download authorized submission file.
-     */
-    public function downloadFile(Request $request, Submission $submission, int $fileId): StreamedResponse
-    {
-        return $this->submissionService->getSubmissionFile($request->user(), $submission, $fileId);
+        return response()->json([
+            'success' => true,
+            'message' => 'Berkas revisi karya berhasil dikirimkan.',
+            'data' => new SubmissionResource($updated->load(['registration.competition', 'revisions'])),
+        ]);
     }
 }

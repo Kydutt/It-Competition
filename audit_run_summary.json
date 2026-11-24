@@ -1,0 +1,92 @@
+{
+  "timestamp": "2026-11-20T06:17:43.603Z",
+  "results": {
+    "build": "PASSED",
+    "sanctumLogin": {
+      "status": "PASSED",
+      "redirectUrl": "http://localhost:5173/admin/dashboard",
+      "cookieDomain": "localhost"
+    },
+    "dashboard": {
+      "status": "PASSED",
+      "title": "Dashboard Operasional",
+      "cardsDetected": 17
+    },
+    "crud": {
+      "event": {
+        "status": "PASSED",
+        "endpoint": "/admin/events"
+      },
+      "category": {
+        "status": "PASSED",
+        "endpoint": "/admin/categories"
+      },
+      "competition": {
+        "status": "PASSED",
+        "endpoint": "/admin/competitions"
+      },
+      "schedule": {
+        "status": "PASSED",
+        "endpoint": "/admin/schedules"
+      },
+      "announcement": {
+        "status": "PASSED",
+        "endpoint": "/admin/announcements"
+      },
+      "faq": {
+        "status": "PASSED",
+        "endpoint": "/admin/faqs"
+      }
+    },
+    "registrationReview": {
+      "underReview": null,
+      "revisionRequired": null,
+      "approve": "VERIFIED",
+      "reject": "VERIFIED"
+    },
+    "submissionReview": {
+      "status": "PASSED",
+      "endpoint": "/admin/submissions"
+    },
+    "activityLogs": {
+      "status": "PASSED",
+      "rowsCount": 6
+    },
+    "csvExport": null,
+    "csvFormulaInjection": null,
+    "settings": {
+      "status": "PASSED",
+      "endpoint": "/admin/settings"
+    },
+    "responsive": {
+      "desktop": "PASSED",
+      "mobile": "PASSED"
+    },
+    "consoleAndNetwork": [],
+    "participantRegression": {
+      "status": "PASSED",
+      "participantDashboardAccessible": true,
+      "adminForbidden": true,
+      "finalUrl": "http://localhost:5173/admin"
+    }
+  },
+  "consoleErrors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    }
+  ],
+  "networkErrors": []
+}

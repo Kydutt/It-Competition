@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use App\Enums\PaymentStatus;
@@ -15,55 +13,22 @@ class Payment extends Model
 
     protected $fillable = [
         'registration_id',
-        'user_id',
         'amount',
         'payment_method',
+        'payment_proof_path',
         'status',
-        'proof_path',
-        'transaction_reference',
-        'submitted_at',
-        'reviewed_at',
-        'reviewed_by',
         'rejection_reason',
+        'verified_by',
+        'verified_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'amount' => 'integer',
+            'amount' => 'decimal:2',
             'status' => PaymentStatus::class,
-            'submitted_at' => 'datetime',
-            'reviewed_at' => 'datetime',
+            'verified_at' => 'datetime',
         ];
-    }
-
-    public function isApproved(): bool
-    {
-        return $this->status === PaymentStatus::Approved;
-    }
-
-    public function isPending(): bool
-    {
-        return $this->status === PaymentStatus::Pending;
-    }
-
-    public function isUnderReview(): bool
-    {
-        return $this->status === PaymentStatus::UnderReview;
-    }
-
-    public function isRejected(): bool
-    {
-        return $this->status === PaymentStatus::Rejected;
-    }
-
-    public function canUploadProof(): bool
-    {
-        return in_array($this->status, [
-            PaymentStatus::Pending,
-            PaymentStatus::Submitted,
-            PaymentStatus::Rejected,
-        ], true);
     }
 
     public function registration(): BelongsTo
@@ -71,13 +36,8 @@ class Payment extends Model
         return $this->belongsTo(Registration::class);
     }
 
-    public function user(): BelongsTo
+    public function verifier(): BelongsTo
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function reviewer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        return $this->belongsTo(User::class, 'verified_by');
     }
 }
