@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { publicService } from '../../services/publicService'
 import { participantService } from '../../services/participantService'
+import { formatCompetitionFee } from '../../utils/currency'
 import type { Competition } from '../../types/public'
 import type { Team } from '../../types/participant'
 import { Button } from '../../components/ui/Button'
@@ -177,6 +178,9 @@ export const RegistrationCreatePage: React.FC = () => {
                               {comp.registration_type === 'team'
                                 ? `Tim (${comp.min_members}-${comp.max_members} org)`
                                 : 'Individu'}
+                            </Badge>
+                            <Badge variant={Number(comp.registration_fee) > 0 ? 'info' : 'success'}>
+                              {formatCompetitionFee(comp.registration_fee)}
                             </Badge>
                           </div>
                           <p className="text-xs text-slate-600 line-clamp-2">

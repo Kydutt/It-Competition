@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\CreateCompetitionRequest;
 use App\Http\Requests\Admin\UpdateCompetitionRequest;
 use App\Models\Competition;
 use App\Services\ActivityLogService;
+use App\Support\MoneyHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -48,6 +49,8 @@ class CompetitionController extends Controller
     public function store(CreateCompetitionRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $data['registration_fee'] = MoneyHelper::rupiahToDecimalString((int) ($data['registration_fee'] ?? 0));
+
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
             $originalSlug = $data['slug'];
@@ -58,21 +61,26 @@ class CompetitionController extends Controller
             }
         }
 
-        $competition = Competition::create($data);
+        $competition = DB::transaction(function () use ($data, $request) {
+            $created = Competition::create($data);
+            $created->refresh();
 
-        ActivityLogService::log(
-            action: 'competition.create',
-            entityType: 'Competition',
-            entityId: $competition->id,
-            oldValues: null,
-            newValues: $competition->toArray(),
-            actor: $request->user()
-        );
+            ActivityLogService::log(
+                action: 'competition.create',
+                entityType: 'Competition',
+                entityId: $created->id,
+                oldValues: null,
+                newValues: $created->toArray(),
+                actor: $request->user()
+            );
+
+            return $created;
+        });
 
         return response()->json([
             'success' => true,
             'message' => 'Cabang kompetisi berhasil ditambahkan.',
-            'data' => $competition->load(['event', 'category']),
+            'data' => $competition->load(['event', 'category'])->loadCount('registrations'),
         ], 201);
     }
 
@@ -89,43 +97,57 @@ class CompetitionController extends Controller
     {
         $data = $request->validated();
 
-        // Protect existing registrations from destructive format shifts
-        if (isset($data['registration_type']) && $data['registration_type'] !== $competition->registration_type->value) {
-            if ($competition->registrations()->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Format pendaftaran (individu/tim) tidak dapat diubah karena sudah memiliki pendaftaran terdaftar.',
-                ], 422);
-            }
+        if (array_key_exists('registration_fee', $data)) {
+            $data['registration_fee'] = MoneyHelper::rupiahToDecimalString((int) $data['registration_fee']);
         }
 
-        if (isset($data['name']) && empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
-            $originalSlug = $data['slug'];
-            $count = 1;
-            while (Competition::where('slug', $data['slug'])->where('id', '!=', $competition->id)->exists()) {
-                $data['slug'] = "{$originalSlug}-{$count}";
-                $count++;
+        return DB::transaction(function () use ($data, $competition, $request) {
+            $compQuery = Competition::where('id', $competition->id);
+            if (DB::connection()->getDriverName() !== 'sqlite') {
+                // Lock strictly on competitions (monotonic lock graph: events -> competitions -> registrations -> payments)
+                $compQuery->lockForUpdate();
             }
-        }
+            $lockedCompetition = $compQuery->firstOrFail();
 
-        $oldValues = $competition->toArray();
-        $competition->update($data);
+            // Protect existing registrations from destructive format shifts (read-only exists check, no lock on registrations)
+            if (isset($data['registration_type']) && $data['registration_type'] !== $lockedCompetition->registration_type->value) {
+                if ($lockedCompetition->registrations()->exists()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Format pendaftaran (individu/tim) tidak dapat diubah karena sudah memiliki pendaftaran terdaftar.',
+                    ], 422);
+                }
+            }
 
-        ActivityLogService::log(
-            action: 'competition.update',
-            entityType: 'Competition',
-            entityId: $competition->id,
-            oldValues: $oldValues,
-            newValues: $competition->fresh()->toArray(),
-            actor: $request->user()
-        );
+            if (isset($data['name']) && empty($data['slug'])) {
+                $data['slug'] = Str::slug($data['name']);
+                $originalSlug = $data['slug'];
+                $count = 1;
+                while (Competition::where('slug', $data['slug'])->where('id', '!=', $lockedCompetition->id)->exists()) {
+                    $data['slug'] = "{$originalSlug}-{$count}";
+                    $count++;
+                }
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Cabang kompetisi berhasil diperbarui.',
-            'data' => $competition->fresh()->load(['event', 'category']),
-        ]);
+            $oldValues = $lockedCompetition->toArray();
+            $lockedCompetition->update($data);
+            $freshCompetition = $lockedCompetition->fresh();
+
+            ActivityLogService::log(
+                action: 'competition.update',
+                entityType: 'Competition',
+                entityId: $freshCompetition->id,
+                oldValues: $oldValues,
+                newValues: $freshCompetition->toArray(),
+                actor: $request->user()
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cabang kompetisi berhasil diperbarui.',
+                'data' => $freshCompetition->load(['event', 'category'])->loadCount('registrations'),
+            ]);
+        });
     }
 
     public function destroy(Request $request, Competition $competition): JsonResponse

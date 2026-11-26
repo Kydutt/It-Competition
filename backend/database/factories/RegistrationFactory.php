@@ -20,12 +20,29 @@ class RegistrationFactory extends Factory
             'participant_id' => User::factory(),
             'team_id' => null,
             'status' => RegistrationStatus::DRAFT,
+            'registration_fee_snapshot' => function (array $attributes) {
+                $compId = $attributes['competition_id'] ?? null;
+                if ($compId instanceof Competition) {
+                    return $compId->registration_fee ?? '0.00';
+                }
+
+                return Competition::where('id', $compId)->value('registration_fee') ?? '0.00';
+            },
+            'fee_locked_at' => now(),
             'notes' => fake()->sentence(),
             'admin_notes' => null,
             'submitted_at' => null,
             'verified_at' => null,
             'verified_by' => null,
         ];
+    }
+
+    public function withoutFeeSnapshot(): static
+    {
+        return $this->state(fn () => [
+            'registration_fee_snapshot' => null,
+            'fee_locked_at' => null,
+        ]);
     }
 
     public function submitted(): static

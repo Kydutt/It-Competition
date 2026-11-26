@@ -80,6 +80,7 @@ class RegistrationController extends Controller
             'team.members.profile',
             'documents.verifier:id,name',
             'submissions.revisions',
+            'latestPayment',
             'verifier:id,name,email',
         ]);
 

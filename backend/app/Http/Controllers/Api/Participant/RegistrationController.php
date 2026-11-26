@@ -32,7 +32,7 @@ class RegistrationController extends Controller
                 $q->where('participant_id', $user->id)
                   ->orWhereHas('team.members', fn ($mq) => $mq->where('users.id', $user->id));
             })
-            ->with(['competition.category', 'competition.event', 'team.leader', 'documents', 'submissions'])
+            ->with(['competition.category', 'competition.event', 'team.leader', 'documents', 'submissions', 'latestPayment'])
             ->orderBy('created_at', 'desc');
 
         if ($status = $request->query('status')) {
@@ -85,6 +85,7 @@ class RegistrationController extends Controller
             'team.leader',
             'documents',
             'submissions.revisions',
+            'latestPayment',
         ]);
 
         return response()->json([

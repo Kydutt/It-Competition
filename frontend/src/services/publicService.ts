@@ -12,6 +12,7 @@ import type {
   AnnouncementListResponse,
   StatisticsResponse,
 } from '../types/public'
+import type { PaymentConfigResponse } from '../types/payment'
 
 export const publicService = {
   /**
@@ -97,6 +98,16 @@ export const publicService = {
    */
   async getStatistics(): Promise<StatisticsResponse> {
     const response = await api.get<StatisticsResponse>('/api/v1/public/statistics')
+    return response.data
+  },
+
+  /**
+   * Fetch public payment activation status and Midtrans Snap client configuration
+   */
+  async getPaymentConfig(eventId?: number): Promise<PaymentConfigResponse> {
+    const response = await api.get<PaymentConfigResponse>('/api/v1/public/payment-config', {
+      params: eventId ? { event_id: eventId } : undefined,
+    })
     return response.data
   },
 }

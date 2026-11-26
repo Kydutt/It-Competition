@@ -238,6 +238,8 @@ Entitas pendaftaran peserta/tim pada suatu cabang kompetisi.
 | `participant_id` | BIGINT UNSIGNED | Yes | FK ke `users.id` (bila mode individual) |
 | `team_id` | BIGINT UNSIGNED | Yes | FK ke `teams.id` (bila mode team) |
 | `status` | ENUM('draft', 'submitted', 'under_review', 'revision_required', 'approved', 'rejected', 'cancelled') | No | Default: `'draft'` |
+| `registration_fee_snapshot` | DECIMAL(12, 2) | Yes | Snapshot biaya pendaftaran saat registrasi dibuat (sumber kebenaran checkout, PD-02, & partial_refund) |
+| `fee_locked_at` | DATETIME | Yes | Waktu penguncian nominal snapshot biaya pendaftaran |
 | `notes` | TEXT | Yes | Catatan pendaftar atau riwayat ringkas |
 | `admin_notes` | TEXT | Yes | Catatan revisi/alasan penolakan dari admin |
 | `submitted_at` | DATETIME | Yes | Waktu pendaftar men-submit final |
@@ -324,25 +326,42 @@ Riwayat versi berkas submisi ketika peserta diminta melakukan perbaikan.
 
 ---
 
-### 3.12. `payments` (Modul Opsional)
-*Catatan: Modul dinonaktifkan secara baku sampai kebijakan pembayaran dikonfirmasi.*
+### 3.12. `payments` (Midtrans Snap Payment Module)
+*Catatan: Modul dikendalikan oleh `event_settings.payment_enabled` (default `false` sampai seluruh fase QA selesai). Menggunakan Midtrans Snap (PD-03); kolom transfer manual historis tetap dipertahankan nullable untuk kompatibilitas non-destructive.*
 
 | Kolom | Tipe Data | Nullable | Keterangan |
 |---|---|---|---|
-| `id` | BIGINT UNSIGNED | No | Primary Key, Auto Increment |
-| `registration_id` | BIGINT UNSIGNED | No | FK ke `registrations.id` (ON DELETE RESTRICT) |
-| `amount` | DECIMAL(12, 2) | No | Jumlah pembayaran |
-| `payment_method` | VARCHAR(50) | Yes | Misal: Transfer Bank Manual |
-| `payment_proof_path`| VARCHAR(255) | Yes | Path bukti transfer di private storage |
-| `status` | ENUM('pending', 'verified', 'rejected') | No | Default: `'pending'` |
-| `rejection_reason` | TEXT | Yes | Alasan jika bukti tidak valid |
-| `verified_by` | BIGINT UNSIGNED | Yes | FK ke `users.id` (Admin keuangan) |
-| `verified_at` | DATETIME | Yes | Waktu verifikasi pembayaran |
-| `created_at` | TIMESTAMP | Yes | Standar Laravel |
-| `updated_at` | TIMESTAMP | Yes | Standar Laravel |
+| `id` | `BIGINT UNSIGNED` | No | Primary Key, Auto Increment |
+| `registration_id` | `BIGINT UNSIGNED` | No | FK ke `registrations.id` (`ON DELETE RESTRICT`) |
+| `user_id` | `BIGINT UNSIGNED` | Yes | FK ke `users.id` (`ON DELETE SET NULL`), aktor penginisiasi transaksi (peserta / ketua tim) |
+| `order_id` | `VARCHAR(100)` | Yes | **Unique**, ID transaksi unik merchant untuk Midtrans (contoh: `ITC-PAY-{REG_ID}-{TIMESTAMP}-{RAND5}`) |
+| `gateway` | `VARCHAR(30)` | No | Default: `'midtrans'` |
+| `amount` | `DECIMAL(12, 2)` | No | Jumlah pembayaran (ditentukan server dari `competitions.registration_fee`) |
+| `payment_method` | `VARCHAR(50)` | Yes | Label metode / kompatibilitas historis |
+| `payment_type` | `VARCHAR(50)` | Yes | Kanal pembayaran aktual dari Midtrans (misal: `qris`, `bank_transfer`, `gopay`, `echannel`) |
+| `snap_token` | `VARCHAR(255)` | Yes | Snap Token Midtrans untuk checkout frontend |
+| `snap_redirect_url` | `VARCHAR(500)` | Yes | URL redirect fallback Midtrans Snap |
+| `midtrans_transaction_id` | `VARCHAR(100)` | Yes | `transaction_id` unik dari Midtrans |
+| `midtrans_transaction_status` | `VARCHAR(50)` | Yes | Status mentah dari provider (`pending`, `settlement`, `capture`, `deny`, `cancel`, `expire`, `refund`, `partial_refund`, `chargeback`) |
+| `fraud_status` | `VARCHAR(30)` | Yes | Status FDS Midtrans (`accept`, `challenge`, `deny`) |
+| `status` | `VARCHAR(30)` | No | Default: `'pending'`. Nilai kanonis: `pending`, `paid`, `expired`, `cancelled`, `failed` (plus historis `verified`, `rejected`) |
+| `paid_at` | `DATETIME` | Yes | Waktu pembayaran dikonfirmasi lunas (`settlement` / `capture` accept) |
+| `expired_at` | `DATETIME` | Yes | Batas waktu transaksi: `min(created_at + 24 jam, competition.registration_deadline)` |
+| `webhook_payload` | `JSON` | Yes | Snapshot payload notifikasi webhook terakhir (disanitasi) |
+| `last_webhook_at` | `DATETIME` | Yes | Waktu pemrosesan webhook terakhir |
+| `payment_proof_path` | `VARCHAR(255)` | Yes | Kolom historis transfer manual (tidak aktif pada mode Midtrans Snap) |
+| `rejection_reason` | `TEXT` | Yes | Kolom historis transfer manual |
+| `verified_by` | `BIGINT UNSIGNED` | Yes | FK ke `users.id` (`ON DELETE SET NULL`, kolom historis) |
+| `verified_at` | `DATETIME` | Yes | Kolom historis transfer manual |
+| `created_at` | `TIMESTAMP` | Yes | Standar Laravel |
+| `updated_at` | `TIMESTAMP` | Yes | Standar Laravel |
 
-**Indeks:**
+**Indeks & Constraint:**
+- `UNIQUE (order_id)`
 - `INDEX (registration_id, status)`
+- `INDEX (midtrans_transaction_id)`
+- `INDEX (status, created_at)`
+- `UNIQUE (paid_registration_id)` *(Virtual generated column MySQL: `CASE WHEN status IN ('paid', 'verified') THEN registration_id ELSE NULL END` untuk menjamin maksimal 1 pembayaran lunas per registrasi)*
 
 ---
 

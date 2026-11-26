@@ -14,13 +14,12 @@ class StorePaymentRequest extends FormRequest
     }
 
     /**
+     * Nominal, order_id, status, and gateway are determined strictly by the backend.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
-        return [
-            'registration_id' => ['required', 'integer', 'exists:registrations,id'],
-            'payment_method' => ['nullable', 'string', 'max:100'],
-        ];
+        return [];
     }
 }

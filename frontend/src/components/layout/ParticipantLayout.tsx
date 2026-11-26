@@ -5,6 +5,7 @@ import {
   ClipboardList,
   Users,
   UploadCloud,
+  CreditCard,
   Bell,
   User as UserIcon,
   LogOut,
@@ -45,6 +46,7 @@ export const ParticipantLayout: React.FC = () => {
     { name: 'Pendaftaran Saya', path: '/participant/registrations', icon: ClipboardList },
     { name: 'Manajemen Tim', path: '/participant/teams', icon: Users },
     { name: 'Submisi Karya', path: '/participant/submissions', icon: UploadCloud },
+    { name: 'Pembayaran', path: '/participant/payments', icon: CreditCard },
     {
       name: 'Notifikasi',
       path: '/participant/notifications',

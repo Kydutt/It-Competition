@@ -41,7 +41,6 @@ The application has three interface areas:
 
 Do not implement these unless explicitly approved:
 - Separate judge role or judge scoring portal.
-- Payment gateway integration.
 - AI judging or AI scoring.
 - Live chat or video conferencing.
 - Native Android/iOS applications.
@@ -49,6 +48,8 @@ Do not implement these unless explicitly approved:
 - Automated certificate generation.
 - Public participant ranking/leaderboard.
 - Complex accounting or financial reconciliation.
+
+*(Catatan: Integrasi payment gateway **Midtrans Snap** telah disetujui secara eksplisit melalui keputusan Q-001 / PD-01..PD-08 pada 25 November 2026 dan dikendalikan oleh `event_settings.payment_enabled`.)*
 
 ---
 
@@ -62,7 +63,7 @@ These assumptions define the initial implementation baseline. They are not permi
 | Competition model | Each event may contain multiple competitions. |
 | Registration mode | Each competition is configured as `individual` or `team`. |
 | Team size | Minimum and maximum members are configured per competition. |
-| Payments | Optional module; disabled by default until payment policy is confirmed. |
+| Payments | Optional module using **Midtrans Snap** (`event_settings.payment_enabled`, default `false` controls new transaction creation & payment UI). Payment occurs after `submitted` and before admin `approved`; paid competitions (`registration_fee > 0`) strictly require `paid`/`verified` status before admin approval even when `payment_enabled = false`, while free competitions (`registration_fee = 0`) require no payment. |
 | Verification | Admin manually reviews submitted registrations and documents. |
 | Judging | Out of MVP; submissions can be reviewed for administrative status only. |
 | Language | UI copy is Bahasa Indonesia. |
@@ -591,17 +592,18 @@ Every decision records:
 - Reason/note.
 - Timestamp.
 
-### 9.8 Payment management — `/admin/payments` (optional)
+### 9.8 Payment management — `/admin/payments` (optional, Midtrans Snap)
 
-Disabled by default unless organizer confirms payment policy.
+`event_settings.payment_enabled` (disabled by default) controls whether participants can initiate new payment transactions and whether payment UI controls are displayed.
 
-If enabled:
-- List payment records.
-- Inspect proof securely.
-- Verify or reject with reason.
-- Track amount and method.
-- Never mark paid solely because a proof file was uploaded.
-- Payment gateway integration is out of MVP.
+Core rules:
+- List Midtrans Snap payment records (`order_id`, `registration_number`, amount, method/payment_type, internal & provider status, timestamps).
+- Filter by competition, status, payment type, date, and search query.
+- Inspect transaction metadata and trigger server-to-server status reconciliation (`sync`) to Midtrans API.
+- Export filtered payment reports to CSV.
+- **PD-02 Strict Payment Requirement:** Paid competitions (`registration_fee > 0`) strictly require payment status `paid` (or `verified`) before admin can approve the registration, **even if `event_settings.payment_enabled = false`**. Free competitions (`registration_fee = 0`) can always be approved without payment.
+- Manual bank transfer / payment proof upload is not used (PD-03); payment settlement is verified exclusively via Midtrans webhook signature (`MIDTRANS_SIGNATURE_SECRET`) or Midtrans status API.
+- Production mode remains disabled (`MIDTRANS_IS_PRODUCTION=false`) during development and testing.
 
 ### 9.9 Submission review — `/admin/submissions`
 
@@ -963,7 +965,7 @@ A feature is done when:
 ## 18. Open product decisions
 
 Track unresolved decisions in `OPEN_QUESTIONS.md`. Current questions:
-- Is registration free, manual bank transfer, or payment gateway?
+- Payment policy resolved (Q-001): Midtrans Snap only, paid after `submitted` and before `approved`, controlled via `event_settings.payment_enabled`. (See `OPEN_QUESTIONS.md` Decision Log.)
 - Are participants allowed to join multiple teams/competitions?
 - What exact fields and documents are required per competition?
 - What team invitation mechanism should be used?

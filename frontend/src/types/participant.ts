@@ -1,5 +1,6 @@
 import type { Competition } from './public'
 import type { User, ApiResponse } from './api'
+import type { Payment } from './payment'
 
 export interface ParticipantProfile {
   phone?: string | null
@@ -73,6 +74,8 @@ export interface Registration {
   id: number
   registration_number: string
   status: 'draft' | 'submitted' | 'under_review' | 'revision_required' | 'approved' | 'rejected' | 'cancelled'
+  registration_fee_snapshot?: number | null
+  fee_locked_at?: string | null
   notes?: string | null
   admin_notes?: string | null
   submitted_at?: string | null
@@ -82,6 +85,7 @@ export interface Registration {
   team?: Team
   documents?: RegistrationDocument[]
   submissions?: Submission[]
+  latest_payment?: Payment | null
   created_at?: string
 }
 

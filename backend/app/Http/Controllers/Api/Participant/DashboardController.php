@@ -29,7 +29,7 @@ class DashboardController extends Controller
                       $mq->where('users.id', $user->id);
                   });
             })
-            ->with(['competition.category', 'competition.event', 'team.leader', 'documents', 'submissions', 'submission']);
+            ->with(['competition.category', 'competition.event', 'team.leader', 'documents', 'submissions', 'submission', 'latestPayment']);
 
         $allRegistrations = (clone $registrationsQuery)->get();
 

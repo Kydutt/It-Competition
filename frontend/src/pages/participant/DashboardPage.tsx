@@ -10,12 +10,14 @@ import {
   Bell,
 } from 'lucide-react'
 import { participantService } from '../../services/participantService'
+import { formatRegistrationFee, getLockedRegistrationFee } from '../../utils/currency'
 import type { DashboardData } from '../../types/participant'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { CardSkeleton } from '../../components/ui/LoadingSkeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
+import { PaymentStatusBadge } from '../../components/payments/PaymentStatusBadge'
 import { useAuth } from '../../context/AuthContext'
 
 export const DashboardPage: React.FC = () => {
@@ -195,23 +197,32 @@ export const DashboardPage: React.FC = () => {
               </div>
             ) : (
               <div className="divide-y divide-slate-100">
-                {data.recent_registrations.map((reg) => (
+                {data.recent_registrations.map((reg) => {
+                  const lockedFee = getLockedRegistrationFee(reg)
+                  return (
                   <div
                     key={reg.id}
                     className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm"
                   >
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono text-xs font-bold text-slate-500">
                           {reg.registration_number}
                         </span>
                         {getStatusBadge(reg.status)}
+                        {lockedFee !== null && lockedFee > 0 && (
+                          <PaymentStatusBadge
+                            payment={reg.latest_payment}
+                            competitionFee={lockedFee}
+                          />
+                        )}
                       </div>
                       <h4 className="font-bold text-slate-900">
                         {reg.competition?.name || 'Kompetisi'}
                       </h4>
                       <p className="text-xs text-slate-500">
-                        {reg.team ? `Tim: ${reg.team.name}` : 'Individu'} •{' '}
+                        {reg.team ? `Tim: ${reg.team.name}` : 'Individu'} • Biaya:{' '}
+                        {formatRegistrationFee(lockedFee)} •{' '}
                         {reg.submitted_at
                           ? `Disubmit: ${new Date(reg.submitted_at).toLocaleDateString('id-ID', {
                               day: 'numeric',
@@ -228,7 +239,8 @@ export const DashboardPage: React.FC = () => {
                       </Button>
                     </Link>
                   </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </Card>

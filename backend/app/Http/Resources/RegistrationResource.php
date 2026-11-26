@@ -13,6 +13,8 @@ class RegistrationResource extends JsonResource
             'id' => $this->id,
             'registration_number' => $this->registration_number,
             'status' => $this->status?->value ?? $this->status,
+            'registration_fee_snapshot' => $this->effectiveRegistrationFeeRupiah(),
+            'fee_locked_at' => $this->fee_locked_at?->toISOString(),
             'notes' => $this->notes,
             'admin_notes' => $this->admin_notes,
             'submitted_at' => $this->submitted_at?->toISOString(),
@@ -23,6 +25,7 @@ class RegistrationResource extends JsonResource
             'team' => new TeamResource($this->whenLoaded('team')),
             'documents' => RegistrationDocumentResource::collection($this->whenLoaded('documents')),
             'submissions' => SubmissionResource::collection($this->whenLoaded('submissions')),
+            'latest_payment' => new PaymentResource($this->whenLoaded('latestPayment')),
             'created_at' => $this->created_at?->toISOString(),
         ];
     }

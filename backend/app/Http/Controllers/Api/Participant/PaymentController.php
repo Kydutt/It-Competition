@@ -4,109 +4,113 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Participant;
 
-use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Participant\StorePaymentRequest;
-use App\Http\Requests\Participant\UploadPaymentProofRequest;
 use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
+use App\Models\Registration;
 use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Gate;
 
-class PaymentController extends ApiController
+class PaymentController extends Controller
 {
     public function __construct(
         protected PaymentService $paymentService
     ) {}
 
     /**
-     * List all payments related to user.
+     * List all payments visible to the authenticated participant (or team member).
      */
     public function index(Request $request): JsonResponse
     {
-        $payments = $this->paymentService->getUserPayments($request->user());
+        $perPage = (int) $request->query('per_page', 15);
+        $payments = $this->paymentService->getParticipantPayments($request->user(), null, $perPage);
 
-        return $this->successResponse(
-            PaymentResource::collection($payments),
-            'Payments retrieved successfully'
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar transaksi pembayaran berhasil diambil.',
+            'data' => PaymentResource::collection($payments),
+            'meta' => [
+                'current_page' => $payments->currentPage(),
+                'last_page' => $payments->lastPage(),
+                'per_page' => $payments->perPage(),
+                'total' => $payments->total(),
+            ],
+        ]);
     }
 
     /**
-     * Initiate payment for a paid competition registration.
+     * List payments for a specific registration.
      */
-    public function store(StorePaymentRequest $request): JsonResponse
+    public function registrationIndex(Request $request, Registration $registration): JsonResponse
     {
-        $payment = $this->paymentService->createPayment(
-            $request->user(),
-            (int) $request->input('registration_id'),
-            (string) $request->input('payment_method', 'bank_transfer')
-        );
+        Gate::authorize('view', $registration);
 
-        return $this->successResponse(
-            new PaymentResource($payment),
-            'Instruksi pembayaran berhasil dibuat',
-            201
-        );
+        $perPage = (int) $request->query('per_page', 15);
+        $payments = $this->paymentService->getParticipantPayments($request->user(), $registration->id, $perPage);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar transaksi pembayaran pendaftaran berhasil diambil.',
+            'data' => PaymentResource::collection($payments),
+            'meta' => [
+                'current_page' => $payments->currentPage(),
+                'last_page' => $payments->lastPage(),
+                'per_page' => $payments->perPage(),
+                'total' => $payments->total(),
+            ],
+        ]);
     }
 
     /**
-     * View payment details.
+     * Create a new Midtrans Snap payment or reuse an active pending transaction.
+     */
+    public function store(StorePaymentRequest $request, Registration $registration): JsonResponse
+    {
+        Gate::authorize('create', [Payment::class, $registration]);
+
+        $result = $this->paymentService->createOrReuseSnapPayment($request->user(), $registration);
+
+        return response()->json([
+            'success' => true,
+            'message' => $result['created']
+                ? 'Transaksi pembayaran Snap berhasil dibuat.'
+                : 'Menggunakan transaksi pembayaran yang masih aktif.',
+            'data' => new PaymentResource($result['payment']),
+        ], $result['created'] ? 201 : 200);
+    }
+
+    /**
+     * View a specific payment detail.
      */
     public function show(Request $request, Payment $payment): JsonResponse
     {
-        $user = $request->user();
-        $isOwner = $payment->user_id === $user->id || $payment->registration?->user_id === $user->id;
-        $isTeamMember = $payment->registration?->team?->members()->where('user_id', $user->id)->exists() ?? false;
+        $payment->load(['registration.competition', 'registration.team.members', 'registration.team.leader', 'user']);
+        Gate::authorize('view', $payment);
 
-        if (! $user->isAdmin() && ! $isOwner && ! $isTeamMember) {
-            abort(403, 'Anda tidak memiliki hak akses ke data pembayaran ini.');
-        }
-
-        $payment->load(['registration.competition', 'registration.team.leader', 'user', 'reviewer']);
-
-        return $this->successResponse(
-            new PaymentResource($payment),
-            'Payment retrieved successfully'
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail transaksi pembayaran berhasil diambil.',
+            'data' => new PaymentResource($payment),
+        ]);
     }
 
     /**
-     * Upload payment proof file.
+     * Reconcile a payment status directly with Midtrans Status API.
      */
-    public function uploadProof(UploadPaymentProofRequest $request, Payment $payment): JsonResponse
+    public function sync(Request $request, Payment $payment): JsonResponse
     {
-        $updated = $this->paymentService->uploadProof(
-            $request->user(),
-            $payment,
-            $request->file('proof')
-        );
+        $payment->load(['registration.competition', 'registration.team.members', 'registration.team.leader', 'user']);
+        Gate::authorize('sync', $payment);
 
-        return $this->successResponse(
-            new PaymentResource($updated),
-            'Bukti pembayaran berhasil diunggah. Silakan klik Submit untuk mengirim berkas verifikasi.'
-        );
-    }
+        $synced = $this->paymentService->syncPaymentStatusFromMidtrans($payment, $request->user());
 
-    /**
-     * Submit payment for admin verification.
-     */
-    public function submit(Request $request, Payment $payment): JsonResponse
-    {
-        $submitted = $this->paymentService->submitPayment($request->user(), $payment);
-
-        return $this->successResponse(
-            new PaymentResource($submitted),
-            'Pembayaran berhasil diajukan untuk ditinjau oleh panitia'
-        );
-    }
-
-    /**
-     * Download or view payment proof.
-     */
-    public function downloadProof(Request $request, Payment $payment): StreamedResponse
-    {
-        return $this->paymentService->getPaymentProofFile($request->user(), $payment);
+        return response()->json([
+            'success' => true,
+            'message' => 'Status pembayaran berhasil disinkronkan dengan Midtrans.',
+            'data' => new PaymentResource($synced),
+        ]);
     }
 }

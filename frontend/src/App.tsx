@@ -27,6 +27,7 @@ import { RegistrationCreatePage } from './pages/participant/RegistrationCreatePa
 import { RegistrationDetailPage } from './pages/participant/RegistrationDetailPage';
 import { TeamsPage } from './pages/participant/TeamsPage';
 import { SubmissionsPage } from './pages/participant/SubmissionsPage';
+import { PaymentsPage } from './pages/participant/PaymentsPage';
 import { NotificationsPage } from './pages/participant/NotificationsPage';
 import { ProfilePage } from './pages/participant/ProfilePage';
 
@@ -83,6 +84,7 @@ export function App() {
             <Route path="registrations/:id" element={<RegistrationDetailPage />} />
             <Route path="teams" element={<TeamsPage />} />
             <Route path="submissions" element={<SubmissionsPage />} />
+            <Route path="payments" element={<PaymentsPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>

@@ -11,14 +11,18 @@ import {
   Send,
 } from 'lucide-react'
 import { participantService } from '../../services/participantService'
+import { useAuth } from '../../context/AuthContext'
+import { formatRegistrationFee, getLockedRegistrationFee } from '../../utils/currency'
 import type { Registration } from '../../types/participant'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { Skeleton } from '../../components/ui/LoadingSkeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
+import { RegistrationPaymentPanel } from '../../components/payments/RegistrationPaymentPanel'
 
 export const RegistrationDetailPage: React.FC = () => {
+  const { user } = useAuth()
   const { id } = useParams<{ id: string }>()
   const registrationId = parseInt(id || '0', 10)
 
@@ -187,8 +191,8 @@ export const RegistrationDetailPage: React.FC = () => {
 
           <div className="text-right text-xs text-slate-500">
             <span className="block font-medium">Kategori: {registration.competition?.category?.name}</span>
-            <span className="block text-emerald-600 font-bold">
-              {registration.competition?.registration_fee === 0 ? 'Gratis' : `Rp ${registration.competition?.registration_fee}`}
+            <span className="block text-emerald-700 font-bold text-sm">
+              {formatRegistrationFee(getLockedRegistrationFee(registration))}
             </span>
           </div>
         </div>
@@ -219,8 +223,14 @@ export const RegistrationDetailPage: React.FC = () => {
 
       {/* Details Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column (8 cols): Documents & Requirements */}
+        {/* Left Column (8 cols): Payment, Documents & Requirements */}
         <div className="lg:col-span-8 space-y-8">
+          <RegistrationPaymentPanel
+            registration={registration}
+            currentUser={user}
+            onPaymentUpdated={fetchDetail}
+          />
+
           {/* Document Upload Section */}
           <Card className="p-6 sm:p-8 space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -262,7 +272,6 @@ export const RegistrationDetailPage: React.FC = () => {
                     >
                       <option value="ktm">Kartu Pelajar / Kartu Tanda Mahasiswa (KTM)</option>
                       <option value="surat_delegasi">Surat Keterangan / Delegasi Institusi</option>
-                      <option value="bukti_pembayaran">Bukti Pembayaran (Opsional/Jika Berbayar)</option>
                       <option value="lainnya">Dokumen Pendukung Lainnya</option>
                     </select>
                   </div>

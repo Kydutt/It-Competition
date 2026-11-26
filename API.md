@@ -125,6 +125,7 @@ Seluruh endpoint publik dapat diakses tanpa login dan hanya mengembalikan data y
 | `GET` | `/api/v1/announcements/{slug}` | - | Detail pengumuman publik. |
 | `GET` | `/api/v1/faqs` | `category` | Daftar pertanyaan umum (FAQ) terurut. |
 | `GET` | `/api/v1/public/statistics` | - | Agregat metrik publik aman (total kompetisi, jumlah pendaftar terverifikasi). |
+| `GET` | `/api/v1/public/payment-config` | - | Status aktivasi modul pembayaran (`payment_enabled`) dan konfigurasi publik Midtrans Snap (`client_key`, `snap_script_url`, `is_production`). Tidak mengekspos secret key. |
 
 ---
 
@@ -152,9 +153,9 @@ Memerlukan header autentikasi sesi dan peran `participant`. Setiap resource diba
 #### Pendaftaran Kompetisi
 | Metode | Endpoint | Deskripsi |
 |---|---|---|
-| `GET` | `/api/v1/participant/registrations` | Mengambil daftar registrasi kompetisi milik peserta/timnya. |
-| `POST` | `/api/v1/participant/registrations` | Membuat draf registrasi kompetisi baru. Payload: `competition_id`, `registration_type`, `team_id` (jika mode team). |
-| `GET` | `/api/v1/participant/registrations/{id}` | Mengambil detail registrasi, daftar dokumen yang diunggah, dan catatan admin. |
+| `GET` | `/api/v1/participant/registrations` | Mengambil daftar registrasi kompetisi milik peserta/timnya (menyertakan `registration_fee_snapshot` dan `fee_locked_at`). |
+| `POST` | `/api/v1/participant/registrations` | Membuat draf registrasi kompetisi baru dan mengunci snapshot biaya pendaftaran (`registration_fee_snapshot`) pada saat registrasi dibuat. Payload: `competition_id`, `team_id` (jika mode team). |
+| `GET` | `/api/v1/participant/registrations/{id}` | Mengambil detail registrasi, snapshot biaya terkunci (`registration_fee_snapshot`), daftar dokumen yang diunggah, dan catatan admin. |
 | `PUT` | `/api/v1/participant/registrations/{id}` | Memperbarui catatan atau info pendaftaran (hanya jika status `draft` atau `revision_required`). |
 | `POST` | `/api/v1/participant/registrations/{id}/documents` | Mengunggah berkas persyaratan (multipart: `document_type`, `file`). |
 | `POST` | `/api/v1/participant/registrations/{id}/submit` | Men-submit registrasi secara final untuk ditinjau oleh panitia (mengubah status dari `draft`/`revision_required` menjadi `submitted`). |
@@ -166,6 +167,15 @@ Memerlukan header autentikasi sesi dan peran `participant`. Setiap resource diba
 | `POST` | `/api/v1/participant/submissions` | Mengumpulkan karya awal. Payload: `registration_id`, `title`, `description`, `file` (opsional), `external_url`, `repository_url`. |
 | `GET` | `/api/v1/participant/submissions/{id}` | Detail karya dan catatan peninjauan admin. |
 | `POST` | `/api/v1/participant/submissions/{id}/revisions` | Mengunggah revisi berkas karya jika diminta panitia. |
+
+#### Pembayaran Pendaftaran (Midtrans Snap)
+| Metode | Endpoint | Deskripsi |
+|---|---|---|
+| `GET` | `/api/v1/participant/payments` | Daftar riwayat transaksi pembayaran milik peserta / timnya (termasuk `reversal_reason`, `cumulative_refunded_amount`, `net_paid_amount`, `reversal_history` tersanitasi, `registration.team.leader_id`, `registration.competition.event_id`, `registration.competition.registration_deadline`). |
+| `GET` | `/api/v1/participant/payments/{id}` | Detail transaksi pembayaran (dilindungi `PaymentPolicy`: pemilik / anggota tim; `snap_token` hanya dikirim ke pemilik / ketua tim saat masih `pending` dan aktif). |
+| `GET` | `/api/v1/participant/registrations/{id}/payments` | Daftar transaksi pembayaran pada suatu registrasi milik peserta / timnya. |
+| `POST` | `/api/v1/participant/registrations/{id}/payments` | Membuat atau mengambil transaksi Snap `pending` yang masih aktif (hanya peserta pemilik / ketua tim pada status `submitted`/`under_review` dengan biaya > 0 dan `payment_enabled = true`). |
+| `POST` | `/api/v1/participant/payments/{id}/sync` | Sinkronisasi dan rekonsiliasi status transaksi langsung ke Midtrans Status API (dilindungi `PaymentPolicy::sync`). |
 
 #### Notifikasi & Pengumuman Peserta
 | Metode | Endpoint | Deskripsi |
@@ -196,8 +206,8 @@ Memerlukan autentikasi sesi dan peran `admin` (`EnsureAdmin` middleware).
 | `GET` / `PUT` / `DELETE` | `/api/v1/admin/events/{id}` | Detail, update, dan arsip acara. |
 | `GET` / `POST` | `/api/v1/admin/categories` | List dan create kategori kompetisi. |
 | `GET` / `PUT` / `DELETE` | `/api/v1/admin/categories/{id}` | Detail, update, dan hapus kategori. |
-| `GET` / `POST` | `/api/v1/admin/competitions` | List dan create cabang lomba. |
-| `GET` / `PUT` / `DELETE` | `/api/v1/admin/competitions/{id}` | Detail, update, dan arsip kompetisi. |
+| `GET` / `POST` | `/api/v1/admin/competitions` | List (`withCount('registrations')`) dan create cabang lomba. `registration_fee` divalidasi bilangan bulat Rupiah `>= 0` (input create kosong otomatis bernilai `0`). |
+| `GET` / `PUT` / `DELETE` | `/api/v1/admin/competitions/{id}` | Detail read-only, update (dengan `lockForUpdate()` transaksional dan audit log; perubahan `registration_fee` tidak mengubah snapshot pendaftar lama), dan arsip/hapus kompetisi. |
 
 #### Verifikasi Pendaftaran & Submisi
 | Metode | Endpoint | Deskripsi |
@@ -209,6 +219,19 @@ Memerlukan autentikasi sesi dan peran `admin` (`EnsureAdmin` middleware).
 | `GET` | `/api/v1/admin/submissions` | Daftar submisi karya peserta yang masuk. |
 | `GET` | `/api/v1/admin/submissions/{id}` | Detail karya dan histori revisi. |
 | `PATCH` | `/api/v1/admin/submissions/{id}/review` | Memperbarui status peninjauan karya (`under_review`, `accepted`, `rejected`, `revision_required`). |
+
+#### Manajemen Pembayaran (Midtrans Snap)
+| Metode | Endpoint | Deskripsi |
+|---|---|---|
+| `GET` | `/api/v1/admin/payments` | *(Planned — Fase 4)* Daftar transaksi pembayaran terpaginasi dengan filter & metrik. |
+| `GET` | `/api/v1/admin/payments/{id}` | *(Planned — Fase 4)* Detail transaksi pembayaran beserta metadata Midtrans. |
+| `POST` | `/api/v1/admin/payments/{id}/sync` | *(Planned — Fase 4)* Sinkronisasi status transaksi langsung ke Midtrans API. |
+| `GET` | `/api/v1/admin/reports/payments` | *(Planned — Fase 4)* Ekspor laporan pembayaran terfilter ke CSV. |
+
+### 3.6. Webhook Payment Gateway
+| Metode | Endpoint | Akses | Deskripsi |
+|---|---|---|---|
+| `POST` | `/api/v1/webhooks/midtrans` | Server Midtrans (`throttle:120,1`, tanpa `auth:sanctum`) | Menerima HTTP notification Midtrans dengan verifikasi SHA-512 (`SHA512(order_id + status_code + gross_amount + MIDTRANS_SIGNATURE_SECRET)` via `hash_equals`), validasi `gross_amount`, proteksi idempotency & out-of-order, serta pencatatan audit & notifikasi peserta secara aman. |
 
 #### CMS Konten & Pengaturan
 | Metode | Endpoint | Deskripsi |

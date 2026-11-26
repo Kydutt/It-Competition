@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\PaymentStatus;
 use App\Enums\RegistrationStatus;
+use App\Support\MoneyHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +21,8 @@ class Registration extends Model
         'participant_id',
         'team_id',
         'status',
+        'registration_fee_snapshot',
+        'fee_locked_at',
         'notes',
         'admin_notes',
         'submitted_at',
@@ -30,6 +34,8 @@ class Registration extends Model
     {
         return [
             'status' => RegistrationStatus::class,
+            'registration_fee_snapshot' => 'decimal:2',
+            'fee_locked_at' => 'datetime',
             'submitted_at' => 'datetime',
             'verified_at' => 'datetime',
         ];
@@ -83,5 +89,50 @@ class Registration extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function latestPayment(): HasOne
+    {
+        return $this->hasOne(Payment::class)->latestOfMany();
+    }
+
+    public function hasPaidPayment(): bool
+    {
+        if ($this->relationLoaded('payments')) {
+            return $this->payments->contains(fn (Payment $payment) => $payment->isPaid());
+        }
+
+        return $this->payments()
+            ->whereIn('status', [PaymentStatus::PAID->value, PaymentStatus::VERIFIED->value])
+            ->exists();
+    }
+
+    public function hasFeeSnapshot(): bool
+    {
+        return $this->registration_fee_snapshot !== null;
+    }
+
+    /**
+     * Exact whole-Rupiah registration fee locked at registration creation.
+     * Returns null when the registration snapshot is unresolved (ambiguous legacy row).
+     */
+    public function effectiveRegistrationFeeRupiah(): ?int
+    {
+        $raw = $this->registration_fee_snapshot;
+        if ($raw === null) {
+            return null;
+        }
+
+        return MoneyHelper::parseWholeRupiahStrict((string) $raw);
+    }
+
+    /**
+     * Canonical DECIMAL(12,2) string representation of the locked registration fee.
+     */
+    public function effectiveRegistrationFeeDecimal(): ?string
+    {
+        $rupiah = $this->effectiveRegistrationFeeRupiah();
+
+        return $rupiah === null ? null : MoneyHelper::rupiahToDecimalString($rupiah);
     }
 }

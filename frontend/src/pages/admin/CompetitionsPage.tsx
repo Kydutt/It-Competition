@@ -11,9 +11,11 @@ import {
   Trash2,
   AlertTriangle,
   CheckCircle2,
+  Eye,
 } from 'lucide-react'
 import { adminService } from '../../services/adminService'
 import type { AdminCompetition, AdminEvent, AdminCategory } from '../../types/admin'
+import { formatCompetitionFee } from '../../utils/currency'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
@@ -42,6 +44,7 @@ export const CompetitionsPage: React.FC = () => {
     registration_type: 'individual' as 'individual' | 'team',
     min_members: 1,
     max_members: 1,
+    registration_fee: '0',
     registration_start: '',
     registration_deadline: '',
     submission_deadline: '',
@@ -49,6 +52,10 @@ export const CompetitionsPage: React.FC = () => {
   })
   const [isSaving, setIsSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+
+  // Read-only Detail Modal State (KB-03)
+  const [detailCompetition, setDetailCompetition] = useState<AdminCompetition | null>(null)
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false)
 
   // Delete Confirmation State
   const [deletingCompetition, setDeletingCompetition] = useState<AdminCompetition | null>(null)
@@ -102,6 +109,7 @@ export const CompetitionsPage: React.FC = () => {
       registration_type: 'individual',
       min_members: 1,
       max_members: 1,
+      registration_fee: '0',
       registration_start: new Date().toISOString().slice(0, 10),
       registration_deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
       submission_deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
@@ -122,6 +130,7 @@ export const CompetitionsPage: React.FC = () => {
       registration_type: comp.registration_type || 'individual',
       min_members: comp.min_members || 1,
       max_members: comp.max_members || 1,
+      registration_fee: String(Math.round(Number(comp.registration_fee ?? 0))),
       registration_start: comp.registration_start ? comp.registration_start.slice(0, 10) : '',
       registration_deadline: comp.registration_deadline ? comp.registration_deadline.slice(0, 10) : '',
       submission_deadline: comp.submission_deadline ? comp.submission_deadline.slice(0, 10) : '',
@@ -131,10 +140,38 @@ export const CompetitionsPage: React.FC = () => {
     setIsModalOpen(true)
   }
 
+  const openDetailModal = async (comp: AdminCompetition) => {
+    setDetailCompetition(comp)
+    setIsLoadingDetail(true)
+    try {
+      const res = await adminService.getCompetition(comp.id)
+      setDetailCompetition(res.data)
+    } catch (err) {
+      console.error('Failed to load competition detail:', err)
+    } finally {
+      setIsLoadingDetail(false)
+    }
+  }
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSaving(true)
     setFormError(null)
+
+    const trimmedFee = formData.registration_fee.trim()
+    const normalizedFeeStr = !editingCompetition && trimmedFee === '' ? '0' : trimmedFee
+
+    if (!/^\d+$/.test(normalizedFeeStr)) {
+      setFormError('Biaya pendaftaran harus berupa bilangan bulat Rupiah tanpa desimal atau tanda minus (0 untuk Gratis).')
+      return
+    }
+
+    const parsedFee = Number(normalizedFeeStr)
+    if (!Number.isSafeInteger(parsedFee) || parsedFee < 0 || parsedFee > 1000000000) {
+      setFormError('Biaya pendaftaran harus bernilai antara Rp0 hingga Rp1.000.000.000.')
+      return
+    }
+
+    setIsSaving(true)
 
     try {
       const payload: Partial<AdminCompetition> = {
@@ -146,6 +183,7 @@ export const CompetitionsPage: React.FC = () => {
         registration_type: formData.registration_type,
         min_members: Number(formData.min_members),
         max_members: Number(formData.max_members),
+        registration_fee: parsedFee,
         registration_start: formData.registration_start,
         registration_deadline: formData.registration_deadline,
         submission_deadline: formData.submission_deadline || undefined,
@@ -154,15 +192,31 @@ export const CompetitionsPage: React.FC = () => {
 
       if (editingCompetition) {
         await adminService.updateCompetition(editingCompetition.id, payload)
+        setFeedbackMessage({
+          type: 'success',
+          text: `Cabang kompetisi "${formData.name}" berhasil diperbarui.`,
+        })
       } else {
         await adminService.createCompetition(payload)
+        setFeedbackMessage({
+          type: 'success',
+          text: `Cabang kompetisi "${formData.name}" berhasil ditambahkan.`,
+        })
       }
 
       setIsModalOpen(false)
       await fetchCompetitions()
     } catch (err: any) {
       console.error('Failed to save competition:', err)
-      setFormError(err.response?.data?.message || 'Gagal menyimpan kompetisi. Periksa kembali form.')
+      const errorsObj = err.response?.data?.errors
+      const firstValidationMsg = errorsObj
+        ? Object.values(errorsObj).flat()[0]
+        : null
+      setFormError(
+        (typeof firstValidationMsg === 'string' && firstValidationMsg) ||
+          err.response?.data?.message ||
+          'Gagal menyimpan kompetisi. Periksa kembali form.'
+      )
     } finally {
       setIsSaving(false)
     }
@@ -315,6 +369,7 @@ export const CompetitionsPage: React.FC = () => {
                   <th className="py-3 px-4">Nama Kompetisi</th>
                   <th className="py-3 px-4">Event & Kategori</th>
                   <th className="py-3 px-4">Format</th>
+                  <th className="py-3 px-4">Biaya</th>
                   <th className="py-3 px-4">Pendaftar</th>
                   <th className="py-3 px-4">Batas Pendaftaran</th>
                   <th className="py-3 px-4">Status</th>
@@ -345,6 +400,11 @@ export const CompetitionsPage: React.FC = () => {
                           : 'Individu'}
                       </span>
                     </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <span className="font-bold text-slate-800">
+                        {formatCompetitionFee(comp.registration_fee)}
+                      </span>
+                    </td>
                     <td className="py-3 px-4">
                       <span className="inline-flex items-center gap-1 font-bold text-slate-800">
                         <Users className="w-3.5 h-3.5 text-slate-400" />
@@ -363,6 +423,16 @@ export const CompetitionsPage: React.FC = () => {
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="inline-flex items-center gap-1.5 justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openDetailModal(comp)}
+                          className="gap-1 py-1 px-2.5 text-xs text-[#1769AA] hover:text-slate-900 border-slate-200"
+                          title="Lihat Detail Kompetisi"
+                        >
+                          <Eye className="w-3 h-3" />
+                          <span>Detail</span>
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
@@ -527,6 +597,37 @@ export const CompetitionsPage: React.FC = () => {
                 </div>
               </div>
 
+              <div>
+                <label htmlFor="competition-registration-fee" className="block text-xs font-semibold text-slate-700 mb-1">
+                  Biaya Pendaftaran (Rp)
+                </label>
+                <input
+                  id="competition-registration-fee"
+                  type="number"
+                  min={0}
+                  max={1000000000}
+                  step={1}
+                  required={Boolean(editingCompetition)}
+                  value={formData.registration_fee}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, registration_fee: e.target.value }))}
+                  placeholder="0 (Gratis)"
+                  className="w-full p-2.5 rounded-xl border border-slate-200"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Masukkan nominal bilangan bulat Rupiah tanpa desimal. Isi <strong className="text-slate-700">0</strong> untuk kompetisi gratis.
+                </p>
+
+                {editingCompetition && (editingCompetition.registrations_count ?? 0) > 0 && (
+                  <div className="mt-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <span>
+                      Peringatan: Cabang ini sudah memiliki{' '}
+                      <strong>{editingCompetition.registrations_count} pendaftar</strong>. Perubahan biaya pendaftaran hanya berlaku untuk pendaftar baru; pendaftar lama tetap mengikuti tarif terkunci saat mereka mendaftar.
+                    </span>
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Mulai Registrasi *</label>
@@ -591,6 +692,123 @@ export const CompetitionsPage: React.FC = () => {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Read-only Competition Detail Modal (KB-03) */}
+      {detailCompetition && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-2xl w-[95vw] sm:max-w-xl max-h-[90dvh] overflow-y-auto p-4 sm:p-6 shadow-xl space-y-4 border border-slate-200 my-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="min-w-0 pr-2">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#1769AA] block">
+                  Detail Cabang Kompetisi
+                </span>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 truncate">
+                  {detailCompetition.name}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDetailCompetition(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 shrink-0"
+                aria-label="Tutup detail kompetisi"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {isLoadingDetail ? (
+              <div className="py-8 text-center space-y-2">
+                <RefreshCw className="w-5 h-5 text-slate-400 animate-spin mx-auto" />
+                <p className="text-xs text-slate-500">Memuat detail kompetisi...</p>
+              </div>
+            ) : (
+              <div className="space-y-4 text-xs sm:text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div>
+                    <span className="text-[11px] text-slate-500 block">Biaya Pendaftaran</span>
+                    <span className="font-extrabold text-slate-900 text-base">
+                      {formatCompetitionFee(detailCompetition.registration_fee)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-500 block">Status</span>
+                    <div className="mt-0.5">
+                      <Badge variant={detailCompetition.status === 'published' ? 'success' : 'default'}>
+                        {detailCompetition.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-500 block">Event Perhelatan</span>
+                    <span className="font-semibold text-slate-800">{detailCompetition.event?.name || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-500 block">Kategori</span>
+                    <span className="font-semibold text-slate-800">{detailCompetition.category?.name || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-500 block">Format Partisipasi</span>
+                    <span className="font-semibold text-slate-800">
+                      {detailCompetition.registration_type === 'team'
+                        ? `Tim (${detailCompetition.min_members ?? 1}–${detailCompetition.max_members ?? 1} orang)`
+                        : 'Individu'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-500 block">Jumlah Pendaftar</span>
+                    <span className="font-semibold text-slate-800">{detailCompetition.registrations_count ?? 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-500 block">Periode Pendaftaran</span>
+                    <span className="font-mono text-xs text-slate-700">
+                      {detailCompetition.registration_start
+                        ? new Date(detailCompetition.registration_start).toLocaleDateString('id-ID')
+                        : '-'}{' '}
+                      s.d.{' '}
+                      {detailCompetition.registration_deadline
+                        ? new Date(detailCompetition.registration_deadline).toLocaleDateString('id-ID')
+                        : '-'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-500 block">Batas Pengumpulan Karya</span>
+                    <span className="font-mono text-xs text-slate-700">
+                      {detailCompetition.submission_deadline
+                        ? new Date(detailCompetition.submission_deadline).toLocaleDateString('id-ID')
+                        : '-'}
+                    </span>
+                  </div>
+                </div>
+
+                {detailCompetition.short_description && (
+                  <div>
+                    <span className="text-xs font-semibold text-slate-700 block mb-1">Deskripsi Singkat</span>
+                    <p className="text-slate-600 leading-relaxed">{detailCompetition.short_description}</p>
+                  </div>
+                )}
+
+                <div>
+                  <span className="text-xs font-semibold text-slate-700 block mb-1">Deskripsi & Ketentuan</span>
+                  <p className="text-slate-600 whitespace-pre-line leading-relaxed">{detailCompetition.description}</p>
+                </div>
+
+                {detailCompetition.eligibility && (
+                  <div>
+                    <span className="text-xs font-semibold text-slate-700 block mb-1">Kriteria Peserta</span>
+                    <p className="text-slate-600 whitespace-pre-line leading-relaxed">{detailCompetition.eligibility}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-end pt-3 border-t border-slate-100">
+              <Button variant="outline" size="sm" onClick={() => setDetailCompetition(null)}>
+                Tutup
+              </Button>
+            </div>
           </div>
         </div>
       )}

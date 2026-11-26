@@ -12,10 +12,12 @@ use App\Models\Registration;
 use App\Models\RegistrationDocument;
 use App\Models\Team;
 use App\Models\User;
+use App\Support\MoneyHelper;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 
 class RegistrationService
 {
@@ -24,20 +26,6 @@ class RegistrationService
      */
     public function createDraft(User $user, Competition $competition, array $data = []): Registration
     {
-        // 1. Verify competition registration status
-        if ($competition->status !== CompetitionStatus::REGISTRATION_OPEN) {
-            throw ValidationException::withMessages([
-                'competition' => ['Pendaftaran untuk kompetisi ini tidak sedang dibuka.'],
-            ]);
-        }
-
-        // 2. Verify registration window
-        if (now()->isBefore($competition->registration_start) || now()->isAfter($competition->registration_deadline)) {
-            throw ValidationException::withMessages([
-                'competition' => ['Masa pendaftaran kompetisi ini telah berakhir atau belum dimulai.'],
-            ]);
-        }
-
         $maxAttempts = 5;
         $attempt = 0;
 
@@ -46,12 +34,32 @@ class RegistrationService
 
             try {
                 return DB::transaction(function () use ($user, $competition, $data) {
-                    // Lock parent Event if present to coordinate concurrent registration across competitions in the event
+                    // Monotonic lock hierarchy: events -> competitions -> registrations -> payments
                     if ($competition->event_id && DB::connection()->getDriverName() !== 'sqlite') {
                         Event::where('id', $competition->event_id)->lockForUpdate()->first();
                     }
 
-                    $isTeam = $competition->registration_type === RegistrationType::TEAM;
+                    $compQuery = Competition::where('id', $competition->id);
+                    if (DB::connection()->getDriverName() !== 'sqlite') {
+                        $compQuery->lockForUpdate();
+                    }
+                    $lockedCompetition = $compQuery->firstOrFail();
+
+                    // 1. Verify competition registration status on locked row
+                    if ($lockedCompetition->status !== CompetitionStatus::REGISTRATION_OPEN) {
+                        throw ValidationException::withMessages([
+                            'competition' => ['Pendaftaran untuk kompetisi ini tidak sedang dibuka.'],
+                        ]);
+                    }
+
+                    // 2. Verify registration window on locked row
+                    if (now()->isBefore($lockedCompetition->registration_start) || now()->isAfter($lockedCompetition->registration_deadline)) {
+                        throw ValidationException::withMessages([
+                            'competition' => ['Masa pendaftaran kompetisi ini telah berakhir atau belum dimulai.'],
+                        ]);
+                    }
+
+                    $isTeam = $lockedCompetition->registration_type === RegistrationType::TEAM;
                     $teamId = null;
                     $participantId = null;
 
@@ -73,16 +81,16 @@ class RegistrationService
 
                         // Count total members (leader + members)
                         $memberCount = $team->members()->count();
-                        if ($memberCount < $competition->min_members || $memberCount > $competition->max_members) {
+                        if ($memberCount < $lockedCompetition->min_members || $memberCount > $lockedCompetition->max_members) {
                             throw ValidationException::withMessages([
                                 'team_id' => [
-                                    "Jumlah anggota tim ({$memberCount}) tidak memenuhi batas kompetisi: minimal {$competition->min_members} dan maksimal {$competition->max_members} orang."
+                                    "Jumlah anggota tim ({$memberCount}) tidak memenuhi batas kompetisi: minimal {$lockedCompetition->min_members} dan maksimal {$lockedCompetition->max_members} orang."
                                 ],
                             ]);
                         }
 
                         // Check duplicate active registration for the team in this competition
-                        $dupQuery = Registration::where('competition_id', $competition->id)
+                        $dupQuery = Registration::where('competition_id', $lockedCompetition->id)
                             ->where('team_id', $team->id)
                             ->whereNotIn('status', [RegistrationStatus::CANCELLED]);
 
@@ -99,7 +107,7 @@ class RegistrationService
                         $teamId = $team->id;
                     } else {
                         // Individual registration
-                        $dupQuery = Registration::where('competition_id', $competition->id)
+                        $dupQuery = Registration::where('competition_id', $lockedCompetition->id)
                             ->where('participant_id', $user->id)
                             ->whereNotIn('status', [RegistrationStatus::CANCELLED]);
 
@@ -116,14 +124,17 @@ class RegistrationService
                         $participantId = $user->id;
                     }
 
+                    $feeRupiah = MoneyHelper::parseWholeRupiahStrict((string) $lockedCompetition->registration_fee) ?? 0;
                     $registrationNumber = $this->generateRegistrationNumber();
 
                     return Registration::create([
                         'registration_number' => $registrationNumber,
-                        'competition_id' => $competition->id,
+                        'competition_id' => $lockedCompetition->id,
                         'participant_id' => $participantId,
                         'team_id' => $teamId,
                         'status' => RegistrationStatus::DRAFT,
+                        'registration_fee_snapshot' => MoneyHelper::rupiahToDecimalString($feeRupiah),
+                        'fee_locked_at' => now(),
                         'notes' => $data['notes'] ?? null,
                     ]);
                 });
@@ -259,22 +270,52 @@ class RegistrationService
         ?string $note,
         User $admin
     ): Registration {
-        if (!$registration->status->canTransitionTo($targetStatus)) {
-            throw ValidationException::withMessages([
-                'status' => ["Transisi status dari '{$registration->status->value}' ke '{$targetStatus->value}' tidak diizinkan."],
-            ]);
-        }
-
-        if (in_array($targetStatus, [RegistrationStatus::REVISION_REQUIRED, RegistrationStatus::REJECTED]) && empty(trim($note ?? ''))) {
-            throw ValidationException::withMessages([
-                'note' => ['Catatan alasan wajib diisi saat meminta revisi atau menolak pendaftaran.'],
-            ]);
-        }
-
         return DB::transaction(function () use ($registration, $targetStatus, $note, $admin) {
-            $oldStatus = $registration->status->value;
+            $regQuery = Registration::where('id', $registration->id)->with('competition');
+            if (DB::connection()->getDriverName() !== 'sqlite') {
+                $regQuery->lockForUpdate();
+            }
+            $lockedRegistration = $regQuery->firstOrFail();
 
-            $registration->update([
+            if (! $lockedRegistration->status->canTransitionTo($targetStatus)) {
+                throw ValidationException::withMessages([
+                    'status' => ["Transisi status dari '{$lockedRegistration->status->value}' ke '{$targetStatus->value}' tidak diizinkan."],
+                ]);
+            }
+
+            if (in_array($targetStatus, [RegistrationStatus::REVISION_REQUIRED, RegistrationStatus::REJECTED]) && empty(trim($note ?? ''))) {
+                throw ValidationException::withMessages([
+                    'note' => ['Catatan alasan wajib diisi saat meminta revisi atau menolak pendaftaran.'],
+                ]);
+            }
+
+            // PD-02: Paid registrations (registration_fee_snapshot > 0) strictly require settled payment (paid/verified)
+            // before admin approval, regardless of subsequent competition fee changes or payment_enabled.
+            if ($targetStatus === RegistrationStatus::APPROVED) {
+                try {
+                    $feeRupiah = $lockedRegistration->effectiveRegistrationFeeRupiah();
+                } catch (InvalidArgumentException $e) {
+                    throw ValidationException::withMessages([
+                        'payment' => [$e->getMessage()],
+                    ]);
+                }
+
+                if ($feeRupiah === null) {
+                    throw ValidationException::withMessages([
+                        'payment' => ['Biaya pendaftaran registrasi ini belum terkonfirmasi (snapshot kosong) sehingga pendaftaran belum dapat disetujui.'],
+                    ]);
+                }
+
+                if ($feeRupiah > 0 && ! $lockedRegistration->hasPaidPayment()) {
+                    throw ValidationException::withMessages([
+                        'payment' => ['Pendaftaran lomba berbayar wajib memiliki status pembayaran lunas (paid) sebelum dapat disetujui.'],
+                    ]);
+                }
+            }
+
+            $oldStatus = $lockedRegistration->status->value;
+
+            $lockedRegistration->update([
                 'status' => $targetStatus,
                 'admin_notes' => $note,
                 'verified_at' => now(),
@@ -284,24 +325,24 @@ class RegistrationService
             ActivityLogService::log(
                 action: 'registration.status_update',
                 entityType: 'Registration',
-                entityId: $registration->id,
+                entityId: $lockedRegistration->id,
                 oldValues: ['status' => $oldStatus],
                 newValues: ['status' => $targetStatus->value, 'note' => $note],
                 actor: $admin
             );
 
             // Notify registrant
-            if ($registration->participant_id) {
+            if ($lockedRegistration->participant_id) {
                 \App\Models\Notification::create([
-                    'user_id' => $registration->participant_id,
-                    'title' => 'Pembaruan Status Pendaftaran ' . $registration->registration_number,
-                    'message' => "Status pendaftaran Anda pada kompetisi {$registration->competition->name} diperbarui menjadi: {$targetStatus->value}." . ($note ? " Catatan: {$note}" : ''),
+                    'user_id' => $lockedRegistration->participant_id,
+                    'title' => 'Pembaruan Status Pendaftaran ' . $lockedRegistration->registration_number,
+                    'message' => "Status pendaftaran Anda pada kompetisi {$lockedRegistration->competition->name} diperbarui menjadi: {$targetStatus->value}." . ($note ? " Catatan: {$note}" : ''),
                     'type' => 'registration',
-                    'action_url' => "/portal/registrations/{$registration->id}",
+                    'action_url' => "/portal/registrations/{$lockedRegistration->id}",
                 ]);
             }
 
-            return $registration->fresh();
+            return $lockedRegistration->fresh();
         });
     }
 

@@ -12,6 +12,7 @@ import type {
   NotificationListResponse,
   NotificationDetailResponse,
 } from '../types/participant'
+import type { PaymentDetailResponse, PaymentListResponse } from '../types/payment'
 import type { ApiResponse } from '../types/api'
 
 export const participantService = {
@@ -184,6 +185,40 @@ export const participantService = {
 
   async markAllNotificationsRead(): Promise<ApiResponse<null>> {
     const res = await api.patch<ApiResponse<null>>('/api/v1/participant/notifications/read-all')
+    return res.data
+  },
+
+  // Payments (Midtrans Snap)
+  async getPayments(params?: { page?: number; per_page?: number }): Promise<PaymentListResponse> {
+    const res = await api.get<PaymentListResponse>('/api/v1/participant/payments', { params })
+    return res.data
+  },
+
+  async getRegistrationPayments(
+    registrationId: number,
+    params?: { page?: number; per_page?: number }
+  ): Promise<PaymentListResponse> {
+    const res = await api.get<PaymentListResponse>(
+      `/api/v1/participant/registrations/${registrationId}/payments`,
+      { params }
+    )
+    return res.data
+  },
+
+  async createOrReusePayment(registrationId: number): Promise<PaymentDetailResponse> {
+    const res = await api.post<PaymentDetailResponse>(
+      `/api/v1/participant/registrations/${registrationId}/payments`
+    )
+    return res.data
+  },
+
+  async getPayment(paymentId: number): Promise<PaymentDetailResponse> {
+    const res = await api.get<PaymentDetailResponse>(`/api/v1/participant/payments/${paymentId}`)
+    return res.data
+  },
+
+  async syncPayment(paymentId: number): Promise<PaymentDetailResponse> {
+    const res = await api.post<PaymentDetailResponse>(`/api/v1/participant/payments/${paymentId}/sync`)
     return res.data
   },
 }

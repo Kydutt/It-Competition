@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Participant\DashboardController;
 use App\Http\Controllers\Api\Participant\NotificationController;
+use App\Http\Controllers\Api\Participant\PaymentController;
 use App\Http\Controllers\Api\Participant\ProfileController;
 use App\Http\Controllers\Api\Participant\RegistrationController;
 use App\Http\Controllers\Api\Participant\SubmissionController;
@@ -12,8 +13,10 @@ use App\Http\Controllers\Api\Public\CategoryController;
 use App\Http\Controllers\Api\Public\CompetitionController;
 use App\Http\Controllers\Api\Public\EventController;
 use App\Http\Controllers\Api\Public\FaqController;
+use App\Http\Controllers\Api\Public\PaymentConfigController;
 use App\Http\Controllers\Api\Public\ScheduleController;
 use App\Http\Controllers\Api\Public\StatisticsController;
+use App\Http\Controllers\Api\Webhook\MidtransWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,6 +39,10 @@ Route::get('/announcements', [AnnouncementController::class, 'index']);
 Route::get('/announcements/{slug}', [AnnouncementController::class, 'show']);
 Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/public/statistics', [StatisticsController::class, 'index']);
+Route::get('/public/payment-config', [PaymentConfigController::class, 'show']);
+
+// Payment Gateway Webhooks (Stateless, signature-verified)
+Route::post('/webhooks/midtrans', [MidtransWebhookController::class, 'handle'])->middleware('throttle:120,1');
 
 // Authentication Routes
 Route::prefix('auth')->group(function () {
@@ -74,6 +81,13 @@ Route::prefix('participant')->middleware(['auth:sanctum', 'participant'])->group
     Route::post('/registrations/{registration}/documents', [RegistrationController::class, 'uploadDocument']);
     Route::get('/documents/{document}/download', [RegistrationController::class, 'downloadDocument']);
     Route::post('/registrations/{registration}/submit', [RegistrationController::class, 'submit']);
+
+    // Payments (Midtrans Snap - Phase 1B & Phase 2)
+    Route::get('/payments', [PaymentController::class, 'index']);
+    Route::get('/payments/{payment}', [PaymentController::class, 'show']);
+    Route::post('/payments/{payment}/sync', [PaymentController::class, 'sync']);
+    Route::get('/registrations/{registration}/payments', [PaymentController::class, 'registrationIndex']);
+    Route::post('/registrations/{registration}/payments', [PaymentController::class, 'store']);
 
     // Submissions
     Route::get('/submissions', [SubmissionController::class, 'index']);

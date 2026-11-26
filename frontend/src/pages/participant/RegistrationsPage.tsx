@@ -9,6 +9,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { participantService } from '../../services/participantService'
+import { formatRegistrationFee, getLockedRegistrationFee } from '../../utils/currency'
 import type { Registration } from '../../types/participant'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
@@ -16,6 +17,7 @@ import { Badge } from '../../components/ui/Badge'
 import { CardSkeleton } from '../../components/ui/LoadingSkeleton'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ErrorState } from '../../components/ui/ErrorState'
+import { PaymentStatusBadge } from '../../components/payments/PaymentStatusBadge'
 
 export const RegistrationsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -146,7 +148,9 @@ export const RegistrationsPage: React.FC = () => {
         />
       ) : (
         <div className="space-y-4">
-          {registrations.map((reg) => (
+          {registrations.map((reg) => {
+            const lockedFee = getLockedRegistrationFee(reg)
+            return (
             <Card key={reg.id} hoverable className="p-6">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div className="space-y-3 flex-1">
@@ -160,6 +164,16 @@ export const RegistrationsPage: React.FC = () => {
                       <Users className="w-3 h-3 mr-1 inline" />
                       {reg.team ? `Tim: ${reg.team.name}` : 'Individu'}
                     </Badge>
+                    {lockedFee === null ? (
+                      <Badge variant="warning" size="sm">Biaya Perlu Verifikasi</Badge>
+                    ) : lockedFee > 0 ? (
+                      <PaymentStatusBadge
+                        payment={reg.latest_payment}
+                        competitionFee={lockedFee}
+                      />
+                    ) : (
+                      <Badge variant="success" size="sm">Gratis</Badge>
+                    )}
                   </div>
 
                   <div>
@@ -200,6 +214,13 @@ export const RegistrationsPage: React.FC = () => {
                         Dokumen: {reg.documents?.length ?? 0} diunggah
                       </span>
                     </div>
+
+                    <div>
+                      Biaya:{' '}
+                      <strong className="text-slate-700">
+                        {formatRegistrationFee(lockedFee)}
+                      </strong>
+                    </div>
                   </div>
                 </div>
 
@@ -218,7 +239,8 @@ export const RegistrationsPage: React.FC = () => {
                 </div>
               </div>
             </Card>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
